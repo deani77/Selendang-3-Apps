@@ -1,8 +1,12 @@
 # Ladang Selendang 3
 
-Initial Android home-screen design reference for **v0.1 Alpha**.
+Android application foundation and approved home-screen reference for **v0.1 Alpha**.
 
-This repository currently records the approved design only. No Android application, working navigation, database, synchronization service, or APK has been built.
+The initial Kotlin + Jetpack Compose project now includes home-screen navigation, seven Estate Information sections, and an empty Room offline-storage foundation. Actual estate records are not bundled. Data import, authentication and synchronization are not implemented yet.
+
+See [Android build and APK instructions](docs/android-development.md). GitHub Actions builds a debug APK for manual testing; this is not a production release.
+
+Backgrounds currently use palm illustrations with distinct palettes per main tab. Approved plantation photographs remain to be added.
 
 ## Approved home screen
 

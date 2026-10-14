@@ -1,6 +1,6 @@
 # Estate Information
 
-Content plan for the Estate Information button in Ladang Selendang 3, v0.1 Alpha. This is a design reference; no app screens or data services are implemented.
+Content plan for the Estate Information button in Ladang Selendang 3, v0.1 Alpha. The Android foundation includes navigation and empty section screens matching this content plan. Data import and synchronization services are not implemented.
 
 ## Sections
 
