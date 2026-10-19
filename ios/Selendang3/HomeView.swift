@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(\.colorScheme) private var colorScheme
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Information", "Estate Production", "Upkeep and Cultivation",
@@ -14,7 +15,7 @@ struct HomeView: View {
                     Text("Ladang Selendang 3")
                         .font(.largeTitle.bold())
                         .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(colorScheme == .dark ? Color.white : green)
                         .padding(.vertical, 24)
                     NavigationLink {
                         EstateDashboardView()
@@ -29,7 +30,11 @@ struct HomeView: View {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))], spacing: 14) {
                         ForEach(sections, id: \.self) { title in
                             NavigationLink {
-                                ModuleView(title: title)
+                                if title == "Settings" {
+                                    UserSettingsView()
+                                } else {
+                                    ModuleView(title: title)
+                                }
                             } label: {
                                 Text(title)
                                     .font(.headline)
@@ -45,12 +50,12 @@ struct HomeView: View {
                     Text("v0.1 Alpha · iPhone starter\nData and synchronization are not configured")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
                         .padding(.top, 24)
                 }
                 .padding(20)
             }
-            .background(LinearGradient(colors: [green, .black], startPoint: .top, endPoint: .bottom))
+            .background(LinearGradient(colors: colorScheme == .dark ? [green, .black] : [Color(red: 0.94, green: 0.97, blue: 0.92), .white], startPoint: .top, endPoint: .bottom))
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(.green)
