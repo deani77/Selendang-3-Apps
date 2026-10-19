@@ -112,7 +112,7 @@ fun EstateApp() {
                             SectionGrid(estateSections) { nav.navigate(it) }
                         }
                     }
-                    composable("dashboard") { InfoCard("Contents TBD", "Dashboard contents will be defined later.") }
+                    composable("dashboard") { EstateDashboard() }
                     estateSections.forEach { section ->
                         composable(section.route) {
                             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
