@@ -19,6 +19,15 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
     var position by rememberSaveable { mutableStateOf(preferences.getString("profile_position", "") ?: "") }
     var phone by rememberSaveable { mutableStateOf(preferences.getString("profile_phone", "") ?: "") }
     var saved by rememberSaveable { mutableStateOf(false) }
+    var showSyncNotice by rememberSaveable { mutableStateOf(false) }
+    if (showSyncNotice) {
+        AlertDialog(
+            onDismissRequest = { showSyncNotice = false },
+            title = { Text("Sync not configured") },
+            text = { Text("The server is not connected yet. Your local data has not been sent or changed.") },
+            confirmButton = { TextButton(onClick = { showSyncNotice = false }) { Text("OK") } },
+        )
+    }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -30,6 +39,13 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
                         OutlinedButton(onClick = { page = item }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                             Text(item)
                         }
+                    }
+                    HorizontalDivider()
+                    Text("Synchronization", style = MaterialTheme.typography.titleMedium)
+                    Text("Status: Not configured")
+                    Text("Last successful sync: Not synced yet", style = MaterialTheme.typography.bodySmall)
+                    Button(onClick = { showSyncNotice = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+                        Text("Sync Now")
                     }
                     Text("Profile and appearance are saved on this device. User accounts and synchronization are not configured.",
                         style = MaterialTheme.typography.bodySmall)
@@ -52,7 +68,7 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
                 }
                 "Appearance" -> {
                     Text("Choose how the app looks. Your choice applies immediately.")
-                    listOf("system" to "Use device setting", "light" to "Light", "dark" to "Dark").forEach { (value, label) ->
+                    listOf("light" to "Light", "dark" to "Dark", "system" to "Follow System").forEach { (value, label) ->
                         OutlinedButton(onClick = { onThemeChange(value) }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                             Text(if (themeChoice == value) "✓ $label" else label)
                         }

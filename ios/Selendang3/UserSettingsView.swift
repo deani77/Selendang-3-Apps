@@ -2,6 +2,7 @@ import SwiftUI
 
 struct UserSettingsView: View {
     @AppStorage("theme") private var theme = "system"
+    @State private var showSyncNotice = false
 
     var body: some View {
         Form {
@@ -10,9 +11,9 @@ struct UserSettingsView: View {
                 NavigationLink("Appearance") {
                     Form {
                         Picker("Theme", selection: $theme) {
-                            Text("Use device setting").tag("system")
                             Text("Light").tag("light")
                             Text("Dark").tag("dark")
+                            Text("Follow System").tag("system")
                         }
                         .pickerStyle(.inline)
                     }
@@ -29,6 +30,17 @@ struct UserSettingsView: View {
             } footer: {
                 Text("Profile and appearance are saved on this device. User accounts and synchronization are not configured.")
             }
+            Section("Synchronization") {
+                Text("Status: Not configured")
+                Text("Last successful sync: Not synced yet")
+                    .font(.footnote)
+                Button("Sync Now") { showSyncNotice = true }
+            }
+        }
+        .alert("Sync not configured", isPresented: $showSyncNotice) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("The server is not connected yet. Your local data has not been sent or changed.")
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
