@@ -10,6 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.selendang3.app.data.EstateAverageSph
+import com.selendang3.app.data.estateAverageSph
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -35,6 +37,7 @@ private const val Pending = "—"
 fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val ageProfile = remember(estateUpdate) { estateAgeProfile(estateUpdate) }
     val topography = remember(estateUpdate) { estateTopography(estateUpdate) }
+    val averageSph = remember(estateUpdate) { estateAverageSph(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -46,13 +49,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography and YPH use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH and Average SPH use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels(ageProfile, topography, estateUpdate?.yph)
+                                ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 PeopleAndRainfallPanels()
@@ -62,7 +65,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                             }
                         }
                     } else {
-                        ProfilePanels(ageProfile, topography, estateUpdate?.yph)
+                        ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph)
                         PeopleAndRainfallPanels()
                         ProductionPanels()
                     }
@@ -86,7 +89,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
 }
 
 @Composable
-private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?) {
+private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?, averageSph: EstateAverageSph?) {
     DashboardPanel("Age Profile", DashboardYellow) {
         if (ageProfile == null) {
             ChartPending("Palm age distribution")
@@ -147,7 +150,23 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
     DashboardPanel("YPH", DashboardYellow) {
         YphPanel(yph)
     }
-    DashboardPanel("Average SPH", DashboardYellow) { MetricRow("Palms/ha") }
+    DashboardPanel("Average SPH", DashboardYellow) {
+        if (averageSph == null) {
+            MetricRow("Palms/ha")
+            Text("Complete field palm counts and areas are required.", Modifier.padding(12.dp),
+                style = MaterialTheme.typography.bodySmall)
+        } else {
+            Text(String.format(Locale.US, "%,.2f palms/ha", averageSph.palmsPerHa),
+                Modifier.padding(12.dp), style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold)
+            DashboardTable(listOf("Measure", "Total"), listOf(
+                listOf("Oil palm trees · all fields", String.format(Locale.US, "%,d", averageSph.totalPalms)),
+                listOf("Estate area (ha)", String.format(Locale.US, "%,.2f", averageSph.totalArea)),
+            ))
+            Text("Total oil palm trees ÷ total estate hectares.",
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        }
+    }
     DashboardPanel("Soil Type", DashboardTeal) {
         DashboardTable(listOf("Soil series", "Share"), listOf(listOf("Pending estate records", Pending)))
     }
