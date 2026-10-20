@@ -26,11 +26,11 @@ See [fictional example](../sample-data/estate-update.example.json). Format versi
 
 This first format is for displaying estate reference tables. It does not yet populate production dashboards, charts, accounts or staff data-entry services. iOS remains a starter; its importer/sync implementation is a separate follow-up.
 
-## VPS connection contract — deployment pending
+## VPS connection contract
 
 The phone accepts an administrator-supplied full HTTPS address, for example `https://YOUR-DOMAIN/v1/estates/selendang-3/snapshot`, plus a privately issued read-only Bearer token. It sends GET with `Authorization: Bearer …` and `Accept: application/json`; the server returns the same JSON file with HTTP 200. It does not upload phone records. Redirects are refused, and ordinary TLS certificate verification remains enabled. Tokens are held only in memory for the Settings session; the non-secret address is saved on-device. They are never put in an APK, URL, public repository, export or log.
 
-No VPS is provisioned by this change. Before production use, configure TLS, per-user revocable access, rate limits, administrator publishing and backups. Use an administrator-generated high-entropy read-only token for initial tests, not an account password. Do not expose the database directly. The current local user profile is not server authentication. Server accounts, token issuance, an admin upload page and automatic background synchronization still need implementation/deployment after the VPS details are supplied.
+The private VPS service is configured separately; reusable code and operating instructions are in [server](../server/README.md). It supports HTTPS, per-user revocable read-only tokens, rate limits, administrator publication and daily local backups. Live credentials are kept outside this repository. Automatic off-server backups still need an external destination. Use an administrator-generated high-entropy read-only token for initial tests, not an account password. Do not expose the database directly. The current local user profile is not server authentication. Staff tokens can be issued or revoked through the server administrator's command line. A web administration/upload page, password-based accounts and automatic background synchronization remain unimplemented. Actual estate figures still require review before publication.
 
 ## When VPS service ends
 
