@@ -1,5 +1,6 @@
 package com.selendang3.app
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -8,6 +9,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import com.selendang3.app.data.EstatePackage
+import com.selendang3.app.data.EstateAgeProfile
+import com.selendang3.app.data.estateAgeProfile
+import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +29,8 @@ private const val Pending = "—"
 
 /** Slide 1 layout only. No Berabong reference values are used as Selendang 3 data. */
 @Composable
-fun EstateDashboard() {
+fun EstateDashboard(estateUpdate: EstatePackage? = null) {
+    val ageProfile = remember(estateUpdate) { estateAgeProfile(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -34,14 +41,14 @@ fun EstateDashboard() {
                 ) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
-                    Text("Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Estate figures have not been imported. — means unavailable.",
+                    Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
+                    Text("Age Profile uses synced field ages and areas. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels()
+                                ProfilePanels(ageProfile)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 PeopleAndRainfallPanels()
@@ -51,7 +58,7 @@ fun EstateDashboard() {
                             }
                         }
                     } else {
-                        ProfilePanels()
+                        ProfilePanels(ageProfile)
                         PeopleAndRainfallPanels()
                         ProductionPanels()
                     }
@@ -75,15 +82,36 @@ fun EstateDashboard() {
 }
 
 @Composable
-private fun ProfilePanels() {
+private fun ProfilePanels(ageProfile: EstateAgeProfile?) {
     DashboardPanel("Age Profile", DashboardYellow) {
-        ChartPending("Palm age distribution")
-        DashboardTable(listOf("Age category", "Share"), listOf(
-            listOf("0–3 years · Immature", Pending),
-            listOf("7–18 years · Prime", Pending),
-            listOf("19–25 years · Old", Pending),
-        ))
-        MetricRow("Total area (ha)")
+        if (ageProfile == null) {
+            ChartPending("Palm age distribution")
+            Text("Complete field ages and areas are required.", Modifier.padding(12.dp))
+            DashboardTable(listOf("Age category", "Area (ha)", "Share"), listOf(
+                listOf("Young · 1–5 years", Pending, Pending),
+                listOf("Prime · 6–23 years", Pending, Pending),
+                listOf("Old · >23 years", Pending, Pending),
+            ))
+            MetricRow("Total area (ha)")
+        } else {
+            val colors = listOf(Color(0xFF49ACC3), Color(0xFF4B8C42), Color(0xFFA46436))
+            Canvas(Modifier.size(160.dp).align(Alignment.CenterHorizontally).padding(12.dp)) {
+                var angle = -90f
+                ageProfile.bands.forEachIndexed { index, band ->
+                    val sweep = (band.area / ageProfile.totalArea * 360).toFloat()
+                    if (sweep > 0f) drawArc(colors[index], angle, sweep, true)
+                    angle += sweep
+                }
+            }
+            DashboardTable(listOf("Age category", "Area (ha)", "Share"),
+                ageProfile.bands.map { band -> listOf(band.label,
+                    String.format(Locale.US, "%,.2f", band.area),
+                    String.format(Locale.US, "%.2f%%", band.area / ageProfile.totalArea * 100)) })
+            Text("Total area: " + String.format(Locale.US, "%,.2f ha", ageProfile.totalArea),
+                Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+            Text("Area-weighted from supplied field ages. Review the source-record status in Estate Information.",
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        }
     }
     DashboardPanel("Topography", DashboardTeal) {
         ChartPending("Terrain distribution")

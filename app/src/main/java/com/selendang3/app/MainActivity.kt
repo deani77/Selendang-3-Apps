@@ -123,7 +123,7 @@ fun EstateApp() {
                             SectionGrid(estateSections) { nav.navigate(it) }
                         }
                     }
-                    composable("dashboard") { EstateDashboard() }
+                    composable("dashboard") { EstateDashboard(estateUpdate) }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
                             themeChoice = it
