@@ -3,6 +3,7 @@ package com.selendang3.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -62,6 +63,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun EstateApp() {
     val context = LocalContext.current.applicationContext
+    val preferences = remember(context) { context.getSharedPreferences("user_settings", 0) }
+    var themeChoice by remember { mutableStateOf(preferences.getString("theme", "system") ?: "system") }
+    val dark = when (themeChoice) {
+        "light" -> false
+        "dark" -> true
+        else -> isSystemInDarkTheme()
+    }
     val dao = remember(context) { EstateDatabase.get(context).estateDao() }
     val fields by remember(dao) { dao.observeFields() }.collectAsStateWithLifecycle(emptyList())
     val sync by remember(dao) { dao.observeSync() }.collectAsStateWithLifecycle(null)
@@ -75,18 +83,20 @@ fun EstateApp() {
         "dashboard" -> "Estate Dashboard"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Information"
     }
-    MaterialTheme(colorScheme = darkColorScheme(
+    MaterialTheme(colorScheme = if (dark) darkColorScheme(
         primary = Color(0xFFB5D89A), onPrimary = Color(0xFF163620),
         surface = Color(0xFF142D26), onSurface = Color(0xFFF6F5EA),
-    )) {
+    ) else lightColorScheme(primary = Color(0xFF285A3C), surface = Color(0xFFF6F8F2),
+        background = Color(0xFFEDF2E8), onSurface = Color(0xFF142D26))) {
         Box(Modifier.fillMaxSize()) {
-            PlantationBackground(route)
+            if (dark) PlantationBackground(route)
+            else Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)) {
                 if (route != "home") {
                     TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
                 } else Spacer(Modifier.height(28.dp))
                 Text(title, style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold, color = Color.White,
+                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
                     textAlign = if (route == "home") TextAlign.Center else TextAlign.Start)
                 NavHost(nav, startDestination = "home", modifier = Modifier.weight(1f)) {
@@ -113,6 +123,12 @@ fun EstateApp() {
                         }
                     }
                     composable("dashboard") { EstateDashboard() }
+                    composable("settings") {
+                        UserSettingsScreen(themeChoice) {
+                            themeChoice = it
+                            preferences.edit().putString("theme", it).apply()
+                        }
+                    }
                     estateSections.forEach { section ->
                         composable(section.route) {
                             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -121,7 +137,7 @@ fun EstateApp() {
                             }
                         }
                     }
-                    mainSections.filter { it.route != "information" }.forEach { section ->
+                    mainSections.filter { it.route != "information" && it.route != "settings" }.forEach { section ->
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
@@ -134,7 +150,7 @@ fun EstateApp() {
                 }
                 val lastSync = sync?.lastSuccessEpochMillis?.let { DateFormat.getDateTimeInstance().format(Date(it)) }
                 Text("v${BuildConfig.VERSION_NAME}  •  ${if (online) "Online" else "Offline"}\nLast successful sync: ${lastSync ?: "Not synced yet"}",
-                    style = MaterialTheme.typography.labelMedium, color = Color(0xFFE0E8D8),
+                    style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), textAlign = TextAlign.Center)
             }
         }
@@ -163,7 +179,7 @@ private fun SectionGrid(sections: List<Section>, onOpen: (String) -> Unit) {
 
 @Composable
 private fun InfoCard(title: String, body: String) {
-    Card(colors = CardDefaults.cardColors(containerColor = Color(0xEF142D26)),
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(title, style = MaterialTheme.typography.titleLarge)

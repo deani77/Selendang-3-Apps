@@ -24,11 +24,8 @@ private const val Pending = "—"
 /** Slide 1 layout only. No Berabong reference values are used as Selendang 3 data. */
 @Composable
 fun EstateDashboard() {
-    MaterialTheme(colorScheme = lightColorScheme(
-        primary = DashboardRed, surface = Color.White, background = Color.White,
-        onSurface = DashboardInk, onBackground = DashboardInk,
-    )) {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+    MaterialTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
                 val wide = maxWidth >= 840.dp
                 Column(
@@ -160,7 +157,7 @@ private fun ChartPending(label: String) {
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, style = MaterialTheme.typography.bodyMedium)
         Text("Awaiting estate data", style = MaterialTheme.typography.bodySmall,
-            color = Color(0xFF626262), modifier = Modifier.padding(top = 8.dp))
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
     }
 }
 
