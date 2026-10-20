@@ -30,7 +30,7 @@ class TopographyTest {
         assertNull(estateTopography(null))
         val source = data()
         assertNull(estateTopography(source.copy(tables = source.tables.map { table ->
-            if (table.id == "soil") table.copy(rows = table.rows + table.rows.first()) else table
+            if (table.id == "soil") table.copy(rows = table.rows + listOf(table.rows.first())) else table
         })))
     }
 }
