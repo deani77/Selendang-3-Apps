@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.selendang3.app.data.EstateAverageSph
 import com.selendang3.app.data.estateAverageSph
+import com.selendang3.app.data.EstateSoilSeries
+import com.selendang3.app.data.estateSoilSeries
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -38,6 +40,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val ageProfile = remember(estateUpdate) { estateAgeProfile(estateUpdate) }
     val topography = remember(estateUpdate) { estateTopography(estateUpdate) }
     val averageSph = remember(estateUpdate) { estateAverageSph(estateUpdate) }
+    val soilSeries = remember(estateUpdate) { estateSoilSeries(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -49,13 +52,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH and Average SPH use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH and Soil Type use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph)
+                                ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 PeopleAndRainfallPanels()
@@ -65,7 +68,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                             }
                         }
                     } else {
-                        ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph)
+                        ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                         PeopleAndRainfallPanels()
                         ProductionPanels()
                     }
@@ -89,7 +92,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
 }
 
 @Composable
-private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?, averageSph: EstateAverageSph?) {
+private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?, averageSph: EstateAverageSph?, soilSeries: EstateSoilSeries?) {
     DashboardPanel("Age Profile", DashboardYellow) {
         if (ageProfile == null) {
             ChartPending("Palm age distribution")
@@ -168,7 +171,24 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
         }
     }
     DashboardPanel("Soil Type", DashboardTeal) {
-        DashboardTable(listOf("Soil series", "Share"), listOf(listOf("Pending estate records", Pending)))
+        if (soilSeries == null) {
+            Text("Sync soil series records using the current estate area.", Modifier.padding(12.dp))
+        } else {
+            DashboardTable(listOf("Soil series", "Area (ha)", "Share", "Reference class"),
+                soilSeries.bands.map { listOf(it.name, String.format(Locale.US, "%,.2f", it.area),
+                    String.format(Locale.US, "%.2f%%", it.share), it.suitability) }, minimumWidth = 440)
+            Text("Total area: " + String.format(Locale.US, "%,.2f ha", soilSeries.totalArea),
+                Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+            Text("* Agricultural suitability Class I–V. Published reference ratings; estate verification pending.",
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+            soilSeries.bands.mapNotNull { it.qualification }.distinct().forEach {
+                Text(it, Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            soilSeries.bands.mapNotNull { it.reference }.distinct().forEach {
+                Text(it, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+            }
+        }
     }
 }
 
