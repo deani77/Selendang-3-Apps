@@ -34,4 +34,16 @@ class YphDataTest {
     }
     @Test(expected = IllegalArgumentException::class)
     fun futureMonthRejected() { parseYph(fixture().put("throughMonth", 13)) }
+
+    @Test fun displayIncludesExactlyFourPriorYearsAndKeepsMissingYearsPending() {
+        val data = parseYph(fixture())
+        assertEquals(listOf(2022, 2023, 2024, 2025), data.displayHistory.map { it.year })
+        assertNull(data.displayHistory.first().actualYph)
+        assertEquals(15.0, data.displayHistory.last().actualYph!!, 0.0001)
+    }
+    @Test fun rollingWindowDropsOlderRecordsAsReportingYearChanges() {
+        val data = parseYph(fixture()).copy(reportingYear = 2027,
+            history = (2020..2026).map { HistoricalYph(it, 10.0) })
+        assertEquals(listOf(2023, 2024, 2025, 2026), data.displayHistory.map { it.year })
+    }
 }

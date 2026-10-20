@@ -22,14 +22,15 @@ fun YphPanel(data: YphData?) {
     }
     val actualColor = Color(0xFF397FBA)
     val budgetColor = Color(0xFFD3A21A)
-    val values = data.history.map { it.actualYph } + listOf(data.actualYtdYph, data.budgetYtdYph)
+    val values = data.displayHistory.map { it.actualYph } + listOf(data.actualYtdYph, data.budgetYtdYph)
     val maximum = values.filterNotNull().maxOrNull()?.takeIf { it > 0 } ?: 1.0
     fun formatted(value: Double?) = value?.let { String.format(Locale.US, "%.2f", it) } ?: "Pending"
     val cutoff = Month.of(data.throughMonth).getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
     Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("YPH · tonnes/hectare (t/ha)", fontWeight = FontWeight.Bold)
+        Text("5-year period: ${data.reportingYear - 4}–${data.reportingYear}", style = MaterialTheme.typography.bodySmall)
         Text("Blue: actual · Yellow: budget for the same YTD period", style = MaterialTheme.typography.bodySmall)
-        data.history.forEach { year ->
+        data.displayHistory.forEach { year ->
             YieldBar(year.year.toString(), year.actualYph, maximum, actualColor)
         }
         Text("${data.reportingYear} YTD · Jan–$cutoff", fontWeight = FontWeight.Bold)
@@ -41,7 +42,7 @@ fun YphPanel(data: YphData?) {
             Text("Actual", Modifier.weight(1f), fontWeight = FontWeight.Bold)
             Text("Budget", Modifier.weight(1f), fontWeight = FontWeight.Bold)
         }
-        data.history.forEach { year ->
+        data.displayHistory.forEach { year ->
             Row(Modifier.fillMaxWidth()) {
                 Text(year.year.toString(), Modifier.weight(1.2f))
                 Text(formatted(year.actualYph), Modifier.weight(1f))

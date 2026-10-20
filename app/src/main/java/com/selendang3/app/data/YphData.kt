@@ -12,6 +12,9 @@ data class YphData(
     val fullYearBudgetTonnes: Double?,
     val history: List<HistoricalYph>,
 ) {
+    val displayHistory: List<HistoricalYph> get() = (reportingYear - 4 until reportingYear).map { year ->
+        history.find { it.year == year } ?: HistoricalYph(year, null)
+    }
     val actualYtdYph: Double? get() = actualYtdTonnes?.div(matureAreaHa)
     val budgetYtdYph: Double? get() = budgetYtdTonnes?.div(matureAreaHa)
     val fullYearBudgetYph: Double? get() = fullYearBudgetTonnes?.div(matureAreaHa)
