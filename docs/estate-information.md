@@ -1,6 +1,6 @@
 # Estate Information
 
-Content plan for the Estate Information button in Ladang Selendang 3, v0.1 Alpha. The Android foundation includes navigation and empty section screens matching this content plan. Data import and synchronization services are not implemented.
+Content plan for the Estate Information button in Ladang Selendang 3, v0.1 Alpha. The Android foundation includes navigation and empty section screens matching this content plan. Android file import and manual HTTPS updates now populate the offline section screens. VPS deployment and iOS import support are pending. See [data updates](data-updates.md).
 
 ## Sections
 

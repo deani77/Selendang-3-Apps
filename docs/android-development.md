@@ -41,3 +41,8 @@ Keep real source files and consolidated records outside this checkout. `private-
 - [AGP 8.9 compatibility: JDK 17, Gradle 8.11.1, API 35](https://developer.android.com/build/releases/agp-8-9-0-release-notes)
 - [Compose compiler Gradle plugin](https://developer.android.com/develop/ui/compose/compiler)
 - [Room releases](https://developer.android.com/jetpack/androidx/releases/room)
+
+
+## v0.2 Alpha data update
+
+The earlier initial-scope notes describe v0.1. Android now supports JSON snapshot import/export and manually configured authenticated HTTPS downloads. See [data updates](data-updates.md) for the current contract and remaining limitations. The app version is v0.2 Alpha and the APK artifact is S3-Estate-Info-v0.2-Alpha-debug.

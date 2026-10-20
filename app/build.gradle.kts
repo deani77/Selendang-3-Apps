@@ -12,8 +12,8 @@ android {
         applicationId = "com.selendang3.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1 Alpha"
+        versionCode = 2
+        versionName = "0.2 Alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true; buildConfig = true }
@@ -38,6 +38,7 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")

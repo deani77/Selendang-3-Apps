@@ -1,8 +1,8 @@
 # S3 Estate Info
 
-Android application foundation and approved home-screen reference for **v0.1 Alpha**.
+Android application foundation and approved home-screen reference for **v0.2 Alpha**.
 
-The initial Kotlin + Jetpack Compose project now includes home-screen navigation, seven Estate Information sections, and an empty Room offline-storage foundation. Actual estate records are not bundled. Data import, authentication and synchronization are not implemented yet.
+The initial Kotlin + Jetpack Compose project now includes home-screen navigation, seven Estate Information sections, and an empty Room offline-storage foundation. Actual estate records are not bundled. Android now supports reviewed JSON file imports, private exports, and manually configured HTTPS snapshot downloads into the same offline store. VPS deployment, server accounts and automatic background synchronization are pending. See [estate data updates](docs/data-updates.md). iOS remains a starter without these import features.
 
 See [Android build and APK instructions](docs/android-development.md). GitHub Actions builds a debug APK for manual testing; this is not a production release.
 
@@ -14,7 +14,7 @@ Backgrounds currently use palm illustrations with distinct palettes per main tab
 - **Background:** Oil palm plantation photograph, with an overlay as needed to keep text and buttons readable.
 - **Primary button:** Estate Dashboard — larger than the other buttons and centered horizontally. Dashboard contents are **TBD**, pending further requirements.
 - **Secondary buttons:** Six smaller buttons in a two-column grid beneath the primary button.
-- **Footer:** Display **v0.1 Alpha**, online/offline status, and the last successful offline-data synchronization time. Before the first successful synchronization, show **Not synced yet**. Any example synchronization date is a placeholder.
+- **Footer:** Display **v0.2 Alpha**, online/offline status, and the last successful offline-data synchronization time. Before the first successful synchronization, show **Not synced yet**. Any example synchronization date is a placeholder.
 - **Offline intent:** Previously synchronized information should remain available without internet access. Refresh offline data through Settings; implementation details remain to be defined.
 
 | Button | Intended contents |

@@ -11,3 +11,8 @@ Inbox and Suggestions are explicit placeholders. No messages or suggestions are 
 Manual checks on each platform: save profile and restart, edit profile without saving, switch each theme and restart, verify dashboard text contrast, open both placeholders, and return to Settings/home. Server functionality is outside this change.
 
 Settings also includes a Synchronization section with Sync Now, configuration status and last successful sync. Until a server is configured, tapping Sync Now shows an explanatory alert and does not modify local records, send data or advance the sync timestamp. No fake progress or success is displayed. Verify the alert and dismissal on both platforms. The theme labels and order are Light, Dark, Follow System.
+
+
+## Android v0.2 Alpha
+
+Settings now includes Import Estate Data, Export Estate Data and a manually configured VPS Sync Now flow with a review step. See [data updates](data-updates.md). The prior not-configured sync notice still describes the iOS starter. Server accounts and provisioning remain pending.

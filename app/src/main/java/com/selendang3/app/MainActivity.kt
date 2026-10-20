@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.selendang3.app.data.EstateDatabase
+import com.selendang3.app.data.EstatePackages
 import java.text.DateFormat
 import java.util.Date
 import kotlin.math.cos
@@ -71,7 +72,8 @@ fun EstateApp() {
         else -> isSystemInDarkTheme()
     }
     val dao = remember(context) { EstateDatabase.get(context).estateDao() }
-    val fields by remember(dao) { dao.observeFields() }.collectAsStateWithLifecycle(emptyList())
+    val snapshot by remember(dao) { dao.observeSnapshot() }.collectAsStateWithLifecycle(null)
+    val estateUpdate = remember(snapshot?.content) { snapshot?.let { EstatePackages.parse(it.content) } }
     val sync by remember(dao) { dao.observeSync() }.collectAsStateWithLifecycle(null)
     val online by remember(context) { connectivity(context) }.collectAsStateWithLifecycle(false)
     val nav = rememberNavController()
@@ -116,9 +118,8 @@ fun EstateApp() {
                     }
                     composable("information") {
                         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            InfoCard("Estate summary", if (fields.isEmpty())
-                                "No estate records on this device. Data has not been synchronized."
-                            else "${fields.size} fields stored on this device. Source figures require validation.")
+                            InfoCard("Estate summary", estateUpdate?.let { "${it.reportingPeriod} · revision ${it.revision}\nSaved on this device for offline access." }
+                                ?: "No estate records on this device. Import Estate Data in Settings.")
                             SectionGrid(estateSections) { nav.navigate(it) }
                         }
                     }
@@ -131,10 +132,7 @@ fun EstateApp() {
                     }
                     estateSections.forEach { section ->
                         composable(section.route) {
-                            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                InfoCard(section.title, section.description)
-                                InfoCard("Not synced yet", "No records available. Pending figures will remain pending until source records are verified and imported.")
-                            }
+                            EstateSectionData(section, estateUpdate)
                         }
                     }
                     mainSections.filter { it.route != "information" && it.route != "settings" }.forEach { section ->
@@ -149,7 +147,7 @@ fun EstateApp() {
                     }
                 }
                 val lastSync = sync?.lastSuccessEpochMillis?.let { DateFormat.getDateTimeInstance().format(Date(it)) }
-                Text("v${BuildConfig.VERSION_NAME}  •  ${if (online) "Online" else "Offline"}\nLast successful sync: ${lastSync ?: "Not synced yet"}",
+                Text("v${BuildConfig.VERSION_NAME}  •  ${if (online) "Online" else "Offline"}\nLast update: ${snapshot?.let { DateFormat.getDateTimeInstance().format(Date(it.updatedAt)) + " · " + it.source } ?: "No data yet"}\nLast VPS sync: ${lastSync ?: "Not synced yet"}",
                     style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), textAlign = TextAlign.Center)
             }
