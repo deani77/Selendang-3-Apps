@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
+import com.selendang3.app.data.EstateTopography
+import com.selendang3.app.data.estateTopography
 import com.selendang3.app.data.estateAgeProfile
 import java.util.Locale
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ private const val Pending = "—"
 @Composable
 fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val ageProfile = remember(estateUpdate) { estateAgeProfile(estateUpdate) }
+    val topography = remember(estateUpdate) { estateTopography(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -42,13 +45,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile uses synced field ages and areas. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile and Topography use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels(ageProfile)
+                                ProfilePanels(ageProfile, topography)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 PeopleAndRainfallPanels()
@@ -58,7 +61,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                             }
                         }
                     } else {
-                        ProfilePanels(ageProfile)
+                        ProfilePanels(ageProfile, topography)
                         PeopleAndRainfallPanels()
                         ProductionPanels()
                     }
@@ -82,7 +85,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
 }
 
 @Composable
-private fun ProfilePanels(ageProfile: EstateAgeProfile?) {
+private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?) {
     DashboardPanel("Age Profile", DashboardYellow) {
         if (ageProfile == null) {
             ChartPending("Palm age distribution")
@@ -114,9 +117,31 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?) {
         }
     }
     DashboardPanel("Topography", DashboardTeal) {
-        ChartPending("Terrain distribution")
-        DashboardTable(listOf("Terrain", "Share"),
-            listOf("Flat", "Hilly", "Steep Hilly").map { listOf(it, Pending) })
+        if (topography == null) {
+            ChartPending("Terrain distribution")
+            DashboardTable(listOf("Terrain", "Area (ha)", "Share"),
+                listOf("Flat", "Hilly", "Undulating").map { listOf(it, Pending, Pending) })
+            Text("Sync complete terrain records using the current estate area.",
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        } else {
+            val colors = listOf(Color(0xFF49ACC3), Color(0xFFA46436), Color(0xFF4B8C42))
+            Canvas(Modifier.size(160.dp).align(Alignment.CenterHorizontally).padding(12.dp)) {
+                var angle = -90f
+                topography.bands.forEachIndexed { index, band ->
+                    val sweep = (band.share * 3.6).toFloat()
+                    if (sweep > 0f) drawArc(colors[index], angle, sweep, true)
+                    angle += sweep
+                }
+            }
+            DashboardTable(listOf("Terrain", "Area (ha)", "Share"),
+                topography.bands.map { band -> listOf(band.label,
+                    String.format(Locale.US, "%,.2f", band.area),
+                    String.format(Locale.US, "%.2f%%", band.share)) })
+            Text("Total area: " + String.format(Locale.US, "%,.2f ha", topography.totalArea),
+                Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
+            Text("Source percentages applied to current field area. Rounded hectares reconcile to the total.",
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        }
     }
     DashboardPanel("YPH", DashboardYellow) {
         ChartPending("Yearly yield comparison · t/ha")
