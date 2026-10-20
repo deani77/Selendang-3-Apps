@@ -14,6 +14,6 @@ class NavigationTest {
         compose.onNodeWithText("Monthly rainfall, rainy days and historical comparisons.").assertIsDisplayed()
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithText("‹  Back").performClick()
-        compose.onNodeWithText("Ladang Selendang 3").assertIsDisplayed()
+        compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
     }
 }

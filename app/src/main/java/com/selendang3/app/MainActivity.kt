@@ -79,7 +79,7 @@ fun EstateApp() {
     val route = entry?.destination?.route ?: "home"
     val allSections = mainSections + estateSections
     val title = when (route) {
-        "home" -> "Ladang Selendang 3"
+        "home" -> "S3 Estate Info"
         "dashboard" -> "Estate Dashboard"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Information"
     }
@@ -141,7 +141,7 @@ fun EstateApp() {
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
-                                "about" -> "Ladang Selendang 3\nv${BuildConfig.VERSION_NAME}\nAndroid estate information application. Initial Alpha interface."
+                                "about" -> "S3 Estate Info\nv${BuildConfig.VERSION_NAME}\nAndroid estate information application. Initial Alpha interface."
                                 else -> section.description
                             }
                             InfoCard(section.title, message)

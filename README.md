@@ -1,4 +1,4 @@
-# Ladang Selendang 3
+# S3 Estate Info
 
 Android application foundation and approved home-screen reference for **v0.1 Alpha**.
 
@@ -10,7 +10,7 @@ Backgrounds currently use palm illustrations with distinct palettes per main tab
 
 ## Approved home screen
 
-- **Title:** Ladang Selendang 3 only. Do not display a company name.
+- **Title:** S3 Estate Info only. Do not display a company name.
 - **Background:** Oil palm plantation photograph, with an overlay as needed to keep text and buttons readable.
 - **Primary button:** Estate Dashboard — larger than the other buttons and centered horizontally. Dashboard contents are **TBD**, pending further requirements.
 - **Secondary buttons:** Six smaller buttons in a two-column grid beneath the primary button.
@@ -33,7 +33,7 @@ The diagram shows hierarchy and placement only. The intended background is an oi
 
 ```text
 +---------------------------------------+
-|          Ladang Selendang 3            |
+|          S3 Estate Info            |
 |                                       |
 |   +-------------------------------+   |
 |   |       Estate Dashboard        |   |

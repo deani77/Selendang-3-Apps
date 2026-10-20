@@ -12,7 +12,7 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("Ladang Selendang 3")
+                    Text("S3 Estate Info")
                         .font(.largeTitle.bold())
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white : green)
@@ -69,7 +69,7 @@ private struct ModuleView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(title).font(.title.bold())
                 Text(title == "About"
-                     ? "Ladang Selendang 3\niPhone starter · v0.1 Alpha"
+                     ? "S3 Estate Info\niPhone starter · v0.1 Alpha"
                      : "This section is awaiting implementation and verified estate records.")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
