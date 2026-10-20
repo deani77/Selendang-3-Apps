@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 
 data class EstateTable(val id: String, val columns: List<String>, val rows: List<List<String?>>)
 data class EstatePackage(val revision: Long, val reportingPeriod: String,
-    val exportedAt: String, val tables: List<EstateTable>, val json: String)
+    val exportedAt: String, val tables: List<EstateTable>, val json: String, val yph: YphData? = null)
 
 object EstatePackages {
     const val MAX_BYTES = 2 * 1024 * 1024
@@ -80,7 +80,8 @@ object EstatePackages {
             EstateTable(id, columns, rows)
         }
         require(tables.map { it.id }.toSet() == sectionIds) { "Duplicate or missing estate sections." }
-        return EstatePackage(revision, period, exported, tables, root.toString())
+        val yph = if (root.has("yph") && !root.isNull("yph")) parseYph(root.getJSONObject("yph")) else null
+        return EstatePackage(revision, period, exported, tables, root.toString(), yph)
     }
 
     fun requireNewer(incoming: Long, current: Long?) {

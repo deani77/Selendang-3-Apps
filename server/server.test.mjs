@@ -45,3 +45,15 @@ test('API denies anonymous and revoked access; serves only a valid snapshot', as
     await rm(dir, {recursive: true});
   }
 });
+
+test('optional YPH metadata validates periods, pending values and area', () => {
+  const data = fixture();
+  data.yph = {reportingYear:2026,throughMonth:9,matureAreaHa:100,actualYtdTonnes:0,
+    budgetYtdTonnes:1000,fullYearBudgetTonnes:1800,history:[{year:2025,actualYph:null}]};
+  assert.equal(validateSnapshot(Buffer.from(JSON.stringify(data))).yph.actualYtdTonnes, 0);
+  data.yph.matureAreaHa = 0;
+  assert.throws(() => validateSnapshot(Buffer.from(JSON.stringify(data))));
+  data.yph.matureAreaHa = 100;
+  data.yph.history.push({year:2025,actualYph:10});
+  assert.throws(() => validateSnapshot(Buffer.from(JSON.stringify(data))));
+});

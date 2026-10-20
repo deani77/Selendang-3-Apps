@@ -25,5 +25,28 @@ export function validateSnapshot(bytes) {
       }
     }
   }
+  if (Object.hasOwn(value, 'yph') && value.yph !== null) validateYph(value.yph);
+  return value;
+}
+
+export function validateYph(value) {
+  if (!value || typeof value !== 'object' || !Number.isInteger(value.reportingYear) || value.reportingYear < 1900 || value.reportingYear > 2200 || !Number.isInteger(value.throughMonth) || value.throughMonth < 1 || value.throughMonth > 12) throw new Error('Invalid YPH period');
+  function nullableNumber(object, key) {
+    if (!Object.hasOwn(object, key)) throw new Error('Missing YPH value');
+    const number = object[key];
+    if (number !== null && (typeof number !== 'number' || !Number.isFinite(number) || number < 0)) throw new Error('Invalid YPH value');
+    return number;
+  }
+  if (!(nullableNumber(value, 'matureAreaHa') > 0)) throw new Error('Invalid YPH area');
+  nullableNumber(value, 'actualYtdTonnes');
+  const budget = nullableNumber(value, 'budgetYtdTonnes'), annual = nullableNumber(value, 'fullYearBudgetTonnes');
+  if (budget !== null && annual !== null && budget > annual) throw new Error('YTD budget exceeds annual budget');
+  if (!Array.isArray(value.history) || value.history.length > 50) throw new Error('Invalid YPH history');
+  const seen = new Set();
+  for (const row of value.history) {
+    if (!Number.isInteger(row.year) || row.year < 1900 || row.year >= value.reportingYear || seen.has(row.year)) throw new Error('Invalid historical YPH year');
+    seen.add(row.year);
+    nullableNumber(row, 'actualYph');
+  }
   return value;
 }

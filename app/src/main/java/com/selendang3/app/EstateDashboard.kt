@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
+import com.selendang3.app.data.YphData
 import com.selendang3.app.data.estateTopography
 import com.selendang3.app.data.estateAgeProfile
 import java.util.Locale
@@ -45,13 +46,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile and Topography use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography and YPH use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels(ageProfile, topography)
+                                ProfilePanels(ageProfile, topography, estateUpdate?.yph)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 PeopleAndRainfallPanels()
@@ -61,7 +62,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                             }
                         }
                     } else {
-                        ProfilePanels(ageProfile, topography)
+                        ProfilePanels(ageProfile, topography, estateUpdate?.yph)
                         PeopleAndRainfallPanels()
                         ProductionPanels()
                     }
@@ -85,7 +86,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
 }
 
 @Composable
-private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?) {
+private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?) {
     DashboardPanel("Age Profile", DashboardYellow) {
         if (ageProfile == null) {
             ChartPending("Palm age distribution")
@@ -144,9 +145,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
         }
     }
     DashboardPanel("YPH", DashboardYellow) {
-        ChartPending("Yearly yield comparison · t/ha")
-        Text("Actual and budget series will appear when records are available.",
-            style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(8.dp))
+        YphPanel(yph)
     }
     DashboardPanel("Average SPH", DashboardYellow) { MetricRow("Palms/ha") }
     DashboardPanel("Soil Type", DashboardTeal) {
