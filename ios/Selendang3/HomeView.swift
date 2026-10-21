@@ -32,6 +32,8 @@ struct HomeView: View {
                             NavigationLink {
                                 if title == "Settings" {
                                     UserSettingsView()
+                                } else if title == "Estate Production" {
+                                    ProductionView()
                                 } else {
                                     ModuleView(title: title)
                                 }
@@ -47,7 +49,7 @@ struct HomeView: View {
                             }
                         }
                     }
-                    Text("v0.1 Alpha · iPhone starter\nData and synchronization are not configured")
+                    Text("v0.1 Alpha · iPhone starter\nProduction drafts are saved on this device")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
@@ -80,3 +82,4 @@ private struct ModuleView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
