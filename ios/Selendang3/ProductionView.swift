@@ -8,7 +8,7 @@ struct ProductionView: View {
     @State private var dirty = false
     @State private var pendingAction: (() -> Void)?
     @State private var showDiscard = false
-    private let sections = ["Crop History by Field", "Today Crop Production", "Month-to-Date Crop", "Year-to-Date Crop"]
+    private let sections = ["Crop History by Field", "Today Crop Production", "Month Crop Production", "Year Todate Crop Production"]
     private var dateKey: String { productionDateKey(date) }
 
     private func change(_ action: @escaping () -> Void) {
@@ -77,23 +77,30 @@ struct ProductionView: View {
 
     private var summaries: some View {
         let calendar = Calendar(identifier: .gregorian)
-        let from = calendar.dateInterval(of: section == "Month-to-Date Crop" ? .month : .year, for: date)!.start
+        let monthly = section == "Month Crop Production"
+        let from = calendar.dateInterval(of: monthly ? .month : .year, for: date)!.start
         let expectedDays = calendar.dateComponents([.day], from: calendar.startOfDay(for: from), to: calendar.startOfDay(for: date)).day! + 1
         return Group {
             Section {
                 Text("\(productionDateKey(from)) through \(dateKey) · provisional totals from local saved drafts only. Missing dates are not assumed to be zero.")
-                Text("Harvested hectares accumulate work across rounds. Harvester-days add daily attendance; they are not distinct workers.")
+                if monthly {
+                    Text("Harvested hectares accumulate work across rounds. Harvester-days add daily attendance; they are not distinct workers. Backlog shows the latest saved balance.")
+                } else {
+                    Text("Only Crop Sent to Mill carries forward from January through this date. Other measures are shown for the selected month only.")
+                }
             }
             if store.storageError == nil {
                 ForEach(productionFields, id: \.self) { code in
                     let result = productionSummary(store.rows, field: code, from: productionDateKey(from), through: dateKey)
                     Section(code) {
                         Text("\(result.days) of \(expectedDays) dates saved")
-                        Text("Crop harvested: \(result.harvested.label("t"))")
                         Text("Crop sent to mill: \(result.sentToMill.label("t"))")
-                        Text("Hectares harvested: \(result.hectares.label("ha"))")
-                        Text("Harvester-days: \(result.harvesterDays.label(""))")
-                        Text("Backlog: \(result.backlog.map { String(format: "%.2f t", locale: Locale(identifier: "en_US_POSIX"), $0) } ?? "Pending")\(result.backlogDate.map { " · as of \($0)" } ?? "")")
+                        if monthly {
+                            Text("Crop harvested: \(result.harvested.label("t"))")
+                            Text("Hectares harvested: \(result.hectares.label("ha"))")
+                            Text("Harvester-days: \(result.harvesterDays.label(""))")
+                            Text("Backlog: \(result.backlog.map { String(format: "%.2f t", locale: Locale(identifier: "en_US_POSIX"), $0) } ?? "Pending")\(result.backlogDate.map { " · as of \($0)" } ?? "")")
+                        }
                     }
                 }
             }

@@ -42,7 +42,7 @@ fun ProductionScreen() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Production by field", style = MaterialTheme.typography.titleLarge)
         Text("Drafts are saved on this device. Production submission and PDF capture are not connected yet.")
-        listOf("Crop History by Field", "Today Crop Production", "Month-to-Date Crop", "Year-to-Date Crop").forEach { name ->
+        listOf("Crop History by Field", "Today Crop Production", "Month Crop Production", "Year Todate Crop Production").forEach { name ->
             OutlinedButton(onClick = { change { section = name; dirty = false } }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
                 Text(if (name == section) "✓ $name" else name)
             }
@@ -86,19 +86,23 @@ fun ProductionScreen() {
                 Text("Settings Sync Now downloads estate reference data; it does not upload these production drafts.", style = MaterialTheme.typography.bodySmall)
             }
             else -> {
-                val from = if (section == "Month-to-Date Crop") parsedDate.withDayOfMonth(1) else parsedDate.withDayOfYear(1)
+                val monthly = section == "Month Crop Production"
+                val from = if (monthly) parsedDate.withDayOfMonth(1) else parsedDate.withDayOfYear(1)
                 val expectedDays = ChronoUnit.DAYS.between(from, parsedDate) + 1
                 Text("$from through $parsedDate · provisional totals from local saved drafts only. Missing dates are not assumed to be zero.")
-                Text("Harvested hectares accumulate work across rounds. Harvester-days add daily attendance; they are not distinct workers.", style = MaterialTheme.typography.bodySmall)
+                if (monthly) Text("Harvested hectares accumulate work across rounds. Harvester-days add daily attendance; they are not distinct workers. Backlog shows the latest saved balance.", style = MaterialTheme.typography.bodySmall)
+                else Text("Only Crop Sent to Mill carries forward from January through this date. Other measures are shown for the selected month only.", style = MaterialTheme.typography.bodySmall)
                 if (ready) productionFields.forEach { code ->
                     val summary = productionSummary(records, code, from, parsedDate)
                     ProductionCard(code) {
                         Text("${summary.days} of $expectedDays dates saved")
-                        Text("Crop harvested: ${summary.harvested.label("t")}")
                         Text("Crop sent to mill: ${summary.sentToMill.label("t")}")
-                        Text("Hectares harvested: ${summary.hectares.label("ha")}")
-                        Text("Harvester-days: ${summary.harvesterDays.label("")}")
-                        Text("Backlog: ${summary.backlog?.let { number(it) + " t" } ?: "Pending"}${summary.backlogDate?.let { " · as of $it" } ?: ""}")
+                        if (monthly) {
+                            Text("Crop harvested: ${summary.harvested.label("t")}")
+                            Text("Hectares harvested: ${summary.hectares.label("ha")}")
+                            Text("Harvester-days: ${summary.harvesterDays.label("")}")
+                            Text("Backlog: ${summary.backlog?.let { number(it) + " t" } ?: "Pending"}${summary.backlogDate?.let { " · as of $it" } ?: ""}")
+                        }
                     }
                 }
             }

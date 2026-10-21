@@ -1,6 +1,6 @@
 # Estate Production: initial tab and local drafts
 
-Android and iOS expose Crop History by Field, Today Crop Production, Month-to-Date Crop and Year-to-Date Crop. This source-only update does not deploy the VPS or create a release. It retains the current app version.
+Android and iOS expose Crop History by Field, Today Crop Production, Month Crop Production and Year Todate Crop Production. This source-only update does not deploy the VPS or create a release. It retains the current app version.
 
 ## Daily drafts
 
@@ -10,7 +10,7 @@ Save Draft persists locally and replaces only the matching field/date record. Ex
 
 ## Aggregation
 
-MTD includes the first day of the selected month through the reporting cutoff. YTD includes January 1 through that cutoff. Both show each field separately, the number of saved dates versus elapsed calendar days, and how many saved dates report each metric. These are provisional local-draft totals, not official synchronized production. No saved values means Pending, not zero. Sum known daily tonnes and hectares; label attendance totals as harvester-days, not unique workers. Harvested hectares are cumulative work across harvest rounds. Backlog is the latest saved day's balance and its date, not a sum; a missing balance on that day remains Pending. Do not reuse an earlier balance without disclosure.
+Month Crop Production includes the first day of the selected month through the reporting cutoff and shows all five measures. Crop Harvested, Crop Backlog, Hectares Harvested and Number of Harvesters carry forward for that month only. Year Todate Crop Production includes January 1 through the cutoff and displays only Crop Sent to Mill; it does not display year-to-date harvested crop, hectares, attendance or backlog. Both show each field separately, the number of saved dates versus elapsed calendar days, and how many saved dates report each displayed metric. These are provisional local-draft totals, not official synchronized production. No saved values means Pending, not zero. Sum known daily tonnes and hectares; label attendance totals as harvester-days, not unique workers. Harvested hectares are cumulative work across harvest rounds. Backlog is the latest saved day's balance within the selected month and its date, not a sum; a missing balance on that day remains Pending. Do not carry backlog from a previous month without disclosure.
 
 Historical field crop and t/ha are read-only, with five displayed years including the cutoff year. Values remain Pending until verified field-level history is connected. Never substitute estate-wide YPH figures or derive historical yield using an unverified area denominator. Partial current-year figures will need a YTD label when history is connected.
 
