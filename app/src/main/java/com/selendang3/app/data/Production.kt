@@ -11,7 +11,7 @@ data class ProductionDraft(
     val harvested: Double?, val sentToMill: Double?, val backlog: Double?,
     val hectares: Double?, val harvesters: Int?,
 ) {
-    val key: String get() = "$date/$field"
+    val key: String get() = "$date/${this.field}"
     fun validate() {
         require(field in productionFields) { "Choose a valid field." }
         require(LocalDate.parse(date).toString() == date) { "Use YYYY-MM-DD for the reporting date." }
