@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ProductionView: View {
-    @StateObject private var store = ProductionStore()
+    @StateObject private var store = ProductionStore.shared
     @State private var section = "Today Crop Production"
     @State private var field = productionFields[0]
     @State private var date = Date()
@@ -19,7 +19,8 @@ struct ProductionView: View {
         Form {
             Section {
                 Text("Production by field").font(.headline)
-                Text("Drafts are saved on this device. Production submission and PDF capture are not connected yet.")
+                Text(store.status).font(.footnote)
+                Text("Drafts are saved on this device. Use Settings → Sync Now to upload and download production. PDF capture is not connected yet.")
                 Picker("Section", selection: Binding(get: { section }, set: { value in change { section = value; dirty = false } })) {
                     ForEach(sections, id: \.self) { Text($0).tag($0) }
                 }
@@ -41,8 +42,7 @@ struct ProductionView: View {
                 Section("PDF capture and submission") {
                     Button("Upload PDF · coming next") {}.disabled(true)
                     Text("PDF field aliases are defined. Pengeluaran Hasil means Crop Sent to Mill. Harvested crop and backlog require manual entry or another source.")
-                    Button("Submit to VPS · not connected") {}.disabled(true)
-                    Text("Saving a draft does not send it to the server.")
+                    Text("Use Settings → Sync Now to upload saved drafts and review conflicting edits.")
                 }
             } else {
                 summaries
@@ -125,7 +125,7 @@ private struct ProductionEditorView: View {
     }
 
     var body: some View {
-        Section("\(field) · \(date) · \(record == nil ? "New local draft" : "Saved locally; not submitted")") {
+        Section("\(field) · \(date) · \(record == nil ? "New local draft" : "Saved on this device")") {
             Text("Leave unknown values blank. Enter 0 only when zero is confirmed. Saving again replaces this field's draft for this date.")
             ForEach(labels.indices, id: \.self) { index in
                 VStack(alignment: .leading) {
@@ -153,7 +153,7 @@ private struct ProductionEditorView: View {
                         backlog: try number(values[2]), hectares: try number(values[3]), harvesters: workers)
                     try store.save(draft)
                     dirty = false
-                    notice = "Draft saved on this device. Not submitted to VPS."
+                    notice = "Draft saved on this device. Pending upload in Settings → Sync Now."
                 } catch { notice = error.localizedDescription }
             }
             if let notice = notice { Text(notice) }

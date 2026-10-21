@@ -22,7 +22,7 @@ class NavigationTest {
         compose.onNodeWithText("PM04D").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Crop sent to mill (t)").performScrollTo().performTextReplacement("2.5")
         compose.onNodeWithText("Save Draft").performScrollTo().performClick()
-        compose.onNodeWithText("Draft saved on this device. Not submitted to VPS.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Draft saved on this device. Pending upload in Settings → Sync Now.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Month Crop Production").performScrollTo().performClick()
         compose.onNodeWithText("Crop sent to mill: 2.50 t · 1/1 saved days reported").performScrollTo().assertIsDisplayed()
     }

@@ -2,7 +2,10 @@ import SwiftUI
 
 struct UserSettingsView: View {
     @AppStorage("theme") private var theme = "system"
-    @State private var showSyncNotice = false
+    @StateObject private var production = ProductionStore.shared
+    @AppStorage("server_address") private var address = ""
+    @State private var accessToken = ""
+    @State private var syncMessage: String?
 
     var body: some View {
         Form {
@@ -28,23 +31,42 @@ struct UserSettingsView: View {
                         message: "Suggestion submission and replies will be available once the service is connected.")
                 }
             } footer: {
-                Text("Profile and appearance are saved on this device. User accounts and synchronization are not configured.")
+                Text("Profile and appearance are saved on this device. The access token is kept only for this Settings session.")
             }
-            Section("Synchronization") {
-                Text("Status: Not configured")
-                Text("Last successful sync: Not synced yet")
-                    .font(.footnote)
-                Button("Sync Now") { showSyncNotice = true }
+            Section("Production synchronization") {
+                TextField("Full HTTPS snapshot address", text: $address).textInputAutocapitalization(.never).autocorrectionDisabled()
+                SecureField("Access token", text: $accessToken)
+                Text(production.status)
+                Text("Uploads saved daily drafts and downloads production from other phones. Estate reference download is currently available in Android only.").font(.footnote)
+                Button(production.syncing ? "Syncing…" : "Sync Now") {
+                    Task {
+                        do { try await production.sync(address: address, token: accessToken); syncMessage = production.status }
+                        catch { syncMessage = "Sync failed: \(error.localizedDescription) Local drafts are retained." }
+                    }
+                }.disabled(production.syncing || accessToken.isEmpty || address.isEmpty || production.storageError != nil)
+                if let error = production.storageError { Text(error).foregroundStyle(.red) }
+                if let message = syncMessage { Text(message) }
             }
-        }
-        .alert("Sync not configured", isPresented: $showSyncNotice) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("The server is not connected yet. Your local data has not been sent or changed.")
+            ForEach(production.entries.filter { $0.conflict != nil }) { entry in
+                Section("Conflict: \(entry.record.field) · \(entry.record.date)") {
+                    Text("Both copies are preserved. Compare all values before choosing.")
+                    Text("Phone: " + productionValues(entry.record))
+                    if let remote = entry.conflict { Text("Server: " + productionValues(remote.record)) }
+                    Button("Use server copy") { resolve(entry.id, false) }.disabled(production.syncing)
+                    Button("Keep phone copy · upload on next Sync") { resolve(entry.id, true) }.disabled(production.syncing)
+                }
+            }
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
+    }
+    private func productionValues(_ row: ProductionDraft) -> String {
+        "Harvested: \(row.harvested.map(String.init(describing:)) ?? "Pending") t; mill: \(row.sentToMill.map(String.init(describing:)) ?? "Pending") t; backlog: \(row.backlog.map(String.init(describing:)) ?? "Pending") t; hectares: \(row.hectares.map(String.init(describing:)) ?? "Pending"); harvesters: \(row.harvesters.map(String.init(describing:)) ?? "Pending")"
+    }
+    private func resolve(_ id: String, _ keepLocal: Bool) {
+        do { try production.resolve(id, keepLocal: keepLocal); syncMessage = production.status }
+        catch { syncMessage = error.localizedDescription }
     }
 }
 

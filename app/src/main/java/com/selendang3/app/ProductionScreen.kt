@@ -41,7 +41,8 @@ fun ProductionScreen() {
     val parsedDate = runCatching { LocalDate.parse(date).takeIf { it.toString() == date } }.getOrNull()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Production by field", style = MaterialTheme.typography.titleLarge)
-        Text("Drafts are saved on this device. Production submission and PDF capture are not connected yet.")
+        if (ready) Text(store.status(), style = MaterialTheme.typography.bodySmall)
+        Text("Drafts are saved on this device. Use Settings → Sync Now to upload and download production. PDF capture is not connected yet.")
         listOf("Crop History by Field", "Today Crop Production", "Month Crop Production", "Year Todate Crop Production").forEach { name ->
             OutlinedButton(onClick = { change { section = name; dirty = false } }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
                 Text(if (name == section) "✓ $name" else name)
@@ -82,8 +83,7 @@ fun ProductionScreen() {
                 }
                 OutlinedButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) { Text("Upload PDF · coming next") }
                 Text("PDF field aliases are defined. Pengeluaran Hasil means Crop Sent to Mill. Harvested crop and backlog require manual entry or another source.", style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) { Text("Submit to VPS · not connected") }
-                Text("Settings Sync Now downloads estate reference data; it does not upload these production drafts.", style = MaterialTheme.typography.bodySmall)
+                Text("Upload/download: Settings → Sync Now. Conflicting edits are reviewed there before replacement.", style = MaterialTheme.typography.bodySmall)
             }
             else -> {
                 val monthly = section == "Month Crop Production"
@@ -139,7 +139,7 @@ private fun ProductionEditor(record: ProductionDraft?, date: String, field: Stri
     var workers by rememberSaveable { mutableStateOf(initial[4]) }
     var notice by rememberSaveable { mutableStateOf<String?>(null) }
     fun changed() { onDirty(true); notice = null }
-    Text("$field · $date · ${if (record == null) "New local draft" else "Saved locally; not submitted"}")
+    Text("$field · $date · ${if (record == null) "New local draft" else "Saved on this device"}")
     Text("Leave unknown values blank. Enter 0 only when zero is confirmed. Saving again replaces this field's draft for this date.")
     listOf(Triple("Crop harvested (t)", harvested, { value: String -> harvested = value }),
         Triple("Crop sent to mill (t)", mill, { value: String -> mill = value }),
@@ -160,7 +160,7 @@ private fun ProductionEditor(record: ProductionDraft?, date: String, field: Stri
             }
             val draft = ProductionDraft(date, field, numeric(harvested), numeric(mill), numeric(backlog), numeric(hectares), count)
             draft.validate()
-            save(draft) { failure -> notice = failure ?: "Draft saved on this device. Not submitted to VPS." }
+            save(draft) { failure -> notice = failure ?: "Draft saved on this device. Pending upload in Settings → Sync Now." }
         } catch (failure: Exception) { notice = failure.message ?: "Check the entered values." }
     }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "Saving…" else "Save Draft") }
     notice?.let { Text(it) }

@@ -58,3 +58,7 @@ Before termination, export the current snapshot and copy the server backups to a
 ## Tests and limitations
 
 Run `node --test server/server.test.mjs` from this folder. Tests cover authorized downloads, anonymous/wrong/revoked-token rejection, write rejection and invalid data handling. Real certificates and external routing must be checked after deployment. The initial server snapshot has seven empty sections marked awaiting verified records. The web administration/upload page and automated source conversion are not yet implemented.
+
+### Production writes
+
+Create /var/lib/s3-estate/production owned by s3estate:s3estate, mode 0700. Deploy production.mjs with server.mjs and the updated systemd unit allowing writes only in that directory. Add this directory to the existing private backup script and back it up before upgrades. Grant production:write only to authorized token IDs using tokens.mjs grant-production-write ID. All existing tokens otherwise remain read-only. The HTTPS production endpoint is derived from the snapshot endpoint's origin and uses the same certificate and bearer token. Do not reverse-proxy it without authentication or expose the production JSON files as static downloads.

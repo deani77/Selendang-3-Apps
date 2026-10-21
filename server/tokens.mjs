@@ -3,7 +3,7 @@ import {randomBytes, createHash} from 'node:crypto';
 
 if (process.getuid() !== 0) throw new Error('Run as server administrator');
 const [action, id, output] = process.argv.slice(2);
-if (!['issue','revoke'].includes(action) || !/^[a-z0-9-]{1,64}$/.test(id ?? '')) throw new Error('Usage: tokens.mjs issue ID PRIVATE_OUTPUT_FILE | revoke ID');
+if (!['issue','revoke','grant-production-write','revoke-production-write'].includes(action) || !/^[a-z0-9-]{1,64}$/.test(id ?? '')) throw new Error('Usage: tokens.mjs issue ID PRIVATE_OUTPUT_FILE | revoke ID | grant-production-write ID | revoke-production-write ID');
 const path = '/etc/s3-estate/tokens.json';
 const lock = await open('/etc/s3-estate/tokens.lock', 'wx', 0o600);
 try {
@@ -16,7 +16,12 @@ try {
     entries.push({id,sha256:createHash('sha256').update(token).digest('hex'),revoked:false});
   } else {
     if (!entry) throw new Error('Unknown user ID');
-    entry.revoked = true;
+    if (action === 'revoke') entry.revoked = true;
+    else {
+      if (entry.revoked) throw new Error('Cannot change permissions on revoked token');
+      entry.scopes = (entry.scopes ?? []).filter(scope => scope !== 'production:write');
+      if (action === 'grant-production-write') entry.scopes.push('production:write');
+    }
   }
   const {stat} = await import('node:fs/promises');
   const original = await stat(path);
