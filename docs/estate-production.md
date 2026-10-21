@@ -1,6 +1,6 @@
 # Estate Production: initial tab and local drafts
 
-Android and iOS expose Crop History by Field, Today Crop Production, Month Crop Production and Year Todate Crop Production. This source-only update does not deploy the VPS or create a release. It retains the current app version.
+Android and iOS expose Crop History by Field, Today Crop Production, Month Crop Production and Year Todate Crop Production. Android version 0.8 Alpha includes the production screens. Server submission remains pending.
 
 ## Daily drafts
 
@@ -18,7 +18,7 @@ Historical field crop and t/ha are read-only, with five displayed years includin
 
 | Report alias | App field |
 | --- | --- |
-| 0256PM0401 | PM04G |
+| 0256PM0401 | PM04D |
 | 0256PM0502 | PM05E |
 | 0256PM0603 | PM06F |
 | 0256PM0804 | PM08G |
@@ -34,6 +34,6 @@ Submit to VPS is disabled and labelled not connected. Save Draft never implies s
 
 ## Validation
 
-Android unit tests cover field aliases, date/field filtering, month/year boundaries, missing values, zero, daily attendance totals, latest backlog and duplicate records. Instrumented tests cover local persistence, edit replacement and preservation of unreadable storage. Run the normal Android and iOS CI checks before merging/releasing. For this source-only commit, CI is intentionally skipped at the owner's request; there is no new APK or iOS build.
+Android unit tests cover field aliases, date/field filtering, month/year boundaries, missing values, zero, daily attendance totals, latest backlog and duplicate records. Instrumented tests cover local persistence, edit replacement and preservation of unreadable storage. Run the normal Android and iOS CI checks before merging/releasing. Android and iOS CI are enabled for pre-merge validation.
 
 On both devices, check saving/reopening a draft, selecting a different field/date, discarding/keeping unsaved changes, editing an existing draft, blank versus zero, MTD/YTD coverage, read-only history, and disabled PDF/submission buttons. Verify server estate reference import leaves production drafts untouched. Device/visual verification remains pending.

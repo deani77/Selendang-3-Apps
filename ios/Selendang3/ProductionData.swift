@@ -1,6 +1,6 @@
 import Foundation
 
-let productionFields = ["PM04G", "PM05E", "PM06F", "PM08G", "PM10K", "PM11M", "PM15P"]
+let productionFields = ["PM04D", "PM05E", "PM06F", "PM08G", "PM10K", "PM11M", "PM15P"]
 let productionAliases = Dictionary(uniqueKeysWithValues: zip(
     ["0256PM0401", "0256PM0502", "0256PM0603", "0256PM0804", "0256PM1006", "0256PM1108", "0256PM1511"], productionFields))
 

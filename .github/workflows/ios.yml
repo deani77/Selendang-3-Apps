@@ -23,5 +23,9 @@ jobs:
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
+      - name: Check production calculations
+        run: |
+          cat ios/Selendang3/ProductionData.swift ios/Tests/ProductionChecks.swift > "$RUNNER_TEMP/ProductionChecks.swift"
+          swift "$RUNNER_TEMP/ProductionChecks.swift"
       - name: Build for iOS Simulator
         run: xcodebuild -project ios/Selendang3.xcodeproj -scheme Selendang3 -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

@@ -2,7 +2,7 @@ package com.selendang3.app.data
 
 import java.time.LocalDate
 
-val productionFields = listOf("PM04G", "PM05E", "PM06F", "PM08G", "PM10K", "PM11M", "PM15P")
+val productionFields = listOf("PM04D", "PM05E", "PM06F", "PM08G", "PM10K", "PM11M", "PM15P")
 val productionAliases = listOf("0256PM0401", "0256PM0502", "0256PM0603", "0256PM0804", "0256PM1006", "0256PM1108", "0256PM1511").zip(productionFields).toMap()
 
 // One editable local draft per field and reporting date. No server receipt is implied.
