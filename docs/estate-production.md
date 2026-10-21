@@ -30,15 +30,15 @@ The owner confirmed Pengeluaran Hasil means Crop Sent to Mill. Area is a consist
 
 ## Server follow-up
 
-Submit to VPS is disabled and labelled not connected. Save Draft never implies successful upload, and Settings Sync Now remains a download of estate reference data. No production data is uploaded in this change. Before enabling submission, implement authenticated write permissions, durable server storage, field/date uniqueness, idempotent retries, conflict handling, edit provenance, server receipts, and the owner's chosen approval workflow. Production export/backups and iOS/Android synchronization must use the same server contract. Upkeep and Cultivation is outside this first tab update and still needs its own fields.
+Production uploads run through Settings Sync Now. Save Draft queues a local pending record; the next Settings Sync Now uploads it and downloads production changes. Production sync uses authenticated write scopes, field/date uniqueness, durable atomic storage, idempotent mutation IDs, explicit conflict resolution and audit attribution. Device production export and PDF capture remain pending. Upkeep and Cultivation remains outside this tab.
 
 ## Validation
 
 Android unit tests cover field aliases, date/field filtering, month/year boundaries, missing values, zero, daily attendance totals, latest backlog and duplicate records. Instrumented tests cover local persistence, edit replacement and preservation of unreadable storage. Run the normal Android and iOS CI checks before merging/releasing. Android and iOS CI are enabled for pre-merge validation.
 
-On both devices, check saving/reopening a draft, selecting a different field/date, discarding/keeping unsaved changes, editing an existing draft, blank versus zero, MTD/YTD coverage, read-only history, and disabled PDF/submission buttons. Verify server estate reference import leaves production drafts untouched. Device/visual verification remains pending.
+On both devices, check saving/reopening a draft, selecting a different field/date, discarding/keeping unsaved changes, editing an existing draft, blank versus zero, MTD/YTD coverage, read-only history, and disabled PDF/submission buttons. Verify server estate reference import leaves production drafts untouched. Physical-device verification of two-way sync remains pending until a later APK is requested.
 
-## Two-way sync (next app build)
+## Two-way sync (source validated; next app build)
 
 Settings Sync Now uploads local pending daily records and downloads the server's daily records. Android also checks estate reference updates even when the revision is unchanged; a new reference revision still requires import confirmation. iOS now syncs production using the same server contract; estate reference import remains Android-only. Tokens stay in memory for the Settings session. No silent/background uploads are performed. This source change does not increment app versions or create a new APK.
 
