@@ -28,6 +28,8 @@ import com.selendang3.app.data.estateSoilSeries
 import com.selendang3.app.data.EstateWorkforce
 import com.selendang3.app.data.estateWorkforce
 import java.time.format.DateTimeFormatter
+import com.selendang3.app.data.EstateWorkerRatios
+import com.selendang3.app.data.estateWorkerRatios
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -63,6 +65,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     }
     val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
     val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
+    val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -74,7 +77,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall and Workforce use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce and Ratios use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
@@ -83,7 +86,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                                 ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                PeopleAndRainfallPanels(rainfall, workforce)
+                                PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                             }
                             Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 ProductionPanels()
@@ -91,7 +94,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                         }
                     } else {
                         ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                        PeopleAndRainfallPanels(rainfall, workforce)
+                        PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                         ProductionPanels()
                     }
                     DashboardPanel("Cost Breakdown", DashboardGreen) {
@@ -215,7 +218,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 }
 
 @Composable
-private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?) {
+private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?, workerRatios: EstateWorkerRatios?) {
     DashboardPanel("Rainfall", DashboardTeal) {
         DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
             val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
@@ -238,8 +241,18 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
         ))
     }
     DashboardPanel("Ratios", DashboardTeal) {
-        DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"),
-            listOf(listOf("Immature", Pending, Pending), listOf("Mature", Pending, Pending)))
+        DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"), listOf(
+            listOf("Immature", workerRatios?.immatureArea?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending",
+                if (workerRatios?.immatureArea == 0.0) Pending else "Pending"),
+            listOf("Mature", workerRatios?.matureArea?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending",
+                if (workerRatios?.matureArea == 0.0) Pending else
+                    workerRatios?.matureHaPerWorker?.let { String.format(Locale.US, "1:%.2f", it) } ?: "Pending"),
+        ))
+        workerRatios?.let {
+            Text("Based on " + it.matureOperationsWorkers + " mature-area operations workers only · " +
+                it.period.format(DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH)),
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 
