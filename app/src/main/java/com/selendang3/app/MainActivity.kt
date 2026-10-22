@@ -47,7 +47,7 @@ val estateSections = listOf(
 
 val mainSections = listOf(
     Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
-    Section("production", "Estate Production", "Field production, daily drafts and period totals."),
+    Section("production", "Field Details", "Field production, daily drafts and period totals."),
     Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
     Section("reports", "Reports", "Estate reports will be added later."),
     Section("settings", "Settings", "Offline data synchronization"),

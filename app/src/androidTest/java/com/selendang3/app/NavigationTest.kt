@@ -22,7 +22,7 @@ class NavigationTest {
         compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
     }
     @Test fun productionOpensAndCanSaveLocalDraft() {
-        compose.onNodeWithText("Estate Production").performScrollTo().performClick()
+        compose.onNodeWithText("Field Details").performScrollTo().performClick()
         compose.onNodeWithText("Production by field").assertIsDisplayed()
         compose.onNodeWithText("PM04D").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Crop sent to mill (t)").performScrollTo().performTextReplacement("2.5")

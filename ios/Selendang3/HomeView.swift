@@ -5,7 +5,7 @@ struct HomeView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
-        "Estate Details", "Estate Production", "Upkeep and Cultivation",
+        "Estate Details", "Field Details", "Upkeep and Cultivation",
         "Reports", "Settings", "About"
     ]
 
@@ -35,7 +35,7 @@ struct HomeView: View {
                                     UserSettingsView()
                                 } else if title == "Estate Details" {
                                     EstateInformationView()
-                                } else if title == "Estate Production" {
+                                } else if title == "Field Details" {
                                     ProductionView()
                                 } else {
                                     ModuleView(title: title)
