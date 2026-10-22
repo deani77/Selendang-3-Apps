@@ -30,8 +30,8 @@ import com.selendang3.app.data.estateWorkforce
 import java.time.format.DateTimeFormatter
 import com.selendang3.app.data.EstateWorkerRatios
 import com.selendang3.app.data.estateWorkerRatios
-import com.selendang3.app.data.FfbCostYtd
-import com.selendang3.app.data.estateFfbCostYtd
+import com.selendang3.app.data.FfbCostComparison
+import com.selendang3.app.data.estateFfbCosts
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -68,7 +68,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
     val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
     val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
-    val ffbCost = remember(estateUpdate) { estateFfbCostYtd(estateUpdate) }
+    val ffbCost = remember(estateUpdate) { estateFfbCosts(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -260,7 +260,7 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
 }
 
 @Composable
-private fun ProductionPanels(ffbCost: FfbCostYtd?) {
+private fun ProductionPanels(ffbCost: FfbCostComparison?) {
     DashboardPanel("Kos FFB/TAN", DashboardYellow) { FfbCostPanel(ffbCost) }
     DashboardPanel("FFB Quality", Color(0xFFDE9999)) {
         DashboardTable(listOf("Category", "Value"), listOf(
