@@ -10,10 +10,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import com.selendang3.app.data.AnnualRainfall
+import com.selendang3.app.data.estateAnnualRainfall
+import com.selendang3.app.data.estateRainfallToday
+import java.time.Month
+import java.time.format.TextStyle
 import com.selendang3.app.data.EstateAverageSph
 import com.selendang3.app.data.estateAverageSph
 import com.selendang3.app.data.EstateSoilSeries
 import com.selendang3.app.data.estateSoilSeries
+import com.selendang3.app.data.EstateWorkforce
+import com.selendang3.app.data.estateWorkforce
+import java.time.format.DateTimeFormatter
+import com.selendang3.app.data.EstateWorkerRatios
+import com.selendang3.app.data.estateWorkerRatios
+import com.selendang3.app.data.FfbCostComparison
+import com.selendang3.app.data.estateFfbCosts
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -41,6 +59,16 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val topography = remember(estateUpdate) { estateTopography(estateUpdate) }
     val averageSph = remember(estateUpdate) { estateAverageSph(estateUpdate) }
     val soilSeries = remember(estateUpdate) { estateSoilSeries(estateUpdate) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val today by produceState(estateRainfallToday(), lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { value = estateRainfallToday(); delay(60_000) }
+        }
+    }
+    val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
+    val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
+    val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
+    val ffbCost = remember(estateUpdate) { estateFfbCosts(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -52,7 +80,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH and Soil Type use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
@@ -61,16 +89,16 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                                 ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                PeopleAndRainfallPanels()
+                                PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                             }
                             Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProductionPanels()
+                                ProductionPanels(ffbCost)
                             }
                         }
                     } else {
                         ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                        PeopleAndRainfallPanels()
-                        ProductionPanels()
+                        PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
+                        ProductionPanels(ffbCost)
                     }
                     DashboardPanel("Cost Breakdown", DashboardGreen) {
                         DashboardTable(
@@ -193,26 +221,47 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 }
 
 @Composable
-private fun PeopleAndRainfallPanels() {
+private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?, workerRatios: EstateWorkerRatios?) {
     DashboardPanel("Rainfall", DashboardTeal) {
-        ChartPending("Monthly rainfall comparison · mm")
-        Text("Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec",
-            style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(8.dp))
+        DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
+            val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
+                else "YTD through " + Month.of(row.throughMonth).getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+            listOf(row.year.toString(), period,
+                row.totalMm?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending")
+        })
+        Text("Five years, newest first. Current-year YTD ends at the last completed month (Malaysia time). Totals need every month in the stated period; missing data remains Pending.",
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
     }
     DashboardPanel("Workforce", DashboardTeal) {
-        DashboardTable(listOf("Category", "People"),
-            listOf("Staff", "Local Workers", "Foreign Workers", "Contract Workers", "Total Workforce")
-                .map { listOf(it, Pending) })
+        Text(workforce?.period?.format(DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH))
+            ?: "Reporting month: Pending", Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        DashboardTable(listOf("Category", "People"), listOf(
+            listOf("Staff", workforce?.staff?.toString() ?: "Pending"),
+            listOf("Local Workers", workforce?.localWorkers?.toString() ?: "Pending"),
+            listOf("Foreign Workers", workforce?.foreignWorkers?.toString() ?: "Pending"),
+            listOf("Contract Workers", workforce?.contractWorkers?.toString() ?: "Pending"),
+            listOf("Total Workforce", workforce?.totalWorkforce?.toString() ?: "Pending"),
+        ))
     }
     DashboardPanel("Ratios", DashboardTeal) {
-        DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"),
-            listOf(listOf("Immature", Pending, Pending), listOf("Mature", Pending, Pending)))
+        DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"), listOf(
+            listOf("Immature", workerRatios?.immatureArea?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending",
+                if (workerRatios?.immatureArea == 0.0) Pending else "Pending"),
+            listOf("Mature", workerRatios?.matureArea?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending",
+                if (workerRatios?.matureArea == 0.0) Pending else
+                    workerRatios?.matureHaPerWorker?.let { String.format(Locale.US, "1:%.2f", it) } ?: "Pending"),
+        ))
+        workerRatios?.let {
+            Text("Based on " + it.matureOperationsWorkers + " mature-area operations workers only · " +
+                it.period.format(DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH)),
+                Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 
 @Composable
-private fun ProductionPanels() {
-    DashboardPanel("Kos FFB/TAN", DashboardYellow) { MetricRow("FFB cost (RM/ton)") }
+private fun ProductionPanels(ffbCost: FfbCostComparison?) {
+    DashboardPanel("Kos FFB/TAN", DashboardYellow) { FfbCostPanel(ffbCost) }
     DashboardPanel("FFB Quality", Color(0xFFDE9999)) {
         DashboardTable(listOf("Category", "Value"), listOf(
             listOf("Ripe Bunches (%)", Pending), listOf("Unripe (%)", Pending),
