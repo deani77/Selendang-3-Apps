@@ -16,6 +16,7 @@ struct UserSettingsView: View {
         Form {
             Section {
                 NavigationLink("User Profile") { UserProfileView() }
+                NavigationLink("About") { ModuleView(title: "About") }
                 NavigationLink("Appearance") {
                     Form {
                         Picker("Theme", selection: $theme) {

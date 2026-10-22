@@ -49,9 +49,9 @@ val mainSections = listOf(
     Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
     Section("production", "Field Details", "Field production, daily drafts and period totals."),
     Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
-    Section("reports", "Reports", "Estate reports will be added later."),
+    Section("reports", "Crop Production", "Crop production contents will be added later."),
     Section("settings", "Settings", "Offline data synchronization"),
-    Section("about", "About", "Application information"),
+    Section("tools", "Planter Tools", "Planter tools will be added later."),
 )
 
 class MainActivity : ComponentActivity() {
@@ -131,7 +131,6 @@ fun EstateApp() {
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
-                                "about" -> "S3 Estate Info\nv${BuildConfig.VERSION_NAME}\nAndroid estate information application. Initial Alpha interface."
                                 else -> section.description
                             }
                             InfoCard(section.title, message)
@@ -188,7 +187,8 @@ private fun PlantationBackground(route: String) {
         "production" -> Color(0xFF65432D)
         "upkeep" -> Color(0xFF3C5827)
         "reports" -> Color(0xFF254A4A)
-        "settings", "about" -> Color(0xFF18392E)
+        "tools" -> Color(0xFF405B53)
+        "settings" -> Color(0xFF18392E)
         else -> Color(0xFF365B43)
     }
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(top, Color(0xFF0A211A))))) {

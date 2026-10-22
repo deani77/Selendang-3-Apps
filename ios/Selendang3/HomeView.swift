@@ -6,7 +6,7 @@ struct HomeView: View {
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
-        "Reports", "Settings", "About"
+        "Crop Production", "Settings", "Planter Tools"
     ]
 
     var body: some View {
@@ -68,7 +68,7 @@ struct HomeView: View {
     }
 }
 
-private struct ModuleView: View {
+struct ModuleView: View {
     let title: String
     var body: some View {
         ScrollView {

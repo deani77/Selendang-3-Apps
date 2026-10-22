@@ -21,6 +21,21 @@ class NavigationTest {
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
     }
+    @Test fun homeModulesAndAboutInSettings() {
+        compose.onNodeWithText("Reports").assertDoesNotExist()
+        compose.onNodeWithText("About").assertDoesNotExist()
+        compose.onNodeWithText("Crop Production").performScrollTo().performClick()
+        compose.onNodeWithText("Crop production contents will be added later.").assertIsDisplayed()
+        compose.onNodeWithText("‹  Back").performClick()
+        compose.onNodeWithText("Planter Tools").performScrollTo().performClick()
+        compose.onNodeWithText("Planter tools will be added later.").assertIsDisplayed()
+        compose.onNodeWithText("‹  Back").performClick()
+        compose.onNodeWithText("Settings").performScrollTo().performClick()
+        compose.onNodeWithText("About").performScrollTo().performClick()
+        compose.onNodeWithText("Android estate information application. Initial Alpha interface.").assertIsDisplayed()
+        compose.onNodeWithText("‹ Settings").performScrollTo().performClick()
+        compose.onNodeWithText("User Profile").performScrollTo().assertIsDisplayed()
+    }
     @Test fun productionOpensAndCanSaveLocalDraft() {
         compose.onNodeWithText("Field Details").performScrollTo().performClick()
         compose.onNodeWithText("Production by field").assertIsDisplayed()
