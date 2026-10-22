@@ -1,114 +1,65 @@
 import SwiftUI
-
-private struct DashboardSection: Identifiable {
-    var id: String { title }
-    let title: String
-    let color: Color
-    let headers: [String]
-    let rows: [[String]]
-    var chart: String? = nil
-}
+import Charts
 
 struct EstateDashboardView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
-    private static let yellow = Color(red: 1, green: 0.75, blue: 0)
-    private static let teal = Color(red: 0.29, green: 0.67, blue: 0.76)
-    private static let red = Color(red: 0.89, green: 0.12, blue: 0.17)
-    private let sections: [DashboardSection] = [
-        .init(title: "Age Profile", color: EstateDashboardView.yellow, headers: ["Age category", "Share"],
-              rows: [["0–3 years · Immature", "—"], ["7–18 years · Prime", "—"],
-                     ["19–25 years · Old", "—"], ["Total area (ha)", "—"]],
-              chart: "Palm age distribution"),
-        .init(title: "Topography", color: EstateDashboardView.teal, headers: ["Terrain", "Share"],
-              rows: [["Flat", "—"], ["Hilly", "—"], ["Steep Hilly", "—"]],
-              chart: "Terrain distribution"),
-        .init(title: "YPH", color: EstateDashboardView.yellow, headers: ["Measure", "Value"],
-              rows: [["Actual (t/ha)", "—"], ["Budget (t/ha)", "—"]],
-              chart: "Yearly yield comparison · t/ha"),
-        .init(title: "Average SPH", color: EstateDashboardView.yellow, headers: ["Measure", "Value"],
-              rows: [["Palms/ha", "—"]]),
-        .init(title: "Soil Type", color: EstateDashboardView.teal, headers: ["Soil series", "Share"],
-              rows: [["Pending estate records", "—"]]),
-        .init(title: "Rainfall", color: EstateDashboardView.teal, headers: ["Measure", "Value"],
-              rows: [["Monthly rainfall (mm)", "—"]], chart: "Monthly rainfall comparison · mm"),
-        .init(title: "Workforce", color: EstateDashboardView.teal, headers: ["Category", "People"],
-              rows: ["Staff", "Local Workers", "Foreign Workers", "Contract Workers", "Total Workforce"].map { [$0, "—"] }),
-        .init(title: "Ratios", color: EstateDashboardView.teal, headers: ["Maturity", "Area (ha)", "Workers:ha"],
-              rows: [["Immature", "—", "—"], ["Mature", "—", "—"]]),
-        .init(title: "Kos FFB/TAN", color: EstateDashboardView.yellow, headers: ["Measure", "Value"],
-              rows: [["FFB cost (RM/ton)", "—"]]),
-        .init(title: "FFB Quality", color: Color(red: 0.87, green: 0.60, blue: 0.60),
-              headers: ["Category", "Value"],
-              rows: ["Ripe Bunches (%)", "Unripe (%)", "Empty & Rotten (%)", "Stone/Trash (ton)"].map { [$0, "—"] }),
-        .init(title: "Actual versus Budget · YTD", color: EstateDashboardView.red, headers: ["Item", "Actual", "Budget"],
-              rows: ["OER (%)", "KER (%)", "External Supply (t)", "LF"].map { [$0, "—", "—"] }),
-        .init(title: "Cost Breakdown", color: Color(red: 0.74, green: 0.91, blue: 0.60),
-              headers: ["Measure", "Upkeep RM/ha", "Har./Coll. RM/ton", "G.C. RM/ha", "Total FFB RM/ton"],
-              rows: ["Budget", "Actual", "%"].map { [$0, "—", "—", "—", "—"] }),
-        .init(title: "Checkroll Average", color: EstateDashboardView.yellow, headers: ["Category", "RM/Mdy", "% O/Turn"],
-              rows: [["Harvester", "—", "—"], ["Field Worker", "—", "—"]])
-    ]
-
+    private let yellow = Color(red:1,green:0.75,blue:0)
+    private let teal = Color(red:0.29,green:0.67,blue:0.76)
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("DASHBOARD · SELENDANG 3").font(.title2.bold())
-                Text(estate.reference?.reportingPeriod ?? "Reporting period: pending")
-                Text(estate.reference.map { "Estate revision \($0.revision) is saved offline. View the synced records in Estate Information. iOS dashboard calculations are still pending." } ?? "No estate reference data imported. Use Settings → Sync Now.")
-                    .font(.footnote).foregroundStyle(.secondary)
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), alignment: .top)], alignment: .leading, spacing: 16) {
-                    ForEach(sections) { section in
-                        panel(section)
+        TimelineView(.periodic(from:Date(),by:60)) { context in
+            let data = EstateDashboardData(reference:estate.reference,today:context.date)
+            ScrollView {
+                VStack(alignment:.leading,spacing:16) {
+                    Text("DASHBOARD · SELENDANG 3").font(.title2.bold())
+                    if let reference = estate.reference {
+                        Text("Saved estate revision \(reference.revision)").font(.headline)
+                        Text(reference.reportingPeriod).font(.footnote)
+                    } else { Text("No estate data imported. Open Settings → Sync Now.") }
+                    Text("Uses saved offline records. Each measure retains its reporting period. Pending means data is unavailable.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    LazyVGrid(columns:[GridItem(.adaptive(minimum:320),alignment:.top)],alignment:.leading,spacing:16) {
+                        ForEach(data.panels) { section in panel(section) }
                     }
-                }
+                }.padding()
             }
-            .padding()
         }
-        .toolbar(.visible, for: .navigationBar)
-        .navigationTitle("Estate Dashboard")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible,for:.navigationBar)
+        .navigationTitle("Estate Dashboard").navigationBarTitleDisplayMode(.inline)
     }
-
-    private func panel(_ section: DashboardSection) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(section.title)
-                .font(.headline)
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(section.color)
-            if let chart = section.chart {
-                VStack(spacing: 8) {
-                    Text(chart)
-                    Text("Awaiting estate data").font(.caption).foregroundStyle(.secondary)
+    private func panel(_ section: EstateDashboardPanel) -> some View {
+        VStack(alignment:.leading,spacing:0) {
+            Text(section.title).font(.headline).foregroundStyle(.black).frame(maxWidth:.infinity,alignment:.leading)
+                .padding(12).background(["Age Profile","YPH","Average SPH","Kos FFB/TAN","Checkroll Average"].contains(section.title) ? yellow : teal)
+            if !section.bars.isEmpty {
+                Chart(section.bars) { bar in
+                    BarMark(x:.value("Measure",bar.category),y:.value(section.unit,bar.value))
+                        .foregroundStyle(by:.value("Series",bar.series)).position(by:.value("Series",bar.series))
                 }
-                .frame(maxWidth: .infinity, minHeight: 140)
-                .padding(.horizontal, 8)
+                .chartForegroundStyleScale(domain:section.title == "YPH" ? ["Actual","Budget"] : ["Budget Year","Actual YTD"],range:section.title == "YPH" ? [Color.blue,Color.orange] : [Color.orange,Color.blue])
+                .chartYScale(domain:0...(max(section.bars.map(\.value).max() ?? 1,1)*1.12))
+                .chartYAxisLabel(section.unit)
+                .frame(height:230).padding(12)
+                .accessibilityLabel(section.title+" comparison. Exact values are listed below.")
             }
+            if section.rows.isEmpty { Text("Pending complete source records").padding(12) }
             ScrollView(.horizontal) {
-                VStack(alignment: .leading, spacing: 0) {
-                    tableRow(section.headers, bold: true)
-                    ForEach(section.rows.indices, id: \.self) { index in
-                        Divider()
-                        tableRow(section.rows[index], bold: false)
+                VStack(alignment:.leading,spacing:0) {
+                    tableRow(section.headers,bold:true)
+                    ForEach(section.rows.indices,id:\.self) { index in
+                        Divider(); tableRow(section.rows[index],bold:false)
                     }
-                }
-                .padding(8)
+                }.padding(8)
             }
+            if !section.note.isEmpty { Text(section.note).font(.footnote).foregroundStyle(.secondary).padding(12) }
         }
-        .background(Color(uiColor: .systemBackground))
-        .overlay(Rectangle().stroke(Color.secondary.opacity(0.3)))
+        .background(Color(uiColor:.systemBackground)).overlay(Rectangle().stroke(Color.secondary.opacity(0.3)))
     }
-
     private func tableRow(_ cells: [String], bold: Bool) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            ForEach(cells.indices, id: \.self) { index in
-                Text(cells[index])
-                    .font(.subheadline)
-                    .fontWeight(bold ? .semibold : .regular)
-                    .frame(width: index == 0 ? 155 : 100, alignment: .leading)
+        HStack(alignment:.top,spacing:12) {
+            ForEach(cells.indices,id:\.self) { index in
+                Text(cells[index]).font(.subheadline).fontWeight(bold ? .semibold : .regular)
+                    .frame(width:index == 0 ? 155 : 100,alignment:.leading)
             }
-        }
-        .padding(.vertical, 8)
+        }.padding(.vertical,8)
     }
 }

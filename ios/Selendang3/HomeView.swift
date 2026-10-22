@@ -53,7 +53,7 @@ struct HomeView: View {
                         }
                     }
                     if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(.footnote) }
-                    Text("v0.2 Alpha · iPhone\nEstate data and production drafts are saved offline")
+                    Text("v0.3 Alpha · iPhone\nEstate data and production drafts are saved offline")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)

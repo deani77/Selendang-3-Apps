@@ -30,6 +30,7 @@ struct EstateReference: Decodable {
     let reportingPeriod: String
     let exportedAt: String
     let sections: [EstateReferenceTable]
+    let yph: EstateYph?
     static func parse(_ data: Data) throws -> EstateReference {
         guard data.count <= 2*1024*1024 else { throw ProductionError.invalid("Estate update exceeds 2 MB.") }
         let result = try JSONDecoder().decode(EstateReference.self, from: data)
