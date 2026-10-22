@@ -15,8 +15,8 @@ data class ProductionDraft(
     fun validate() {
         require(field in productionFields) { "Choose a valid field." }
         require(LocalDate.parse(date).toString() == date) { "Use YYYY-MM-DD for the reporting date." }
-        require(listOf(harvested, sentToMill, backlog, hectares).all { it == null || (it.isFinite() && it >= 0) }) { "Values must be finite and non-negative." }
-        require(harvesters == null || harvesters >= 0) { "Harvesters must be a non-negative whole number." }
+        require(listOf(harvested, sentToMill, backlog, hectares).all { it == null || (it.isFinite() && it in 0.0..1e9) }) { "Values must be finite and non-negative." }
+        require(harvesters == null || harvesters in 0..1000000000) { "Harvesters must be a non-negative whole number." }
         require(listOf(harvested, sentToMill, backlog, hectares, harvesters).any { it != null }) { "Enter at least one value." }
     }
 }

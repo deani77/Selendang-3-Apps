@@ -38,8 +38,8 @@ struct ProductionDraft: Codable, Identifiable {
         guard productionFields.contains(field), let parsed = formatter.date(from: date), productionDateKey(parsed) == date else {
             throw ProductionError.invalid("Choose a valid field and reporting date.")
         }
-        guard [harvested, sentToMill, backlog, hectares].allSatisfy({ $0 == nil || ($0!.isFinite && $0! >= 0) }),
-              harvesters == nil || harvesters! >= 0 else {
+        guard [harvested, sentToMill, backlog, hectares].allSatisfy({ $0 == nil || ($0!.isFinite && $0! >= 0 && $0! <= 1e9) }),
+              harvesters == nil || harvesters! >= 0 && harvesters! <= 1000000000 else {
             throw ProductionError.invalid("Values must be finite and non-negative; harvesters must be a whole number.")
         }
         guard [harvested, sentToMill, backlog, hectares].contains(where: { $0 != nil }) || harvesters != nil else {
