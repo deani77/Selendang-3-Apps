@@ -30,6 +30,8 @@ import com.selendang3.app.data.estateWorkforce
 import java.time.format.DateTimeFormatter
 import com.selendang3.app.data.EstateWorkerRatios
 import com.selendang3.app.data.estateWorkerRatios
+import com.selendang3.app.data.FfbCostYtd
+import com.selendang3.app.data.estateFfbCostYtd
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -66,6 +68,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
     val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
     val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
+    val ffbCost = remember(estateUpdate) { estateFfbCostYtd(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -77,7 +80,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce and Ratios use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
@@ -89,13 +92,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                                 PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                             }
                             Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProductionPanels()
+                                ProductionPanels(ffbCost)
                             }
                         }
                     } else {
                         ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                         PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
-                        ProductionPanels()
+                        ProductionPanels(ffbCost)
                     }
                     DashboardPanel("Cost Breakdown", DashboardGreen) {
                         DashboardTable(
@@ -257,8 +260,8 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
 }
 
 @Composable
-private fun ProductionPanels() {
-    DashboardPanel("Kos FFB/TAN", DashboardYellow) { MetricRow("FFB cost (RM/ton)") }
+private fun ProductionPanels(ffbCost: FfbCostYtd?) {
+    DashboardPanel("Kos FFB/TAN", DashboardYellow) { FfbCostPanel(ffbCost) }
     DashboardPanel("FFB Quality", Color(0xFFDE9999)) {
         DashboardTable(listOf("Category", "Value"), listOf(
             listOf("Ripe Bunches (%)", Pending), listOf("Unripe (%)", Pending),
