@@ -27,11 +27,11 @@ struct HomeView: View {
                             let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
                             Group {
                                 if isPad {
-                                    HStack(alignment: .top, spacing: 16) {
+                                    HStack(alignment: .center, spacing: 16) {
                                         ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                                             if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
                                             summaryCell(row)
-                                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                                .frame(maxWidth: .infinity, alignment: .center)
                                         }
                                     }
                                     .fixedSize(horizontal: false, vertical: true)
@@ -97,13 +97,13 @@ struct HomeView: View {
     }
 
     private func summaryCell(_ row: EstateDashboardPanel) -> some View {
-        VStack(alignment: .leading, spacing: isPad ? 8 : 4) {
+        VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
             Text(isPad ? row.title.replacingOccurrences(of: " · ", with: "\n") : row.title)
                 .font(isPad ? .title2.bold() : .subheadline.bold())
             Text(isPad ? row.note.replacingOccurrences(of: " · ", with: "\n") : row.note)
                 .font(isPad ? .title3 : .footnote)
         }
-        .multilineTextAlignment(.leading)
+        .multilineTextAlignment(isPad ? .center : .leading)
     }
 }
 
