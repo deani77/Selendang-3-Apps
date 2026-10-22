@@ -24,8 +24,9 @@ class NavigationTest {
     @Test fun homeModulesAndAboutInSettings() {
         compose.onNodeWithText("Reports").assertDoesNotExist()
         compose.onNodeWithText("About").assertDoesNotExist()
-        compose.onNodeWithText("Crop Production").performScrollTo().performClick()
-        compose.onNodeWithText("Crop production contents will be added later.").assertIsDisplayed()
+        compose.onNodeWithText("Field Details").performScrollTo().performClick()
+        compose.onNodeWithText("Field details contents will be added later.").assertIsDisplayed()
+        compose.onNodeWithText("Production by field").assertDoesNotExist()
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithText("Planter Tools").performScrollTo().performClick()
         compose.onNodeWithText("Planter tools will be added later.").assertIsDisplayed()
@@ -36,8 +37,8 @@ class NavigationTest {
         compose.onNodeWithText("‹ Settings").performScrollTo().performClick()
         compose.onNodeWithText("User Profile").performScrollTo().assertIsDisplayed()
     }
-    @Test fun productionOpensAndCanSaveLocalDraft() {
-        compose.onNodeWithText("Field Details").performScrollTo().performClick()
+    @Test fun cropProductionOpensAndCanSaveLocalDraft() {
+        compose.onNodeWithText("Crop Production").performScrollTo().performClick()
         compose.onNodeWithText("Production by field").assertIsDisplayed()
         compose.onNodeWithText("PM04D").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Crop sent to mill (t)").performScrollTo().performTextReplacement("2.5")

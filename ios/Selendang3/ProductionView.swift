@@ -48,7 +48,7 @@ struct ProductionView: View {
                 summaries
             }
         }
-        .navigationTitle("Field Details")
+        .navigationTitle("Crop Production")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .alert("Discard unsaved changes?", isPresented: $showDiscard) {

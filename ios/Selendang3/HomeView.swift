@@ -61,7 +61,7 @@ struct HomeView: View {
                                     UserSettingsView()
                                 } else if title == "Estate Details" {
                                     EstateInformationView()
-                                } else if title == "Field Details" {
+                                } else if title == "Crop Production" {
                                     ProductionView()
                                 } else {
                                     ModuleView(title: title)

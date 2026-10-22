@@ -52,9 +52,9 @@ val estateSections = listOf(
 
 val mainSections = listOf(
     Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
-    Section("production", "Field Details", "Field production, daily drafts and period totals."),
+    Section("production", "Field Details", "Field details contents will be added later."),
     Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
-    Section("reports", "Crop Production", "Crop production contents will be added later."),
+    Section("reports", "Crop Production", "Field production, daily drafts and period totals."),
     Section("settings", "Settings", "Offline data synchronization"),
     Section("tools", "Planter Tools", "Planter tools will be added later."),
 )
@@ -124,14 +124,14 @@ fun EstateApp() {
                     composable("dashboard") {
                         InfoCard("Estate Dashboard", "Dashboard contents will be added later. Estate panels are now in Estate Details.")
                     }
-                    composable("production") { ProductionScreen() }
+                    composable("reports") { ProductionScreen() }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
                             themeChoice = it
                             preferences.edit().putString("theme", it).apply()
                         }
                     }
-                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "production" }.forEach { section ->
+                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" }.forEach { section ->
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
