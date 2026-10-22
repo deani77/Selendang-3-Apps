@@ -25,12 +25,22 @@ struct HomeView: View {
                     } label: {
                         TimelineView(.periodic(from: Date(), by: 60)) { context in
                             let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
-                            VStack(alignment: .leading, spacing: 12) {
-                                ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                                    if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(row.title).font(isPad ? .title2.bold() : .subheadline.bold())
-                                        Text(row.note).font(isPad ? .title3 : .footnote)
+                            Group {
+                                if isPad {
+                                    HStack(alignment: .top, spacing: 16) {
+                                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
+                                            summaryCell(row)
+                                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                        }
+                                    }
+                                    .fixedSize(horizontal: false, vertical: true)
+                                } else {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
+                                            summaryCell(row)
+                                        }
                                     }
                                 }
                             }
@@ -84,6 +94,16 @@ struct HomeView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(.green)
+    }
+
+    private func summaryCell(_ row: EstateDashboardPanel) -> some View {
+        VStack(alignment: .leading, spacing: isPad ? 8 : 4) {
+            Text(isPad ? row.title.replacingOccurrences(of: " · ", with: "\n") : row.title)
+                .font(isPad ? .title2.bold() : .subheadline.bold())
+            Text(isPad ? row.note.replacingOccurrences(of: " · ", with: "\n") : row.note)
+                .font(isPad ? .title3 : .footnote)
+        }
+        .multilineTextAlignment(.leading)
     }
 }
 
