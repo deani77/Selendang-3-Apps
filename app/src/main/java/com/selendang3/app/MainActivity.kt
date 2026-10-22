@@ -18,6 +18,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.selendang3.app.data.homeDashboardRows
+import com.selendang3.app.data.estateRainfallToday
+import kotlinx.coroutines.delay
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -81,7 +86,7 @@ fun EstateApp() {
     val route = entry?.destination?.route ?: "home"
     val allSections = mainSections + estateSections
     val title = when (route) {
-        "home" -> "S3 Estate Info"
+        "home" -> "Estate Dashboard"
         "dashboard" -> "Estate Dashboard"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
@@ -107,11 +112,10 @@ fun EstateApp() {
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Spacer(Modifier.height(18.dp))
                             Button(onClick = { nav.navigate("dashboard") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
-                                Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                                HomeDashboardSummary(estateUpdate)
                             }
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
@@ -136,6 +140,11 @@ fun EstateApp() {
                             InfoCard(section.title, message)
                         }
                     }
+                }
+                if (route == "home") {
+                    Text("S3 Estate Info", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp), textAlign = TextAlign.Center)
                 }
                 val lastSync = sync?.lastSuccessEpochMillis?.let { DateFormat.getDateTimeInstance().format(Date(it)) }
                 Text("v${BuildConfig.VERSION_NAME}  •  ${if (online) "Online" else "Offline"}\nLast update: ${snapshot?.let { DateFormat.getDateTimeInstance().format(Date(it.updatedAt)) + " · " + it.source } ?: "No data yet"}\nLast VPS sync: ${lastSync ?: "Not synced yet"}",
@@ -209,3 +218,20 @@ private fun PlantationBackground(route: String) {
     }
 }
 
+
+@Composable
+private fun HomeDashboardSummary(update: com.selendang3.app.data.EstatePackage?) {
+    val today by produceState(estateRainfallToday()) {
+        while (true) { value = estateRainfallToday(); delay(60_000) }
+    }
+    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        homeDashboardRows(update, today).forEachIndexed { index, row ->
+            if (index > 0) HorizontalDivider(color = Color.White.copy(alpha = 0.35f))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(row.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(row.detail, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}

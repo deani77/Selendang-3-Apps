@@ -13,7 +13,7 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("S3 Estate Info")
+                    Text("Estate Dashboard")
                         .font(.largeTitle.bold())
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white : green)
@@ -21,14 +21,27 @@ struct HomeView: View {
                     NavigationLink {
                         ModuleView(title: "Estate Dashboard")
                     } label: {
-                        Text("Estate Dashboard")
-                            .font(.title2.bold())
-                            .frame(maxWidth: .infinity, minHeight: 160)
+                        TimelineView(.periodic(from: Date(), by: 60)) { context in
+                            let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
+                            VStack(alignment: .leading, spacing: 12) {
+                                ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                                    if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(row.title).font(.subheadline.bold())
+                                        Text(row.note).font(.footnote)
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 160, alignment: .leading)
+                            .padding(16)
+                        }
                             .background(Color(red: 0.16, green: 0.35, blue: 0.24))
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 24))
+                            .accessibilityElement(children: .combine)
+                            .accessibilityHint("Opens Estate Dashboard")
                     }
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))], spacing: 14) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
                         ForEach(sections, id: \.self) { title in
                             NavigationLink {
                                 if title == "Settings" {
@@ -52,8 +65,12 @@ struct HomeView: View {
                             }
                         }
                     }
+                    Text("S3 Estate Info")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 8)
                     if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(.footnote) }
-                    Text("v0.3 Alpha · iPhone\nEstate data and production drafts are saved offline")
+                    Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
@@ -75,7 +92,7 @@ struct ModuleView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(title).font(.title.bold())
                 Text(title == "About"
-                     ? "S3 Estate Info\niPhone starter · v0.1 Alpha"
+                     ? "S3 Estate Info\niPhone and iPad · v0.4 Alpha"
                      : "This section is awaiting implementation and verified estate records.")
             }
             .frame(maxWidth: .infinity, alignment: .leading)

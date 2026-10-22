@@ -58,3 +58,22 @@ sections[0] = section("overview",["Item","Details"],overview); fixture["sections
 let zeroWorkerPanels = try dashboard(fixture)
 precondition(panel("Ratios",zeroWorkerPanels).rows[1][2] == "Pending")
 print("Dashboard model checks passed")
+
+let homeReference = try EstateReference.parse(JSONSerialization.data(withJSONObject: fixture))
+let home = EstateDashboardData(reference: homeReference, today: october).homeRows
+precondition(home.count == 3)
+precondition(home[0].note.contains("Sep 2026: Pending") && home[0].note.contains("Oct 2026 MTD: Pending"))
+precondition(home[0].note.contains("YTD through Sep 2026: 25.00"))
+precondition(home[1].note == "Weeding: Pending · Manuring: Pending")
+precondition(home[2].note.contains("Operation: 123.00 · GC: 45.00"))
+let newYearHome = EstateDashboardData(reference: homeReference, today: january).homeRows
+precondition(newYearHome[0].note.contains("Dec 2026: Pending"))
+precondition(newYearHome[0].note.hasSuffix("YTD 2027: Pending"))
+precondition(newYearHome[2].note.contains("Operation: Pending · GC: Pending"))
+let noHomeData = EstateDashboardData(reference: nil, today: october).homeRows
+precondition(noHomeData[0].note.hasSuffix("YTD 2026: Pending"))
+let august = ISO8601DateFormatter().date(from: "2026-08-01T00:00:00Z")!
+let futureHome = EstateDashboardData(reference: homeReference, today: august).homeRows
+precondition(futureHome[0].note.hasSuffix("YTD 2026: Pending"))
+precondition(futureHome[2].note.contains("Operation: Pending · GC: Pending"))
+print("Home summary checks passed")

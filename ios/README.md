@@ -8,7 +8,7 @@ Install Xcode and XcodeGen, run `xcodegen generate` in this folder, then open Se
 
 ## Home navigation
 
-The large Estate Dashboard button remains centered. The six smaller buttons are Estate Details, Field Details, Upkeep and Cultivation, Crop Production, Settings and Planter Tools. Crop Production replaces the former Reports tab; Planter Tools replaces About on the home screen. About is now accessed through Settings. Crop Production and Planter Tools are placeholders pending their contents.
+Estate Dashboard is the home heading; S3 Estate Info is a small footer below the navigation buttons. The large Estate Dashboard button contains three summary rows: Crop data (previous month, MTD and YTD, all t/ha), Upkeep and Manuring (weeding and manuring percentages), and Estate cost (actual YTD Operation and GC in RM/tonne). Saved YTD crop and cost values retain their explicit source periods. Monthly estate crop totals and upkeep progress are Pending until approved complete inputs are connected; sparse daily drafts are not assumed to be complete totals. Prior-year and future-period YTD values are not displayed as current figures. The six smaller buttons retain two columns on iPhone and iPad. The six smaller buttons are Estate Details, Field Details, Upkeep and Cultivation, Crop Production, Settings and Planter Tools. Crop Production replaces the former Reports tab; Planter Tools replaces About on the home screen. About is now accessed through Settings. Crop Production and Planter Tools are placeholders pending their contents.
 
 ## Sync and offline data
 

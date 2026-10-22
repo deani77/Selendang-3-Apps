@@ -15,11 +15,11 @@ class NavigationTest {
         compose.onNodeWithText("Rainfall").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Checkroll Average").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("‹  Back").performClick()
-        compose.onNodeWithText("Estate Dashboard").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Open Estate Dashboard").performScrollTo().performClick()
         compose.onNodeWithText("Dashboard contents will be added later. Estate panels are now in Estate Details.").assertIsDisplayed()
         compose.onNodeWithText("Age Profile").assertDoesNotExist()
         compose.onNodeWithText("‹  Back").performClick()
-        compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
+        compose.onNodeWithText("S3 Estate Info").performScrollTo().assertIsDisplayed()
     }
     @Test fun homeModulesAndAboutInSettings() {
         compose.onNodeWithText("Reports").assertDoesNotExist()

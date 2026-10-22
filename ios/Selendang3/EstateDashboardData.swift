@@ -199,6 +199,45 @@ struct EstateDashboardData {
         return EstateDashboardPanel(title:"Kos FFB/TAN",headers:["Measure","Actual YTD","Budget Year"],rows:rows,
             note:"Actual YTD through \(actualPeriod ?? "Pending") vs Budget Year \(budgetYear ?? "Pending"). Operation Cost = Penjagaan + Membaja + Pungutan; General Charges = Perbelanjaan Am.",bars:bars,unit:"RM/tonne")
     }
+
+    // Sparse daily drafts are not substituted for complete estate monthly totals.
+    var homeRows: [EstateDashboardPanel] {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Kuala_Lumpur")!
+        let year = calendar.component(.year, from: today)
+        let month = calendar.component(.month, from: today)
+        let current = String(format: "%04d-%02d", year, month)
+        let formatter = DateFormatter()
+        formatter.calendar = calendar; formatter.timeZone = calendar.timeZone
+        formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "MMM yyyy"
+        let previous = calendar.date(byAdding: .month, value: -1, to: calendar.date(from: calendar.dateComponents([.year, .month], from: today))!)!
+        var ytd: Double?, yieldPeriod = "YTD " + String(year)
+        if let source = reference?.yph, source.reportingYear == year,
+           (1...month).contains(source.throughMonth), source.matureAreaHa.isFinite, source.matureAreaHa > 0,
+           let tonnes = source.actualYtdTonnes, tonnes.isFinite, tonnes >= 0 {
+            ytd = tonnes / source.matureAreaHa
+            yieldPeriod = "YTD through " + formatter.string(from: calendar.date(from: DateComponents(year: year, month: source.throughMonth, day: 1))!)
+        }
+        let costPeriod = period("FFB cost YTD reporting period")
+        let costValid = costPeriod != nil && costPeriod!.hasPrefix(String(year) + "-") && costPeriod! <= current &&
+            overview("FFB cost budget year") == String(year)
+        let operation = costValid ? numeric(overview("FFB cost operation actual YTD (RM/tonne)")) : nil
+        let gc = costValid ? numeric(overview("FFB cost general charges actual YTD (RM/tonne)")) : nil
+        var costLabel = "YTD " + String(year)
+        if costValid, let date = ISO8601DateFormatter().date(from: costPeriod! + "-01T00:00:00Z") {
+            costLabel = "YTD through " + formatter.string(from: date)
+        }
+        return [
+            EstateDashboardPanel(title: "Crop data · t/ha", headers: [], rows: [],
+                note: formatter.string(from: previous) + ": Pending · " + formatter.string(from: today) + " MTD: Pending\n" +
+                    yieldPeriod + ": " + Self.number(ytd)),
+            EstateDashboardPanel(title: "Upkeep and Manuring · %", headers: [], rows: [],
+                note: "Weeding: Pending · Manuring: Pending"),
+            EstateDashboardPanel(title: "Estate cost · Actual YTD · RM/tonne", headers: [], rows: [],
+                note: "Operation: " + Self.number(operation) + " · GC: " + Self.number(gc) + "\n" + costLabel)
+        ]
+    }
+
     var panels: [EstateDashboardPanel] {
         [ages,land("Terrain",title:"Topography"),yph,sph,land("Soil series",title:"Soil Type"),rainfall,workforce,ratios,costs,
          EstateDashboardPanel(title:"FFB Quality",headers:["Category","Value"],rows:["Ripe Bunches (%)","Unripe (%)","Empty & Rotten (%)","Stone/Trash (ton)"].map { [$0,"Pending"] }),
