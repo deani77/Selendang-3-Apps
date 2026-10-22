@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var estate = EstateReferenceStore.shared
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Information", "Estate Production", "Upkeep and Cultivation",
@@ -32,6 +33,8 @@ struct HomeView: View {
                             NavigationLink {
                                 if title == "Settings" {
                                     UserSettingsView()
+                                } else if title == "Estate Information" {
+                                    EstateInformationView()
                                 } else if title == "Estate Production" {
                                     ProductionView()
                                 } else {
@@ -49,7 +52,8 @@ struct HomeView: View {
                             }
                         }
                     }
-                    Text("v0.1 Alpha · iPhone starter\nProduction drafts are saved on this device")
+                    if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(.footnote) }
+                    Text("v0.2 Alpha · iPhone\nEstate data and production drafts are saved offline")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)

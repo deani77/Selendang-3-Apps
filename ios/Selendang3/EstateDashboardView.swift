@@ -10,6 +10,7 @@ private struct DashboardSection: Identifiable {
 }
 
 struct EstateDashboardView: View {
+    @ObservedObject private var estate = EstateReferenceStore.shared
     private static let yellow = Color(red: 1, green: 0.75, blue: 0)
     private static let teal = Color(red: 0.29, green: 0.67, blue: 0.76)
     private static let red = Color(red: 0.89, green: 0.12, blue: 0.17)
@@ -52,8 +53,8 @@ struct EstateDashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("DASHBOARD · SELENDANG 3").font(.title2.bold())
-                Text("Reporting period: pending")
-                Text("Estate figures have not been imported. — means unavailable.")
+                Text(estate.reference?.reportingPeriod ?? "Reporting period: pending")
+                Text(estate.reference.map { "Estate revision \($0.revision) is saved offline. View the synced records in Estate Information. iOS dashboard calculations are still pending." } ?? "No estate reference data imported. Use Settings → Sync Now.")
                     .font(.footnote).foregroundStyle(.secondary)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), alignment: .top)], alignment: .leading, spacing: 16) {
                     ForEach(sections) { section in
