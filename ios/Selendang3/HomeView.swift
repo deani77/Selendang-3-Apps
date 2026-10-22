@@ -5,6 +5,7 @@ struct HomeView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     @ScaledMetric(relativeTo: .largeTitle) private var iPadHeadingSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .title2) private var iPadSummaryHeaderHeight: CGFloat = 80
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
@@ -107,9 +108,9 @@ struct HomeView: View {
 
     private func summaryUnit(_ row: EstateDashboardPanel) -> String {
         switch row.title {
-        case "Crop data · t/ha": return "(t/ha)"
+        case "Crop data · t/ha": return "(mt/ha)"
         case "Upkeep and Manuring · %": return "(%)"
-        case "Estate cost · Actual YTD · RM/tonne": return "(Actual YTD · RM/tonne)"
+        case "Estate cost · Actual YTD · RM/tonne": return "(RM/mt)"
         default: return ""
         }
     }
@@ -117,12 +118,14 @@ struct HomeView: View {
     private func summaryCell(_ row: EstateDashboardPanel) -> some View {
         VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
             if isPad {
-                Text(summaryTitle(row))
-                    .font(.title2.bold())
-                    .lineLimit(2, reservesSpace: true)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .accessibilityLabel(row.title)
-                Text(summaryUnit(row)).font(.subheadline)
+                VStack(spacing: 2) {
+                    Text(summaryTitle(row))
+                        .font(.title2.bold())
+                        .lineLimit(2)
+                    Text(summaryUnit(row)).font(.subheadline)
+                }
+                .frame(maxWidth: .infinity, minHeight: iPadSummaryHeaderHeight, alignment: .top)
+                .accessibilityElement(children: .combine)
             } else {
                 Text(row.title).font(.subheadline.bold())
             }
