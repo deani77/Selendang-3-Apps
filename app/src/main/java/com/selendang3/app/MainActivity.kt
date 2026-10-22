@@ -107,7 +107,7 @@ fun EstateApp() {
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Spacer(Modifier.height(18.dp))
                             Button(onClick = { nav.navigate("dashboard") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
                                 Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
@@ -153,7 +153,7 @@ private fun SectionGrid(sections: List<Section>, onOpen: (String) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 row.forEach { section ->
                     FilledTonalButton(onClick = { onOpen(section.route) },
-                        modifier = Modifier.weight(1f).heightIn(min = 88.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 72.dp),
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = Color(0xEDDFE8D5), contentColor = Color(0xFF173B2A))) {

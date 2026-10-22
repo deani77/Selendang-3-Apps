@@ -23,7 +23,7 @@ struct HomeView: View {
                     } label: {
                         Text("Estate Dashboard")
                             .font(.title2.bold())
-                            .frame(maxWidth: .infinity, minHeight: 110)
+                            .frame(maxWidth: .infinity, minHeight: 160)
                             .background(Color(red: 0.16, green: 0.35, blue: 0.24))
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 24))
@@ -42,9 +42,9 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Text(title)
-                                    .font(.headline)
+                                    .font(.subheadline.weight(.semibold))
                                     .multilineTextAlignment(.center)
-                                    .frame(maxWidth: .infinity, minHeight: 88)
+                                    .frame(maxWidth: .infinity, minHeight: 64)
                                     .padding(8)
                                     .background(Color(red: 0.85, green: 0.89, blue: 0.82))
                                     .foregroundStyle(green)
