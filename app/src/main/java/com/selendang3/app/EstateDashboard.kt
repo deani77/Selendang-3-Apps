@@ -25,6 +25,9 @@ import com.selendang3.app.data.EstateAverageSph
 import com.selendang3.app.data.estateAverageSph
 import com.selendang3.app.data.EstateSoilSeries
 import com.selendang3.app.data.estateSoilSeries
+import com.selendang3.app.data.EstateWorkforce
+import com.selendang3.app.data.estateWorkforce
+import java.time.format.DateTimeFormatter
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -59,6 +62,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
         }
     }
     val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
+    val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -70,7 +74,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type and Rainfall use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall and Workforce use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
@@ -79,7 +83,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                                 ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                PeopleAndRainfallPanels(rainfall)
+                                PeopleAndRainfallPanels(rainfall, workforce)
                             }
                             Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 ProductionPanels()
@@ -87,7 +91,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                         }
                     } else {
                         ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                        PeopleAndRainfallPanels(rainfall)
+                        PeopleAndRainfallPanels(rainfall, workforce)
                         ProductionPanels()
                     }
                     DashboardPanel("Cost Breakdown", DashboardGreen) {
@@ -211,7 +215,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 }
 
 @Composable
-private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>) {
+private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?) {
     DashboardPanel("Rainfall", DashboardTeal) {
         DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
             val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
@@ -223,9 +227,15 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>) {
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
     }
     DashboardPanel("Workforce", DashboardTeal) {
-        DashboardTable(listOf("Category", "People"),
-            listOf("Staff", "Local Workers", "Foreign Workers", "Contract Workers", "Total Workforce")
-                .map { listOf(it, Pending) })
+        Text(workforce?.period?.format(DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH))
+            ?: "Reporting month: Pending", Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+        DashboardTable(listOf("Category", "People"), listOf(
+            listOf("Staff", workforce?.staff?.toString() ?: "Pending"),
+            listOf("Local Workers", workforce?.localWorkers?.toString() ?: "Pending"),
+            listOf("Foreign Workers", workforce?.foreignWorkers?.toString() ?: "Pending"),
+            listOf("Contract Workers", workforce?.contractWorkers?.toString() ?: "Pending"),
+            listOf("Total Workforce", workforce?.totalWorkforce?.toString() ?: "Pending"),
+        ))
     }
     DashboardPanel("Ratios", DashboardTeal) {
         DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"),
