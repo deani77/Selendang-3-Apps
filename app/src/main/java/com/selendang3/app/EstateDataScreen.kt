@@ -33,6 +33,14 @@ fun EstateDataControls() {
     var preview by remember { mutableStateOf<EstatePackage?>(null) }
     var source by remember { mutableStateOf("File import") }
     val scope = rememberCoroutineScope()
+    val productionStore = remember(context) { ProductionDraftStore(context) }
+    var productionEntries by remember { mutableStateOf<List<ProductionEntry>>(emptyList()) }
+    var productionError by remember { mutableStateOf<String?>(null) }
+    fun refreshProduction() {
+        try { productionEntries = productionStore.entries() }
+        catch (_: Exception) { productionError = "Production storage could not be read. Saved drafts are protected." }
+    }
+    LaunchedEffect(Unit) { refreshProduction() }
 
     fun prepare(read: () -> String, origin: String) {
         busy = true
@@ -87,6 +95,21 @@ fun EstateDataControls() {
         style = MaterialTheme.typography.bodySmall)
     HorizontalDivider()
     Text("VPS synchronization", style = MaterialTheme.typography.titleLarge)
+    Text("Sync uploads pending production drafts and downloads production records and estate reference updates. Offline drafts stay on this device until acknowledged by the server.")
+    Text("Production: ${productionEntries.count { it.pending && it.conflict == null }} pending upload · ${productionEntries.count { it.conflict != null }} conflicts · ${productionEntries.count { !it.pending }} synced")
+    productionError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    productionEntries.filter { it.conflict != null }.forEach { local ->
+        val server = local.conflict!!
+        Card(Modifier.fillMaxWidth()) { Column(Modifier.padding(12.dp)) {
+            Text("Conflict: ${local.record.field} · ${local.record.date}", style = MaterialTheme.typography.titleMedium)
+            Text("Both copies are preserved. Choose which values to keep.")
+            fun values(row: ProductionDraft) = "Harvested: ${row.harvested ?: "Pending"} t; sent to mill: ${row.sentToMill ?: "Pending"} t; backlog: ${row.backlog ?: "Pending"} t; hectares: ${row.hectares ?: "Pending"}; harvesters: ${row.harvesters ?: "Pending"}"
+            Text("Phone: ${values(local.record)}")
+            Text("Server: ${values(server.record)}")
+            TextButton(enabled = !busy, onClick = { productionStore.resolve(local.record.key, false); refreshProduction() }) { Text("Use server copy") }
+            TextButton(enabled = !busy, onClick = { productionStore.resolve(local.record.key, true); refreshProduction() }) { Text("Keep phone copy · upload on next Sync") }
+        } }
+    }
     Text("Enter your trusted server's full HTTPS update address. File import works even when the VPS is unavailable.")
     OutlinedTextField(address, { address = it }, label = { Text("Server update address") }, singleLine = true,
         enabled = !busy, modifier = Modifier.fillMaxWidth())
@@ -97,9 +120,30 @@ fun EstateDataControls() {
         preferences.edit().putString("address", address.trim()).apply()
         val requestedAddress = address
         val requestedToken = accessToken
-        prepare({ EstateServer.download(requestedAddress, requestedToken) }, "VPS")
+        busy = true
+        message = null
+        scope.launch {
+            var productionMessage: String
+            try {
+                productionMessage = withContext(Dispatchers.IO) { ProductionSync.sync(productionStore, requestedAddress, requestedToken) }
+                productionError = null
+            } catch (cancelled: CancellationException) { busy = false; throw cancelled
+            } catch (_: Exception) {
+                productionMessage = "Production sync failed. Local drafts are retained. Check connection and token write permission, then retry."
+                productionError = productionMessage
+            }
+            refreshProduction()
+            try {
+                val update = withContext(Dispatchers.IO) { EstatePackages.parse(EstateServer.download(requestedAddress, requestedToken)) }
+                if (snapshot == null || update.revision > snapshot!!.revision) { source = "VPS"; preview = update }
+                else require(update.revision == snapshot!!.revision) { "Server estate revision is older than this phone." }
+                message = "Production: $productionMessage. Estate reference checked; review any new update below."
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) { message = "Production: $productionMessage. Estate download failed; saved estate data is unchanged."
+            } finally { busy = false }
+        }
     }, enabled = !busy && address.isNotBlank() && accessToken.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Sync Now") }
-    if (busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("Checking estate update…") }
+    if (busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("Synchronizing estate and production data…") }
     message?.let { Text(it) }
 
     preview?.let { update ->
