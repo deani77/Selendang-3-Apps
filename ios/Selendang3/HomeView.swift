@@ -130,7 +130,7 @@ struct HomeView: View {
                 Text(row.title).font(.subheadline.bold())
             }
             Text(isPad ? row.note.replacingOccurrences(of: " · ", with: "\n") : row.note)
-                .font(isPad ? .title3 : .footnote)
+                .font(isPad ? .body : .footnote)
         }
         .multilineTextAlignment(isPad ? .center : .leading)
     }
