@@ -4,8 +4,8 @@ import java.time.YearMonth
 
 data class EstateWorkforce(val period: YearMonth, val staff: Int, val localWorkers: Int,
     val foreignWorkers: Int, val contractWorkers: Int?, val totalWorkers: Int) {
-    // Worker nationality counts already include all reported worker roles.
-    val totalWorkforce: Int get() = staff + totalWorkers
+    // Local and foreign counts exclude the separate contractor category.
+    val totalWorkforce: Int? get() = contractWorkers?.let { staff + totalWorkers + it }
 }
 
 fun estateWorkforce(update: EstatePackage?): EstateWorkforce? {
@@ -22,6 +22,5 @@ fun estateWorkforce(update: EstatePackage?): EstateWorkforce? {
     val workers = count("Workforce total workers") ?: return null
     if (local + foreign != workers) return null
     val contractors = count("Workforce contract workers")
-    if (contractors != null && contractors > workers) return null
     return EstateWorkforce(period, staff, local, foreign, contractors, workers)
 }

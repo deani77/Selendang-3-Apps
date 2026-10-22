@@ -12,13 +12,17 @@ class WorkforceTest {
         ) + extra)),"")
     @Test fun totalIncludesStaffOnceAndUnknownContractorsRemainPending() {
         val result = estateWorkforce(fixture())!!
-        assertEquals(12,result.totalWorkforce)
+        assertNull(result.totalWorkforce)
         assertEquals(9,result.period.monthValue)
         assertNull(result.contractWorkers)
     }
-    @Test fun contractorsAreSubcountNotAddedTwiceAndMeasuredZeroIsRetained() {
-        assertEquals(12,estateWorkforce(fixture(contractors = "4"))!!.totalWorkforce)
-        assertEquals(0,estateWorkforce(fixture(contractors = "0"))!!.contractWorkers)
+    @Test fun contractorsAreSeparateFromLocalWorkersAndIncludedOnceInTotal() {
+        val result = estateWorkforce(fixture(contractors = "4"))!!
+        assertEquals(7,result.localWorkers)
+        assertEquals(3,result.foreignWorkers)
+        assertEquals(16,result.totalWorkforce!!)
+        assertEquals(12,estateWorkforce(fixture(contractors = "0"))!!.totalWorkforce!!)
+        assertEquals(0,estateWorkforce(fixture(contractors = "0"))!!.contractWorkers!!)
     }
     @Test fun incompleteInvalidOrDuplicateCountsStayPending() {
         for (value in listOf(null,"-1","1.5","8"))
