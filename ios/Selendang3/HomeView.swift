@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeView: View {
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject private var estate = EstateReferenceStore.shared
+    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    @ScaledMetric(relativeTo: .largeTitle) private var iPadHeadingSize: CGFloat = 44
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
@@ -14,7 +16,7 @@ struct HomeView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     Text("Estate Dashboard")
-                        .font(.largeTitle.bold())
+                        .font(isPad ? .system(size: iPadHeadingSize, weight: .bold) : .largeTitle.bold())
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white : green)
                         .padding(.vertical, 24)
@@ -27,8 +29,8 @@ struct HomeView: View {
                                 ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                                     if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(row.title).font(.subheadline.bold())
-                                        Text(row.note).font(.footnote)
+                                        Text(row.title).font(isPad ? .title2.bold() : .subheadline.bold())
+                                        Text(row.note).font(isPad ? .title3 : .footnote)
                                     }
                                 }
                             }
@@ -55,7 +57,7 @@ struct HomeView: View {
                                 }
                             } label: {
                                 Text(title)
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
                                     .multilineTextAlignment(.center)
                                     .frame(maxWidth: .infinity, minHeight: 64)
                                     .padding(8)
@@ -66,12 +68,12 @@ struct HomeView: View {
                         }
                     }
                     Text("S3 Estate Info")
-                        .font(.footnote)
+                        .font(isPad ? .body : .footnote)
                         .foregroundStyle(.secondary)
                         .padding(.top, 8)
-                    if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(.footnote) }
+                    if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(isPad ? .body : .footnote) }
                     Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
-                        .font(.footnote)
+                        .font(isPad ? .body : .footnote)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
                         .padding(.top, 24)
