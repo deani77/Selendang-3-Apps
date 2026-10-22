@@ -211,11 +211,15 @@ struct EstateDashboardData {
         formatter.calendar = calendar; formatter.timeZone = calendar.timeZone
         formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "MMM yyyy"
         let previous = calendar.date(byAdding: .month, value: -1, to: calendar.date(from: calendar.dateComponents([.year, .month], from: today))!)!
-        var ytd: Double?, yieldPeriod = "YTD " + String(year)
+        var ytd: Double?, annualBudgetProgress: Double?, yieldPeriod = "YTD " + String(year)
         if let source = reference?.yph, source.reportingYear == year,
            (1...month).contains(source.throughMonth), source.matureAreaHa.isFinite, source.matureAreaHa > 0,
            let tonnes = source.actualYtdTonnes, tonnes.isFinite, tonnes >= 0 {
             ytd = tonnes / source.matureAreaHa
+            if let budget = source.fullYearBudgetTonnes, budget.isFinite, budget > 0 {
+                let percent = tonnes / budget * 100
+                if percent.isFinite { annualBudgetProgress = percent }
+            }
             yieldPeriod = "YTD through " + formatter.string(from: calendar.date(from: DateComponents(year: year, month: source.throughMonth, day: 1))!)
         }
         let costPeriod = period("FFB cost YTD reporting period")
@@ -230,7 +234,8 @@ struct EstateDashboardData {
         return [
             EstateDashboardPanel(title: "Crop data · t/ha", headers: [], rows: [],
                 note: formatter.string(from: previous) + ": Pending · " + formatter.string(from: today) + " MTD: Pending\n" +
-                    yieldPeriod + ": " + Self.number(ytd)),
+                    yieldPeriod + ": " + Self.number(ytd) + "\nYTD vs Year Budget: " +
+                    (annualBudgetProgress.map { Self.number($0) + "%" } ?? "Pending")),
             EstateDashboardPanel(title: "Upkeep and Manuring · %", headers: [], rows: [],
                 note: "Weeding: Pending · Manuring: Pending"),
             EstateDashboardPanel(title: "Estate cost · Actual YTD · RM/tonne", headers: [], rows: [],

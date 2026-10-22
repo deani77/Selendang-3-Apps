@@ -98,10 +98,19 @@ struct HomeView: View {
 
     private func summaryTitle(_ row: EstateDashboardPanel) -> String {
         switch row.title {
-        case "Crop data · t/ha": return "Crop data\n(t/ha)"
-        case "Upkeep and Manuring · %": return "Upkeep and Manuring\n(%)"
-        case "Estate cost · Actual YTD · RM/tonne": return "Estate cost\n(Actual YTD · RM/tonne)"
+        case "Crop data · t/ha": return "Crop Data"
+        case "Upkeep and Manuring · %": return "Upkeep and Manuring"
+        case "Estate cost · Actual YTD · RM/tonne": return "Estate Cost"
         default: return row.title
+        }
+    }
+
+    private func summaryUnit(_ row: EstateDashboardPanel) -> String {
+        switch row.title {
+        case "Crop data · t/ha": return "(t/ha)"
+        case "Upkeep and Manuring · %": return "(%)"
+        case "Estate cost · Actual YTD · RM/tonne": return "(Actual YTD · RM/tonne)"
+        default: return ""
         }
     }
 
@@ -109,10 +118,11 @@ struct HomeView: View {
         VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
             if isPad {
                 Text(summaryTitle(row))
-                    .font(.headline)
+                    .font(.title2.bold())
                     .lineLimit(2, reservesSpace: true)
                     .frame(maxWidth: .infinity, alignment: .top)
                     .accessibilityLabel(row.title)
+                Text(summaryUnit(row)).font(.subheadline)
             } else {
                 Text(row.title).font(.subheadline.bold())
             }

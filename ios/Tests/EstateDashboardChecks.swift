@@ -68,12 +68,39 @@ precondition(home[1].note == "Weeding: Pending · Manuring: Pending")
 precondition(home[2].note.contains("Operation: 123.00 · GC: 45.00"))
 let newYearHome = EstateDashboardData(reference: homeReference, today: january).homeRows
 precondition(newYearHome[0].note.contains("Dec 2026: Pending"))
-precondition(newYearHome[0].note.hasSuffix("YTD 2027: Pending"))
+precondition(newYearHome[0].note.contains("YTD 2027: Pending"))
 precondition(newYearHome[2].note.contains("Operation: Pending · GC: Pending"))
 let noHomeData = EstateDashboardData(reference: nil, today: october).homeRows
-precondition(noHomeData[0].note.hasSuffix("YTD 2026: Pending"))
+precondition(noHomeData[0].note.contains("YTD 2026: Pending"))
 let august = ISO8601DateFormatter().date(from: "2026-08-01T00:00:00Z")!
 let futureHome = EstateDashboardData(reference: homeReference, today: august).homeRows
-precondition(futureHome[0].note.hasSuffix("YTD 2026: Pending"))
+precondition(futureHome[0].note.contains("YTD 2026: Pending"))
 precondition(futureHome[2].note.contains("Operation: Pending · GC: Pending"))
 print("Home summary checks passed")
+
+precondition(home[0].note.contains("YTD vs Year Budget: 83.33%"))
+precondition(!home[0].note.contains("125.00%"))
+precondition(newYearHome[0].note.hasSuffix("YTD vs Year Budget: Pending"))
+precondition(noHomeData[0].note.hasSuffix("YTD vs Year Budget: Pending"))
+precondition(futureHome[0].note.hasSuffix("YTD vs Year Budget: Pending"))
+func budgetProgressNote(actual: Any, annual: Any) throws -> String {
+    var input = fixture
+    var crop = input["yph"] as! [String: Any]
+    crop["actualYtdTonnes"] = actual
+    crop["fullYearBudgetTonnes"] = annual
+    crop["budgetYtdTonnes"] = NSNull()
+    input["yph"] = crop
+    let reference = try EstateReference.parse(JSONSerialization.data(withJSONObject: input))
+    return EstateDashboardData(reference: reference, today: october).homeRows[0].note
+}
+let zeroAnnual = try budgetProgressNote(actual: 25000, annual: 0)
+let missingAnnual = try budgetProgressNote(actual: 25000, annual: NSNull())
+let missingActual = try budgetProgressNote(actual: NSNull(), annual: 30000)
+let zeroActual = try budgetProgressNote(actual: 0, annual: 30000)
+let aboveAnnual = try budgetProgressNote(actual: 60000, annual: 30000)
+precondition(zeroAnnual.hasSuffix("YTD vs Year Budget: Pending"))
+precondition(missingAnnual.hasSuffix("YTD vs Year Budget: Pending"))
+precondition(missingActual.hasSuffix("YTD vs Year Budget: Pending"))
+precondition(zeroActual.hasSuffix("YTD vs Year Budget: 0.00%"))
+precondition(aboveAnnual.hasSuffix("YTD vs Year Budget: 200.00%"))
+print("Annual crop budget achievement checks passed")

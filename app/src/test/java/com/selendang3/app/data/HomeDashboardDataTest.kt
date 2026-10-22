@@ -29,7 +29,7 @@ class HomeDashboardDataTest {
     @Test fun missingFutureAndOldYearRecordsRemainPending() {
         for (source in listOf(null, fixture(2025), fixture(2026, 11))) {
             val rows = homeDashboardRows(source, today)
-            assertTrue(rows[0].detail.endsWith("YTD 2026: Pending"))
+            assertTrue(rows[0].detail.contains("YTD 2026: Pending"))
             assertTrue(rows[2].detail.contains("Operation: Pending · GC: Pending"))
         }
         assertTrue(homeDashboardRows(fixture(area = 0.0), today)[0].detail.endsWith("Pending"))
@@ -38,6 +38,21 @@ class HomeDashboardDataTest {
         val rows = homeDashboardRows(fixture(), LocalDate.of(2027, 1, 1))
         assertTrue(rows[0].detail.contains("Dec 2026: Pending"))
         assertTrue(rows[0].detail.contains("Jan 2027 MTD: Pending"))
-        assertTrue(rows[0].detail.endsWith("YTD 2027: Pending"))
+        assertTrue(rows[0].detail.contains("YTD 2027: Pending"))
+    }
+
+    @Test fun annualBudgetAchievementUsesAnnualDenominatorAndHandlesMissingOrZeroBudget() {
+        val base = fixture()
+        assertTrue(homeDashboardRows(base, today)[0].detail.endsWith("YTD vs Year Budget: 83.33%"))
+        for (budget in listOf(null, 0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY)) {
+            val input = base.copy(yph = base.yph!!.copy(fullYearBudgetTonnes = budget))
+            assertTrue(homeDashboardRows(input, today)[0].detail.endsWith("YTD vs Year Budget: Pending"))
+        }
+        val zero = base.copy(yph = base.yph!!.copy(actualYtdTonnes = 0.0))
+        val over = base.copy(yph = base.yph!!.copy(actualYtdTonnes = 60000.0))
+        val missing = base.copy(yph = base.yph!!.copy(actualYtdTonnes = null))
+        assertTrue(homeDashboardRows(zero, today)[0].detail.endsWith("YTD vs Year Budget: 0.00%"))
+        assertTrue(homeDashboardRows(over, today)[0].detail.endsWith("YTD vs Year Budget: 200.00%"))
+        assertTrue(homeDashboardRows(missing, today)[0].detail.endsWith("YTD vs Year Budget: Pending"))
     }
 }

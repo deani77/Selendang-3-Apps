@@ -18,12 +18,18 @@ fun homeDashboardRows(update: EstatePackage?, today: LocalDate): List<HomeDashbo
             YearMonth.of(it.reportingYear, it.throughMonth) <= month &&
             it.matureAreaHa.isFinite() && it.matureAreaHa > 0
     }
+    val annualBudgetProgress = yph?.let { source ->
+        val actual = source.actualYtdTonnes?.takeIf { it.isFinite() && it >= 0 } ?: return@let null
+        val budget = source.fullYearBudgetTonnes?.takeIf { it.isFinite() && it > 0 } ?: return@let null
+        (actual / budget * 100).takeIf { it.isFinite() }
+    }
     val yieldPeriod = yph?.let { "YTD through " + label(YearMonth.of(it.reportingYear, it.throughMonth)) } ?: "YTD " + today.year
     val costs = estateFfbCosts(update)?.takeIf { it.actualPeriod.year == today.year && it.actualPeriod <= month }
     return listOf(
         HomeDashboardRow("Crop data · t/ha",
             label(month.minusMonths(1)) + ": Pending · " + label(month) + " MTD: Pending\n" +
-                yieldPeriod + ": " + number(yph?.actualYtdYph)),
+                yieldPeriod + ": " + number(yph?.actualYtdYph) + "\nYTD vs Year Budget: " +
+                (annualBudgetProgress?.let { number(it) + "%" } ?: "Pending")),
         HomeDashboardRow("Upkeep and Manuring · %",
             "Weeding: Pending · Manuring: Pending"),
         HomeDashboardRow("Estate cost · Actual YTD · RM/tonne",
