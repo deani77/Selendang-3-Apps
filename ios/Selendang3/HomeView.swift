@@ -27,11 +27,11 @@ struct HomeView: View {
                             let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
                             Group {
                                 if isPad {
-                                    HStack(alignment: .center, spacing: 16) {
+                                    HStack(alignment: .top, spacing: 16) {
                                         ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
                                             if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
                                             summaryCell(row)
-                                                .frame(maxWidth: .infinity, alignment: .center)
+                                                .frame(maxWidth: .infinity, alignment: .top)
                                         }
                                     }
                                     .fixedSize(horizontal: false, vertical: true)
@@ -44,7 +44,7 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            .frame(maxWidth: .infinity, minHeight: 160, alignment: .leading)
+                            .frame(maxWidth: .infinity, minHeight: 160, alignment: isPad ? .top : .leading)
                             .padding(16)
                         }
                             .background(Color(red: 0.16, green: 0.35, blue: 0.24))
@@ -96,10 +96,26 @@ struct HomeView: View {
         .tint(.green)
     }
 
+    private func summaryTitle(_ row: EstateDashboardPanel) -> String {
+        switch row.title {
+        case "Crop data · t/ha": return "Crop data\n(t/ha)"
+        case "Upkeep and Manuring · %": return "Upkeep and Manuring\n(%)"
+        case "Estate cost · Actual YTD · RM/tonne": return "Estate cost\n(Actual YTD · RM/tonne)"
+        default: return row.title
+        }
+    }
+
     private func summaryCell(_ row: EstateDashboardPanel) -> some View {
         VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
-            Text(isPad ? row.title.replacingOccurrences(of: " · ", with: "\n") : row.title)
-                .font(isPad ? .title2.bold() : .subheadline.bold())
+            if isPad {
+                Text(summaryTitle(row))
+                    .font(.headline)
+                    .lineLimit(2, reservesSpace: true)
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .accessibilityLabel(row.title)
+            } else {
+                Text(row.title).font(.subheadline.bold())
+            }
             Text(isPad ? row.note.replacingOccurrences(of: " · ", with: "\n") : row.note)
                 .font(isPad ? .title3 : .footnote)
         }
