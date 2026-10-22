@@ -111,7 +111,7 @@ struct EstateDashboardData {
             return EstateDashboardPanel(title:title,headers:headers,rows:[],note:"Pending reconciled area records")
         }
         return EstateDashboardPanel(title:title,headers:headers,rows:rows,
-            note:soilSeries ? "* Historical agricultural suitability reference; estate verification pending. See Soil and Topography in Estate Details for sources." : "Total area: "+Self.number(total)+" ha")
+            note:soilSeries ? "* Historical agricultural suitability reference; estate verification pending." : "Total area: "+Self.number(total)+" ha")
     }
     private var sph: EstateDashboardPanel {
         var total: Double?

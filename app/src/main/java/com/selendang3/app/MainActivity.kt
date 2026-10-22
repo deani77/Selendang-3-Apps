@@ -46,7 +46,7 @@ val estateSections = listOf(
 )
 
 val mainSections = listOf(
-    Section("information", "Estate Details", "Estate profile and rainfall"),
+    Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
     Section("production", "Estate Production", "Field production, daily drafts and period totals."),
     Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
     Section("reports", "Reports", "Estate reports will be added later."),
@@ -116,24 +116,15 @@ fun EstateApp() {
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
                     }
-                    composable("information") {
-                        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            InfoCard("Estate summary", estateUpdate?.let { "${it.reportingPeriod} · revision ${it.revision}\nSaved on this device for offline access." }
-                                ?: "No estate records on this device. Import Estate Data in Settings.")
-                            SectionGrid(estateSections) { nav.navigate(it) }
-                        }
+                    composable("information") { EstateDashboard(estateUpdate) }
+                    composable("dashboard") {
+                        InfoCard("Estate Dashboard", "Dashboard contents will be added later. Estate panels are now in Estate Details.")
                     }
-                    composable("dashboard") { EstateDashboard(estateUpdate) }
                     composable("production") { ProductionScreen() }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
                             themeChoice = it
                             preferences.edit().putString("theme", it).apply()
-                        }
-                    }
-                    estateSections.forEach { section ->
-                        composable(section.route) {
-                            EstateSectionData(section, estateUpdate)
                         }
                     }
                     mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "production" }.forEach { section ->

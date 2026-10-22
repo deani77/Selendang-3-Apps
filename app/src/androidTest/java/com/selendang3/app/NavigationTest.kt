@@ -8,11 +8,16 @@ import org.junit.Test
 class NavigationTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
-    @Test fun informationOpensRainfallAndBackReturnsToHome() {
+    @Test fun detailsShowsMovedPanelsAndDashboardIsPlaceholder() {
         compose.onNodeWithText("Estate Details").performScrollTo().performClick()
-        compose.onNodeWithText("Rainfall").performScrollTo().performClick()
-        compose.onNodeWithText("Monthly rainfall, rainy days and historical comparisons.").assertIsDisplayed()
+        compose.onNodeWithText("ESTATE DETAILS · SELENDANG 3").assertIsDisplayed()
+        compose.onNodeWithText("Age Profile").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Rainfall").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Checkroll Average").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("‹  Back").performClick()
+        compose.onNodeWithText("Estate Dashboard").performScrollTo().performClick()
+        compose.onNodeWithText("Dashboard contents will be added later. Estate panels are now in Estate Details.").assertIsDisplayed()
+        compose.onNodeWithText("Age Profile").assertDoesNotExist()
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
     }

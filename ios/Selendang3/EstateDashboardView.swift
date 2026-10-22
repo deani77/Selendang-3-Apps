@@ -10,7 +10,7 @@ struct EstateDashboardView: View {
             let data = EstateDashboardData(reference:estate.reference,today:context.date)
             ScrollView {
                 VStack(alignment:.leading,spacing:16) {
-                    Text("DASHBOARD · SELENDANG 3").font(.title2.bold())
+                    Text("ESTATE DETAILS · SELENDANG 3").font(.title2.bold())
                     if let reference = estate.reference {
                         Text("Saved estate revision \(reference.revision)").font(.headline)
                         Text(reference.reportingPeriod).font(.footnote)
@@ -24,7 +24,7 @@ struct EstateDashboardView: View {
             }
         }
         .toolbar(.visible,for:.navigationBar)
-        .navigationTitle("Estate Dashboard").navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Estate Details").navigationBarTitleDisplayMode(.inline)
     }
     private func panel(_ section: EstateDashboardPanel) -> some View {
         VStack(alignment:.leading,spacing:0) {

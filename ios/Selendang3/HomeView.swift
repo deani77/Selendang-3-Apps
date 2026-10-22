@@ -19,7 +19,7 @@ struct HomeView: View {
                         .foregroundStyle(colorScheme == .dark ? Color.white : green)
                         .padding(.vertical, 24)
                     NavigationLink {
-                        EstateDashboardView()
+                        ModuleView(title: "Estate Dashboard")
                     } label: {
                         Text("Estate Dashboard")
                             .font(.title2.bold())
