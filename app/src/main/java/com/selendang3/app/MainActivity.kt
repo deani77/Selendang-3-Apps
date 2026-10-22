@@ -46,7 +46,7 @@ val estateSections = listOf(
 )
 
 val mainSections = listOf(
-    Section("information", "Estate Information", "Estate profile and rainfall"),
+    Section("information", "Estate Details", "Estate profile and rainfall"),
     Section("production", "Estate Production", "Field production, daily drafts and period totals."),
     Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
     Section("reports", "Reports", "Estate reports will be added later."),
@@ -83,7 +83,7 @@ fun EstateApp() {
     val title = when (route) {
         "home" -> "S3 Estate Info"
         "dashboard" -> "Estate Dashboard"
-        else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Information"
+        else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
     MaterialTheme(colorScheme = if (dark) darkColorScheme(
         primary = Color(0xFFB5D89A), onPrimary = Color(0xFF163620),
@@ -190,7 +190,7 @@ private fun InfoCard(title: String, body: String) {
 @Composable
 private fun PlantationBackground(route: String) {
     // Original lightweight illustration; replace with approved plantation photos later.
-    // Estate Information subsections share the same background.
+    // Estate Details subsections share the same background.
     val top = when(route) {
         "home" -> Color(0xFF254F32)
         "dashboard" -> Color(0xFF6A633E)

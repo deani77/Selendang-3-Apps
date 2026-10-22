@@ -89,7 +89,7 @@ struct UserSettingsView: View {
                 do {
                     guard let data = pendingEstateData else { return }
                     try estate.apply(data)
-                    syncMessage = (syncMessage ?? "") + "\nEstate revision \(estate.reference?.revision ?? 0) saved. Open Estate Information; these records are available offline."
+                    syncMessage = (syncMessage ?? "") + "\nEstate revision \(estate.reference?.revision ?? 0) saved. Open Estate Details; these records are available offline."
                 } catch { syncMessage = error.localizedDescription }
                 pendingEstateData = nil; pendingEstate = nil
             }

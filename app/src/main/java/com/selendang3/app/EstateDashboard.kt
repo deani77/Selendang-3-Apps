@@ -147,7 +147,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
                     String.format(Locale.US, "%.2f%%", band.area / ageProfile.totalArea * 100)) })
             Text("Total area: " + String.format(Locale.US, "%,.2f ha", ageProfile.totalArea),
                 Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
-            Text("Area-weighted from supplied field ages. Review the source-record status in Estate Information.",
+            Text("Area-weighted from supplied field ages. Review the source-record status in Estate Details.",
                 Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         }
     }

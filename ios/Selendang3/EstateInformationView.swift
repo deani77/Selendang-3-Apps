@@ -32,7 +32,7 @@ struct EstateInformationView: View {
             }
             if let error = estate.storageError { Text(error).foregroundStyle(.red) }
         }
-        .navigationTitle("Estate Information").navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Estate Details").navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }
 }
