@@ -10,6 +10,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import com.selendang3.app.data.AnnualRainfall
+import com.selendang3.app.data.estateAnnualRainfall
+import com.selendang3.app.data.estateRainfallToday
+import java.time.Month
+import java.time.format.TextStyle
 import com.selendang3.app.data.EstateAverageSph
 import com.selendang3.app.data.estateAverageSph
 import com.selendang3.app.data.EstateSoilSeries
@@ -41,6 +52,13 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val topography = remember(estateUpdate) { estateTopography(estateUpdate) }
     val averageSph = remember(estateUpdate) { estateAverageSph(estateUpdate) }
     val soilSeries = remember(estateUpdate) { estateSoilSeries(estateUpdate) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val today by produceState(estateRainfallToday(), lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { value = estateRainfallToday(); delay(60_000) }
+        }
+    }
+    val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             BoxWithConstraints {
@@ -52,7 +70,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH and Soil Type use synced estate records. Other panels may still be pending. — means unavailable.",
+                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type and Rainfall use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
                     HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
                     if (wide) {
@@ -61,7 +79,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                                 ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                PeopleAndRainfallPanels()
+                                PeopleAndRainfallPanels(rainfall)
                             }
                             Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 ProductionPanels()
@@ -69,7 +87,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                         }
                     } else {
                         ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                        PeopleAndRainfallPanels()
+                        PeopleAndRainfallPanels(rainfall)
                         ProductionPanels()
                     }
                     DashboardPanel("Cost Breakdown", DashboardGreen) {
@@ -193,11 +211,16 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 }
 
 @Composable
-private fun PeopleAndRainfallPanels() {
+private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>) {
     DashboardPanel("Rainfall", DashboardTeal) {
-        ChartPending("Monthly rainfall comparison · mm")
-        Text("Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec",
-            style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(8.dp))
+        DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
+            val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
+                else "YTD through " + Month.of(row.throughMonth).getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+            listOf(row.year.toString(), period,
+                row.totalMm?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending")
+        })
+        Text("Five years, newest first. Current-year YTD ends at the last completed month (Malaysia time). Totals need every month in the stated period; missing data remains Pending.",
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
     }
     DashboardPanel("Workforce", DashboardTeal) {
         DashboardTable(listOf("Category", "People"),
