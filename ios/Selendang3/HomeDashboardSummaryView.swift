@@ -92,78 +92,88 @@ struct HomeDashboardSummaryView: View {
     }
 }
 
-// Six-card phone preview; larger accessibility text retains scroll access.
+// The phone hierarchy groups crop operations, cultivation and estate costs.
+// Larger accessibility text retains scroll access.
 private struct OperationalDashboardGrid: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
-    private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
     private let green = Color(red: 0.16, green: 0.35, blue: 0.24)
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                TimelineView(.periodic(from: Date(), by: 60)) { context in
-                    let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
-                    LazyVGrid(columns: columns, spacing: 10) {
-                        ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
-                            dashboardCard(card, index: index, height: max(218, (geometry.size.height - 44) / 3))
-                        }
+        ScrollView {
+            TimelineView(.periodic(from: Date(), by: 60)) { context in
+                let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
+                VStack(spacing: 10) {
+                    dashboardCard(cards[0], symbol: "leaf.fill", wide: true)
+                    HStack(alignment: .top, spacing: 10) {
+                        dashboardCard(cards[1], symbol: "square.grid.3x3.fill", height: 144)
+                        dashboardCard(cards[2], symbol: "person.fill", height: 144)
                     }
+                    HStack(alignment: .top, spacing: 10) {
+                        dashboardCard(cards[3], symbol: "leaf.circle.fill", height: 126)
+                        dashboardCard(cards[4], symbol: "sprinkler.and.droplets.fill", height: 126)
+                    }
+                    dashboardCard(cards[5], symbol: "ant.fill", wide: true)
+                    dashboardCard(cards[6], symbol: "banknote.fill", wide: true)
                 }
                 .padding(12)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
         }
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
-    private func dashboardCard(_ card: EstateDashboardPanel, index: Int, height: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 6) {
-                Image(systemName: ["leaf.fill", "square.grid.3x3.fill", "person.fill", "sprinkler.and.droplets.fill", "chart.bar.fill", "banknote.fill"][index])
-                    .font(.caption).foregroundStyle(green).frame(width: 16)
+    private func dashboardCard(_ card: EstateDashboardPanel, symbol: String, height: CGFloat = 0, wide: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Image(systemName: symbol).font(.caption).foregroundStyle(green)
                 Text(card.title).font(.subheadline.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: wide ? 18 : 34, alignment: wide ? .center : .topLeading)
             Rectangle().fill(green.opacity(0.15)).frame(height: 1)
-            if index == 0 {
-                prominentMetric(card.rows[2])
-                compactMetric(card.rows[0])
-                compactMetric(card.rows[1])
-                compactMetric(card.rows[3])
-            } else if index >= 4 {
-                prominentMetric(card.rows[0])
+            if card.title == "Crop Production" {
+                HStack(alignment: .top, spacing: 8) {
+                    ForEach([0, 1, 2], id: \.self) { row in
+                        metric(card.rows[row], prominent: true, centered: true)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                    }
+                }
+                HStack {
+                    Text(card.rows[3][0]).foregroundStyle(.secondary)
+                    Spacer(minLength: 4)
+                    Text(card.rows[3][1] + " " + card.rows[3][2]).fontWeight(.semibold).monospacedDigit()
+                }.font(.caption)
+            } else if wide {
+                HStack(alignment: .top, spacing: 12) {
+                    ForEach(card.rows.indices, id: \.self) { row in
+                        metric(card.rows[row], prominent: card.title == "Estate Cost", centered: true)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                    }
+                }
             } else {
                 ForEach(card.rows.indices, id: \.self) { row in
-                    compactMetric(card.rows[row])
+                    metric(card.rows[row])
                 }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 0)
             Text(card.note).font(.caption2).foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: wide ? .center : .leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(12)
+        .padding(10)
         .frame(maxWidth: .infinity, minHeight: height, alignment: .topLeading)
         .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .overlay(RoundedRectangle(cornerRadius: 18).stroke(green.opacity(0.12), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(green.opacity(0.12), lineWidth: 1))
     }
 
-    private func prominentMetric(_ metric: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(metric[0]).font(.caption2).foregroundStyle(.secondary)
-            (Text(metric[1]).font(.title2.weight(.bold)) + Text(" " + metric[2]).font(.caption))
-                .foregroundStyle(green).monospacedDigit()
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    private func compactMetric(_ metric: [String]) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(metric[0]).font(.caption2).foregroundStyle(.secondary)
-            (Text(metric[1]).font(.caption.weight(.semibold)) + Text(" " + metric[2]).font(.caption2))
+    private func metric(_ row: [String], prominent: Bool = false, centered: Bool = false) -> some View {
+        VStack(alignment: centered ? .center : .leading, spacing: 2) {
+            Text(row[0]).font(.caption2).foregroundStyle(.secondary)
+            (Text(row[1]).font(prominent ? .headline : .caption.weight(.semibold)) + Text(" " + row[2]).font(.caption2))
+                .foregroundStyle(prominent ? green : Color.primary)
                 .monospacedDigit().fixedSize(horizontal: false, vertical: true)
         }
+        .multilineTextAlignment(centered ? .center : .leading)
         .accessibilityElement(children: .combine)
     }
 }

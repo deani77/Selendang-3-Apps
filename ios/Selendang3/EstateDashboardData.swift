@@ -274,7 +274,7 @@ struct EstateDashboardData {
             costLabel = "YTD through " + formatter.string(from: date)
         }
         return [
-            EstateDashboardPanel(title: "Crop Data", headers: [], rows: [
+            EstateDashboardPanel(title: "Crop Production", headers: [], rows: [
                 [formatter.string(from: calendar.date(byAdding: .month, value: -1, to: today)!), "Pending", "mt/ha"],
                 [formatter.string(from: today) + " MTD", "Pending", "mt/ha"],
                 ["Actual YTD", Self.number(ytd), "mt/ha"],
@@ -288,15 +288,20 @@ struct EstateDashboardData {
                 ["Harvested crop", "Pending", "mt/worker-day"],
                 ["Covered area", "Pending", "ha/worker-day"]
             ], note: "MTD · " + formatter.string(from: today)),
-            EstateDashboardPanel(title: "Weeding & Manuring", headers: [], rows: [
-                ["Weeding progress", "Pending", "%"], ["Manuring progress", "Pending", "%"]
+            EstateDashboardPanel(title: "Manuring", headers: [], rows: [
+                ["Programme progress", "Pending", "%"]
             ], note: "Reporting period pending"),
-            EstateDashboardPanel(title: "Operation Cost", headers: [], rows: [
-                ["Actual YTD", Self.number(operation), "RM/mt"]
-            ], note: costLabel),
-            EstateDashboardPanel(title: "General Charges", headers: [], rows: [
-                ["Actual YTD", Self.number(gc), "RM/mt"]
+            EstateDashboardPanel(title: "Weeding", headers: [], rows: [
+                ["Circle", "Pending", "%"], ["Selective", "Pending", "%"]
+            ], note: "Reporting period pending"),
+            EstateDashboardPanel(title: "Pest & Disease", headers: [], rows: [
+                ["Affected area", "Pending", "ha"], ["Incidence", "Pending", "%"]
+            ], note: "Reporting period pending"),
+            EstateDashboardPanel(title: "Estate Cost", headers: [], rows: [
+                ["Operation Cost", Self.number(operation), "RM/mt"],
+                ["General Charges", Self.number(gc), "RM/mt"]
             ], note: costLabel)
+
         ]
     }
 
