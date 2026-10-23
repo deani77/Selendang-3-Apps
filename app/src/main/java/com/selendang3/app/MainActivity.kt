@@ -97,8 +97,13 @@ fun EstateApp() {
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)) {
                 if (route != "home") {
                     TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
-                } else Spacer(Modifier.height(28.dp))
-                Text(title, style = MaterialTheme.typography.headlineMedium,
+                } else {
+                    Spacer(Modifier.height(20.dp))
+                    Text("LADANG SELENDANG 3", modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center)
+                }
+                Text(title, style = if (route == "home") MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
                     textAlign = if (route == "home") TextAlign.Center else TextAlign.Start)
@@ -106,24 +111,14 @@ fun EstateApp() {
                     composable("home") {
                         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                            Text("LADANG SELENDANG 3", modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(8.dp))
                             Button(onClick = { nav.navigate("dashboard") },
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF21523D), contentColor = Color.White)) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Canvas(Modifier.size(26.dp)) {
-                                        listOf(0.45f, 0.72f, 1f).forEachIndexed { index, fraction ->
-                                            val bar = size.width / 5f
-                                            drawRect(Color.White,
-                                                topLeft = Offset(index * bar * 1.5f, size.height * (1f - fraction)),
-                                                size = androidx.compose.ui.geometry.Size(bar, size.height * fraction))
-                                        }
-                                    }
+                                    EstateModuleIcon("dashboard", Modifier.size(28.dp), Color.White)
                                     Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold)
                                 }
@@ -197,7 +192,11 @@ private fun SectionGrid(sections: List<Section>, onOpen: (String) -> Unit) {
                         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) {
-                        Text(section.title, textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            EstateModuleIcon(section.route, Modifier.size(26.dp), MaterialTheme.colorScheme.primary)
+                            Text(section.title, textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))
