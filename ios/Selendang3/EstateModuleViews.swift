@@ -79,11 +79,14 @@ struct FieldDetailsView: View {
 }
 
 struct UpkeepCultivationView: View {
+    @ObservedObject private var estate = EstateReferenceStore.shared
     var body: some View {
         List {
             Section("Upkeep and Cultivation Dashboard") {
                 LabeledContent("Weeding progress", value: "Pending")
-                LabeledContent("Manuring progress", value: "Pending")
+                let manuring = EstateDashboardData(reference: estate.reference, today: Date()).operationalCards[3]
+                LabeledContent("Manuring progress", value: manuring.rows[0][1] + " %")
+                Text(manuring.note).font(.footnote).foregroundStyle(.secondary)
                 LabeledContent("Pest and disease work", value: "Pending")
             }
             Section("Estate work") {

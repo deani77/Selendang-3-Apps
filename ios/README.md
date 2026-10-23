@@ -26,3 +26,8 @@ CI checks production, snapshot parsing, dashboard calculations and field isolati
 
 ## Device dashboard behavior
 On iPad mini the home summary stays pinned above the independently scrolling navigation buttons. iPhone and Android show a compact Estate Dashboard button; tapping opens the complete Crop Data, Upkeep and Manuring, and Estate Cost summaries. Shared data, titles, metric units and reporting periods are retained. iPhone keeps its smaller fonts. Detailed estate panels remain under Estate Details.
+
+## Report-backed operational dashboard
+Build 29 reads optional crop-report and manuring-report extensions from the saved estate snapshot. The previous-month yield requires a complete month-end report. MTD crop yield, coverage, rounds and productivity use the current month's report, with its actual date displayed. Crop productivity is sent-to-mill mass per harvester-day. Reported values retain source rounding; sparse daily drafts never replace estate totals.
+
+Manuring progress is applied YTD mass / annual programme mass × 100, separate from fertilizer receipt progress and hectare coverage. It is shown on the estate dashboard and Upkeep and Cultivation. Future dates, invalid/negative measures, zero programme denominators, and unavailable periods remain Pending. Older snapshots still import, and all imported report values remain available offline. No operational records are bundled into the app.

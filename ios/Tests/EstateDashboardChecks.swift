@@ -134,3 +134,37 @@ precondition(emptyCards.allSatisfy { $0.rows.allSatisfy { $0[1] == "Pending" && 
 print("Grouped dashboard checks passed")
 
 precondition(cards[4].rows.map { $0[0] } == ["Circle", "Selective"])
+
+// Complete monthly reports are independent of sparse daily production drafts.
+var reportFixture = fixture
+reportFixture["cropProductionReport"] = ["reportDate":"2026-10-21", "totals":[
+    "sentToMillMtdMtPerHa":1.25,"hectaresToday":100,"hectaresMtd":2000,"roundsMtd":2,
+    "mtPerHarvesterDayMtd":2.5,"haPerHarvesterDayMtd":3]] as [String:Any]
+reportFixture["cropProductionReportHistory"] = [["reportDate":"2026-09-30","isCompleteMonth":true,
+    "totals":["sentToMillMtdMtPerHa":2.75]] as [String:Any]]
+reportFixture["manuringReport"] = ["reportDate":"2026-10-22","annualProgrammeMt":1000,"appliedYtdMt":800] as [String:Any]
+func reportCards(_ input: [String:Any], date: Date = october) throws -> [EstateDashboardPanel] {
+    EstateDashboardData(reference: try EstateReference.parse(JSONSerialization.data(withJSONObject:input)), today:date).operationalCards
+}
+let populated = try reportCards(reportFixture)
+precondition(populated[0].rows[0][1] == "2.75" && populated[0].rows[1][1] == "1.25")
+precondition(populated[1].rows.map { $0[1] } == ["100.00","2000.00","2.00"])
+precondition(populated[1].note == "Report: 2026-10-21")
+precondition(populated[2].rows.map { $0[1] } == ["2.50","3.00"])
+precondition(populated[3].rows[0][1] == "80.00")
+precondition(populated[4].rows.allSatisfy { $0[1] == "Pending" })
+let later = try reportCards(reportFixture,date:november)
+precondition(later[0].rows[1][1] == "Pending" && later[1].rows.allSatisfy { $0[1] == "Pending" })
+let futureReports = try reportCards(reportFixture,date:august)
+precondition(futureReports[0].rows[1][1] == "Pending" && futureReports[3].rows[0][1] == "Pending")
+var bad = reportFixture
+bad["manuringReport"] = ["reportDate":"2026-10-22","annualProgrammeMt":0,"appliedYtdMt":800] as [String:Any]
+let zeroProgramme = try reportCards(bad)
+precondition(zeroProgramme[3].rows[0][1] == "Pending")
+bad["cropProductionReportHistory"] = [["reportDate":"2026-09-29","isCompleteMonth":true,"totals":["sentToMillMtdMtPerHa":2.75]] as [String:Any]]
+let incompleteMonth = try reportCards(bad)
+precondition(incompleteMonth[0].rows[0][1] == "Pending")
+bad["cropProductionReport"] = ["reportDate":"2026-10-21","totals":["hectaresMtd":-1]] as [String:Any]
+let negativeArea = try reportCards(bad)
+precondition(negativeArea[1].rows[1][1] == "Pending")
+print("Report-backed dashboard and stale/missing-data checks passed")

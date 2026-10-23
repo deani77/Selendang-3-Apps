@@ -200,6 +200,51 @@ struct EstateDashboardData {
             note:"Actual YTD through \(actualPeriod ?? "Pending") vs Budget Year \(budgetYear ?? "Pending"). Operation Cost = Penjagaan + Membaja + Pungutan; General Charges = Perbelanjaan Am.",bars:bars,unit:"RM/tonne")
     }
 
+    private var reportCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Kuala_Lumpur")!
+        return calendar
+    }
+    private func reportDate(_ text: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = reportCalendar; formatter.timeZone = reportCalendar.timeZone
+        formatter.dateFormat = "yyyy-MM-dd"; formatter.isLenient = false
+        guard let date = formatter.date(from: text), formatter.string(from: date) == text,
+              date <= reportCalendar.startOfDay(for: today) else { return nil }
+        return date
+    }
+    private func nonnegative(_ value: Double?) -> Double? {
+        guard let value = value, value.isFinite, value >= 0 else { return nil }
+        return value
+    }
+    private var currentCrop: EstateCropReport? {
+        guard let report = reference?.cropProductionReport, let date = reportDate(report.reportDate),
+              reportCalendar.isDate(date, equalTo: today, toGranularity: .month) else { return nil }
+        return report
+    }
+    private var previousCrop: EstateCropReport? {
+        let start = reportCalendar.date(from: reportCalendar.dateComponents([.year, .month], from: today))!
+        let monthEnd = reportCalendar.date(byAdding: .day, value: -1, to: start)!
+        let reports = ([reference?.cropProductionReport].compactMap { $0 } + (reference?.cropProductionReportHistory ?? []))
+            .filter { report in
+                guard report.isCompleteMonth == true, let date = reportDate(report.reportDate) else { return false }
+                return reportCalendar.isDate(date, inSameDayAs: monthEnd)
+            }
+        return reports.count == 1 ? reports[0] : nil
+    }
+    private var manuringProgress: Double? {
+        guard let report = reference?.manuringReport, let date = reportDate(report.reportDate),
+              reportCalendar.component(.year, from: date) == reportCalendar.component(.year, from: today),
+              let applied = nonnegative(report.appliedYtdMt), let programme = nonnegative(report.annualProgrammeMt),
+              programme > 0 else { return nil }
+        return nonnegative(applied / programme * 100)
+    }
+    private var manuringNote: String {
+        guard manuringProgress != nil, let report = reference?.manuringReport else { return "Reporting period pending" }
+        return "YTD through " + report.reportDate + " · Applied mt / annual programme mt"
+    }
+
     // Sparse daily drafts are not substituted for complete estate monthly totals.
     var homeRows: [EstateDashboardPanel] {
         var calendar = Calendar(identifier: .gregorian)
@@ -233,11 +278,11 @@ struct EstateDashboardData {
         }
         return [
             EstateDashboardPanel(title: "Crop data · t/ha", headers: [], rows: [],
-                note: formatter.string(from: previous) + ": Pending · " + formatter.string(from: today) + " MTD: Pending\n" +
+                note: formatter.string(from: previous) + ": " + Self.number(nonnegative(previousCrop?.totals.sentToMillMtdMtPerHa)) + " · " + formatter.string(from: today) + " MTD: " + Self.number(nonnegative(currentCrop?.totals.sentToMillMtdMtPerHa)) + "\n" +
                     yieldPeriod + ": " + Self.number(ytd) + "\nYTD vs Year Budget: " +
                     (annualBudgetProgress.map { Self.number($0) + "%" } ?? "Pending")),
             EstateDashboardPanel(title: "Upkeep and Manuring · %", headers: [], rows: [],
-                note: "Weeding: Pending · Manuring: Pending"),
+                note: "Weeding: Pending · Manuring: " + (manuringProgress.map { Self.number($0) + "%" } ?? "Pending")),
             EstateDashboardPanel(title: "Estate cost · Actual YTD · RM/tonne", headers: [], rows: [],
                 note: "Operation: " + Self.number(operation) + " · GC: " + Self.number(gc) + "\n" + costLabel)
         ]
@@ -275,22 +320,22 @@ struct EstateDashboardData {
         }
         return [
             EstateDashboardPanel(title: "Crop Production", headers: [], rows: [
-                [formatter.string(from: calendar.date(byAdding: .month, value: -1, to: today)!), "Pending", "mt/ha"],
-                [formatter.string(from: today) + " MTD", "Pending", "mt/ha"],
+                [formatter.string(from: calendar.date(byAdding: .month, value: -1, to: today)!), Self.number(nonnegative(previousCrop?.totals.sentToMillMtdMtPerHa)), "mt/ha"],
+                [formatter.string(from: today) + " MTD", Self.number(nonnegative(currentCrop?.totals.sentToMillMtdMtPerHa)), "mt/ha"],
                 ["Actual YTD", Self.number(ytd), "mt/ha"],
                 ["YTD / Year Budget", Self.number(annualBudgetProgress), "%"]
-            ], note: yieldPeriod),
+            ], note: yieldPeriod + (currentCrop.map { " · MTD through " + $0.reportDate } ?? "")),
             EstateDashboardPanel(title: "Harvesting Coverage", headers: [], rows: [
-                ["Today", "Pending", "ha"], ["MTD", "Pending", "ha"],
-                ["Completed rounds", "Pending", "rounds"]
-            ], note: formatter.string(from: today)),
+                ["Report day", Self.number(nonnegative(currentCrop?.totals.hectaresToday)), "ha"], ["MTD", Self.number(nonnegative(currentCrop?.totals.hectaresMtd)), "ha"],
+                ["Completed rounds", Self.number(nonnegative(currentCrop?.totals.roundsMtd)), "rounds"]
+            ], note: currentCrop.map { "Report: " + $0.reportDate } ?? "Reporting period pending"),
             EstateDashboardPanel(title: "Harvester Productivity", headers: [], rows: [
-                ["Harvested crop", "Pending", "mt/worker-day"],
-                ["Covered area", "Pending", "ha/worker-day"]
-            ], note: "MTD · " + formatter.string(from: today)),
+                ["Crop sent to mill", Self.number(nonnegative(currentCrop?.totals.mtPerHarvesterDayMtd)), "mt/worker-day"],
+                ["Covered area", Self.number(nonnegative(currentCrop?.totals.haPerHarvesterDayMtd)), "ha/worker-day"]
+            ], note: currentCrop.map { "MTD through " + $0.reportDate } ?? "Reporting period pending"),
             EstateDashboardPanel(title: "Manuring", headers: [], rows: [
-                ["Programme progress", "Pending", "%"]
-            ], note: "Reporting period pending"),
+                ["Programme progress", Self.number(manuringProgress), "%"]
+            ], note: manuringNote),
             EstateDashboardPanel(title: "Weeding", headers: [], rows: [
                 ["Circle", "Pending", "%"], ["Selective", "Pending", "%"]
             ], note: "Reporting period pending"),

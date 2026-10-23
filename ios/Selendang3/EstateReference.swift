@@ -31,6 +31,9 @@ struct EstateReference: Decodable {
     let exportedAt: String
     let sections: [EstateReferenceTable]
     let yph: EstateYph?
+    let cropProductionReport: EstateCropReport?
+    let cropProductionReportHistory: [EstateCropReport]?
+    let manuringReport: EstateManuringReport?
     static func parse(_ data: Data) throws -> EstateReference {
         guard data.count <= 2*1024*1024 else { throw ProductionError.invalid("Estate update exceeds 2 MB.") }
         let result = try JSONDecoder().decode(EstateReference.self, from: data)
@@ -67,4 +70,24 @@ struct EstateSyncEndpoint {
         }
         self.snapshot = snapshot; self.token = cleanToken
     }
+}
+
+// Optional report extensions keep older offline snapshots compatible.
+struct EstateCropReport: Decodable {
+    let reportDate: String
+    let isCompleteMonth: Bool?
+    let totals: EstateCropTotals
+}
+struct EstateCropTotals: Decodable {
+    let sentToMillMtdMtPerHa: Double?
+    let hectaresToday: Double?
+    let hectaresMtd: Double?
+    let roundsMtd: Double?
+    let mtPerHarvesterDayMtd: Double?
+    let haPerHarvesterDayMtd: Double?
+}
+struct EstateManuringReport: Decodable {
+    let reportDate: String
+    let annualProgrammeMt: Double?
+    let appliedYtdMt: Double?
 }
