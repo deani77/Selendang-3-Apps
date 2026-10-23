@@ -127,19 +127,16 @@ struct HomeView: View {
 
     private func summaryCell(_ row: EstateDashboardPanel) -> some View {
         VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
-            if isPad {
-                VStack(spacing: 2) {
-                    Text(summaryTitle(row))
-                        .font(.title2.bold())
-                        .lineLimit(2)
-                    Text(summaryUnit(row)).font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, minHeight: iPadSummaryHeaderHeight, alignment: .top)
-                .accessibilityElement(children: .combine)
-            } else {
-                Text(row.title).font(.subheadline.bold())
+            VStack(alignment: isPad ? .center : .leading, spacing: 2) {
+                Text(summaryTitle(row))
+                    .font(isPad ? .title2.bold() : .subheadline.bold())
+                    .lineLimit(2)
+                Text(summaryUnit(row)).font(isPad ? .subheadline : .caption)
             }
-            Text(isPad ? row.note.replacingOccurrences(of: " · ", with: "\n") : row.note)
+            .frame(maxWidth: .infinity, minHeight: isPad ? iPadSummaryHeaderHeight : 0,
+                alignment: isPad ? .top : .leading)
+            .accessibilityElement(children: .combine)
+            Text(row.note.replacingOccurrences(of: " · ", with: "\n"))
                 .font(isPad ? .body : .footnote)
         }
         .multilineTextAlignment(isPad ? .center : .leading)
