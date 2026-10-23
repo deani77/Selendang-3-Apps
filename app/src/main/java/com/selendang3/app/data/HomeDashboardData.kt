@@ -73,8 +73,8 @@ fun operationalDashboardCards(update: EstatePackage?, today: LocalDate): List<Op
             OperationalMetric("Completed rounds", "Pending", "rounds")
         ), label(month)),
         OperationalCard("Harvester Productivity", listOf(
-            OperationalMetric("Harvested crop", "Pending", "mt/worker-day"),
-            OperationalMetric("Covered area", "Pending", "ha/worker-day")
+            OperationalMetric("Tonnes per mandays", "Pending", "mt/manday"),
+            OperationalMetric("Hectare per mandays", "Pending", "ha/manday")
         ), "MTD · " + label(month)),
         OperationalCard("Manuring", listOf(
             OperationalMetric("Programme progress", "Pending", "%")

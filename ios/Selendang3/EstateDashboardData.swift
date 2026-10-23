@@ -330,8 +330,8 @@ struct EstateDashboardData {
                 ["Completed rounds", Self.number(nonnegative(currentCrop?.totals.roundsMtd)), "rounds"]
             ], note: currentCrop.map { "Report: " + $0.reportDate } ?? "Reporting period pending"),
             EstateDashboardPanel(title: "Harvester Productivity", headers: [], rows: [
-                ["Crop sent to mill", Self.number(nonnegative(currentCrop?.totals.mtPerHarvesterDayMtd)), "mt/worker-day"],
-                ["Covered area", Self.number(nonnegative(currentCrop?.totals.haPerHarvesterDayMtd)), "ha/worker-day"]
+                ["Tonnes per mandays", Self.number(nonnegative(currentCrop?.totals.mtPerHarvesterDayMtd)), "mt/manday"],
+                ["Hectare per mandays", Self.number(nonnegative(currentCrop?.totals.haPerHarvesterDayMtd)), "ha/manday"]
             ], note: currentCrop.map { "MTD through " + $0.reportDate } ?? "Reporting period pending"),
             EstateDashboardPanel(title: "Manuring", headers: [], rows: [
                 ["Programme progress", Self.number(manuringProgress), "%"]
