@@ -82,23 +82,29 @@ struct HomeView: View {
                             }
                         }
                     }
-                    Text("S3 Estate Info")
-                        .font(isPad ? .body : .footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 8)
-                    if let data = estate.reference { Text("Estate revision \(data.revision) saved").font(isPad ? .body : .footnote) }
-                    Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
-                        .font(isPad ? .body : .footnote)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
-                        .padding(.top, 24)
+
                 }
                 .padding(20)
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) { homeFooter }
             .background(LinearGradient(colors: colorScheme == .dark ? [green, .black] : [Color(red: 0.94, green: 0.97, blue: 0.92), .white], startPoint: .top, endPoint: .bottom))
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(.green)
+    }
+
+    private var homeFooter: some View {
+        VStack(spacing: 4) {
+            Text("S3 Estate Info").foregroundStyle(.secondary)
+            if let data = estate.reference { Text("Estate revision \(data.revision) saved") }
+            Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
+                .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
+        }
+        .font(isPad ? .body : .footnote)
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
     }
 
     private func summaryTitle(_ row: EstateDashboardPanel) -> String {
