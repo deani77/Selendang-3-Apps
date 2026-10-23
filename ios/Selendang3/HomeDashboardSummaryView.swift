@@ -3,8 +3,12 @@ import SwiftUI
 struct HomeDashboardScreen: View {
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     var body: some View {
-        ScrollView {
-            HomeDashboardSummaryView(horizontal: isPad).padding(20)
+        Group {
+            if isPad {
+                ScrollView { HomeDashboardSummaryView(horizontal: true).padding(20) }
+            } else {
+                OperationalDashboardGrid()
+            }
         }
         .navigationTitle("Estate Dashboard")
         .navigationBarTitleDisplayMode(.inline)
@@ -12,7 +16,7 @@ struct HomeDashboardScreen: View {
     }
 }
 
-// The pinned iPad card and phone dashboard screen share exactly the same data and labels.
+// Both dashboard layouts read the same saved estate snapshot.
 struct HomeDashboardSummaryView: View {
     let horizontal: Bool
     @ObservedObject private var estate = EstateReferenceStore.shared
@@ -85,5 +89,48 @@ struct HomeDashboardSummaryView: View {
                 .font(isPad ? .body : .footnote)
         }
         .multilineTextAlignment(isPad ? .center : .leading)
+    }
+}
+
+// Six-card phone preview; scrolling remains available for larger accessibility text.
+private struct OperationalDashboardGrid: View {
+    @ObservedObject private var estate = EstateReferenceStore.shared
+    private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+
+    var body: some View {
+        GeometryReader { geometry in
+            ScrollView {
+                TimelineView(.periodic(from: Date(), by: 60)) { context in
+                    let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
+                    LazyVGrid(columns: columns, alignment: .center, spacing: 10) {
+                        ForEach(cards) { card in
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(card.title)
+                                    .font(.subheadline.bold())
+                                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text(card.note).font(.caption2).foregroundStyle(.white.opacity(0.85))
+                                ForEach(card.rows.indices, id: \.self) { index in
+                                    let metric = card.rows[index]
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(metric[0]).font(.caption2).foregroundStyle(.white.opacity(0.85))
+                                        Text(metric[1] + " " + metric[2]).font(.caption.bold())
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .accessibilityElement(children: .combine)
+                                }
+                                Spacer(minLength: 0)
+                            }
+                            .padding(10)
+                            .frame(maxWidth: .infinity, minHeight: max(210, (geometry.size.height - 44) / 3), alignment: .topLeading)
+                            .foregroundStyle(.white)
+                            .background(Color(red: 0.16, green: 0.35, blue: 0.24))
+                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                        }
+                    }
+                }
+                .padding(12)
+            }
+        }
     }
 }
