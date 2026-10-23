@@ -54,7 +54,7 @@ struct HomeView: View {
                             .accessibilityElement(children: .combine)
                             .accessibilityHint("Opens Estate Dashboard")
                     }
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: isPad ? 14 : 8) {
                         ForEach(sections, id: \.self) { title in
                             NavigationLink {
                                 if title == "Settings" {
@@ -74,8 +74,8 @@ struct HomeView: View {
                                 Text(title)
                                     .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
                                     .multilineTextAlignment(.center)
-                                    .frame(maxWidth: .infinity, minHeight: 64)
-                                    .padding(8)
+                                    .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48)
+                                    .padding(isPad ? 8 : 4)
                                     .background(Color(red: 0.85, green: 0.89, blue: 0.82))
                                     .foregroundStyle(green)
                                     .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -105,6 +105,7 @@ struct HomeView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
+        .background(colorScheme == .dark ? Color.black : Color.white)
     }
 
     private func summaryTitle(_ row: EstateDashboardPanel) -> String {
