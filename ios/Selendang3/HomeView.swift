@@ -6,7 +6,6 @@ struct HomeView: View {
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     @ScaledMetric(relativeTo: .largeTitle) private var iPadHeadingSize: CGFloat = 44
     @ScaledMetric(relativeTo: .body) private var minimumPhoneHomeHeight: CGFloat = 520
-    private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
         "Crop Production", "Settings", "Planter Tools"
@@ -26,11 +25,19 @@ struct HomeView: View {
                             VStack(spacing: 8) {
                                 homeHeading.fixedSize(horizontal: false, vertical: true).padding(.bottom, 12)
                                 NavigationLink { HomeDashboardScreen() } label: {
-                                    Text("Estate Dashboard").font(.title2.bold())
-                                        .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
-                                        .background(Color(red: 0.16, green: 0.35, blue: 0.24))
-                                        .foregroundStyle(.white)
-                                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                                    HStack(spacing: 14) {
+                                        Image(systemName: "chart.bar.xaxis").font(.title2)
+                                        Text("Estate Dashboard").font(.title2.bold())
+                                        Spacer(minLength: 0)
+                                        Image(systemName: "arrow.up.right").font(.subheadline.weight(.semibold))
+                                    }
+                                    .padding(20)
+                                    .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
+                                    .background(EstateTheme.hero)
+                                    .foregroundStyle(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                                    .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.12), lineWidth: 1))
+
                                 }
                                 .frame(maxHeight: .infinity).padding(.bottom, 12)
                                 ForEach(0..<3, id: \.self) { row in
@@ -47,18 +54,23 @@ struct HomeView: View {
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) { homeFooter }
-            .background(LinearGradient(colors: colorScheme == .dark ? [green, .black] : [Color(red: 0.94, green: 0.97, blue: 0.92), .white], startPoint: .top, endPoint: .bottom))
+            .background { EstateBackground(prominent: true) }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .tint(.green)
+        .tint(EstateTheme.accent)
+        .groupBoxStyle(EstateGroupBoxStyle())
     }
 
     private var homeHeading: some View {
-        Text("Planter’s Log")
-            .font(isPad ? .system(size: iPadHeadingSize, weight: .bold) : .largeTitle.bold())
-            .multilineTextAlignment(.center)
-            .foregroundStyle(colorScheme == .dark ? Color.white : green)
-            .padding(.vertical, 24)
+        VStack(spacing: 6) {
+            Text("LADANG SELENDANG 3").font(.caption.weight(.semibold)).tracking(2)
+                .foregroundStyle(.secondary)
+            Text("Planter’s Log")
+                .font(isPad ? .system(size: iPadHeadingSize, weight: .bold, design: .rounded) : .largeTitle.weight(.bold))
+                .foregroundStyle(EstateTheme.accent)
+        }
+        .multilineTextAlignment(.center)
+        .padding(.vertical, 20)
     }
 
     private var navigationGrid: some View {
@@ -83,17 +95,34 @@ struct HomeView: View {
                 ModuleView(title: title)
             }
         } label: {
-            Text(title)
-                .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48,
-                    maxHeight: stretches ? .infinity : nil)
-                .padding(isPad ? 8 : 4)
-                .background(Color(red: 0.85, green: 0.89, blue: 0.82))
-                .foregroundStyle(green)
-                .clipShape(RoundedRectangle(cornerRadius: 18))
+            VStack(spacing: isPad ? 10 : 7) {
+                Image(systemName: sectionSymbol(title))
+                    .font(isPad ? .title2 : .title3)
+                    .foregroundStyle(EstateTheme.accent)
+                Text(title)
+                    .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48,
+                maxHeight: stretches ? .infinity : nil)
+            .padding(isPad ? 12 : 8)
+            .background(EstateTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(EstateTheme.border, lineWidth: 1))
+
         }
         .frame(maxWidth: .infinity, maxHeight: stretches ? .infinity : nil)
+    }
+
+    private func sectionSymbol(_ title: String) -> String {
+        switch title {
+        case "Estate Details": return "leaf.fill"
+        case "Field Details": return "square.grid.2x2.fill"
+        case "Upkeep and Cultivation": return "sprinkler.and.droplets.fill"
+        case "Crop Production": return "chart.bar.fill"
+        case "Settings": return "gearshape.fill"
+        default: return "function"
+        }
     }
 
     private var homeFooter: some View {
@@ -101,14 +130,15 @@ struct HomeView: View {
             Text("S3 Estate Info").foregroundStyle(.secondary)
             if let data = estate.reference { Text("Estate revision \(data.revision) saved") }
             Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
-                .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.85) : green)
+                .foregroundStyle(EstateTheme.accent)
         }
         .font(isPad ? .body : .footnote)
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 20)
         .padding(.vertical, 8)
-        .background(colorScheme == .dark ? Color.black : Color.white)
+        .background(EstateTheme.background)
+        .overlay(alignment: .top) { EstateTheme.border.frame(height: 1) }
     }
 
 
@@ -128,8 +158,10 @@ struct ModuleView: View {
             .padding()
         }
         .toolbar(.visible, for: .navigationBar)
+        .estateScreen()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
 

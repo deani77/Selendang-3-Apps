@@ -3,8 +3,6 @@ import Charts
 
 struct EstateDashboardView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
-    private let yellow = Color(red:1,green:0.75,blue:0)
-    private let teal = Color(red:0.29,green:0.67,blue:0.76)
     var body: some View {
         TimelineView(.periodic(from:Date(),by:60)) { context in
             let data = EstateDashboardData(reference:estate.reference,today:context.date)
@@ -25,12 +23,13 @@ struct EstateDashboardView: View {
             }
         }
         .toolbar(.visible,for:.navigationBar)
+        .estateScreen()
         .navigationTitle("Estate Details").navigationBarTitleDisplayMode(.inline)
     }
     private func panel(_ section: EstateDashboardPanel) -> some View {
         VStack(alignment:.leading,spacing:0) {
-            Text(section.title).font(.headline).foregroundStyle(.black).frame(maxWidth:.infinity,alignment:.leading)
-                .padding(12).background(["Age Profile","YPH","Average SPH","Kos FFB/TAN","Checkroll Average"].contains(section.title) ? yellow : teal)
+            Text(section.title).font(.headline).foregroundStyle(EstateTheme.accent).frame(maxWidth:.infinity,alignment:.leading)
+                .padding(12).background(EstateTheme.softAccent)
             if !section.bars.isEmpty {
                 Chart(section.bars) { bar in
                     BarMark(x:.value("Measure",bar.category),y:.value(section.unit,bar.value))
@@ -53,7 +52,9 @@ struct EstateDashboardView: View {
             }
             if !section.note.isEmpty { Text(section.note).font(.footnote).foregroundStyle(.secondary).padding(12) }
         }
-        .background(Color(uiColor:.systemBackground)).overlay(Rectangle().stroke(Color.secondary.opacity(0.3)))
+        .background(EstateTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(EstateTheme.border, lineWidth: 1))
     }
     private func tableRow(_ cells: [String], bold: Bool) -> some View {
         HStack(alignment:.top,spacing:12) {
@@ -64,3 +65,4 @@ struct EstateDashboardView: View {
         }.padding(.vertical,8)
     }
 }
+

@@ -10,6 +10,7 @@ struct HomeDashboardScreen: View {
                 OperationalDashboardGrid()
             }
         }
+        .estateScreen()
         .navigationTitle("Estate Dashboard")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
@@ -45,7 +46,7 @@ struct HomeDashboardSummaryView: View {
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .padding(16)
         }
-        .background(Color(red: 0.16, green: 0.35, blue: 0.24))
+        .background(EstateTheme.hero)
         .foregroundStyle(.white)
         .clipShape(RoundedRectangle(cornerRadius: 24))
     }
@@ -96,7 +97,7 @@ struct HomeDashboardSummaryView: View {
 // Larger accessibility text retains scroll access.
 private struct OperationalDashboardGrid: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
-    private let green = Color(red: 0.16, green: 0.35, blue: 0.24)
+    private let green = EstateTheme.accent
 
     var body: some View {
         ScrollView {
@@ -118,7 +119,7 @@ private struct OperationalDashboardGrid: View {
                 .padding(12)
             }
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background { EstateBackground() }
     }
 
     private func dashboardCard(_ card: EstateDashboardPanel, symbol: String, height: CGFloat = 0, wide: Bool = false) -> some View {
@@ -161,9 +162,9 @@ private struct OperationalDashboardGrid: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, minHeight: height, alignment: .topLeading)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .background(EstateTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(green.opacity(0.12), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(EstateTheme.border, lineWidth: 1))
     }
 
     private func metric(_ row: [String], prominent: Bool = false, centered: Bool = false) -> some View {

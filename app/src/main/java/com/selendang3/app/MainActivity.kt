@@ -91,14 +91,9 @@ fun EstateApp() {
         "estate-records" -> "All Estate Records"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
-    MaterialTheme(colorScheme = if (dark) darkColorScheme(
-        primary = Color(0xFFB5D89A), onPrimary = Color(0xFF163620),
-        surface = Color(0xFF142D26), onSurface = Color(0xFFF6F5EA),
-    ) else lightColorScheme(primary = Color(0xFF285A3C), surface = Color(0xFFF6F8F2),
-        background = Color(0xFFEDF2E8), onSurface = Color(0xFF142D26))) {
+    MaterialTheme(colorScheme = estateColorScheme(dark)) {
         Box(Modifier.fillMaxSize()) {
-            if (dark) PlantationBackground(route)
-            else Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+            PlantationBackground(route)
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)) {
                 if (route != "home") {
                     TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
@@ -111,13 +106,18 @@ fun EstateApp() {
                     composable("home") {
                         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                            Spacer(Modifier.height(18.dp))
+                            Text("LADANG SELENDANG 3", modifier = Modifier.fillMaxWidth(),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                            Spacer(Modifier.height(4.dp))
                             Button(onClick = { nav.navigate("dashboard") },
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
                                 Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.width(16.dp))
+                                Text("↗", style = MaterialTheme.typography.titleLarge)
                             }
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
@@ -183,10 +183,11 @@ private fun SectionGrid(sections: List<Section>, onOpen: (String) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 row.forEach { section ->
                     FilledTonalButton(onClick = { onOpen(section.route) },
-                        modifier = Modifier.weight(1f).heightIn(min = 72.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 88.dp),
                         shape = RoundedCornerShape(18.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = Color(0xEDDFE8D5), contentColor = Color(0xFF173B2A))) {
+                            containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) {
                         Text(section.title, textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -209,33 +210,25 @@ private fun InfoCard(title: String, body: String) {
 
 @Composable
 private fun PlantationBackground(route: String) {
-    // Original lightweight illustration; replace with approved plantation photos later.
-    // Estate Details subsections share the same background.
-    val top = when(route) {
-        "home" -> Color(0xFF254F32)
-        "dashboard" -> Color(0xFF6A633E)
-        "production" -> Color(0xFF65432D)
-        "upkeep" -> Color(0xFF3C5827)
-        "reports" -> Color(0xFF254A4A)
-        "tools" -> Color(0xFF405B53)
-        "settings" -> Color(0xFF18392E)
-        else -> Color(0xFF365B43)
-    }
-    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(top, Color(0xFF0A211A))))) {
+    // Low-contrast vector palm canopy; the same semantic palette applies to every route.
+    val base = MaterialTheme.colorScheme.background
+    val accent = MaterialTheme.colorScheme.primary
+    val soft = MaterialTheme.colorScheme.secondaryContainer
+    Box(Modifier.fillMaxSize().background(base).background(Brush.verticalGradient(listOf(soft.copy(alpha = 0.45f), base)))) {
         Canvas(Modifier.fillMaxSize()) {
             for (row in 0..7) for (col in 0..4) {
                 val center = Offset(size.width * (col + 0.2f + (row % 2) * 0.4f) / 4f, size.height * row / 7f)
                 val radius = size.width * 0.11f
                 for (leaf in 0..7) {
                     val angle = leaf * Math.PI / 4
-                    drawLine(Color(0xFF71965B).copy(alpha = 0.22f), center,
+                    drawLine(accent.copy(alpha = if (route == "home") 0.055f else 0.02f), center,
                         center + Offset((cos(angle) * radius).toFloat(), (sin(angle) * radius).toFloat()),
                         strokeWidth = 12f)
                 }
-                drawCircle(Color(0xFF061E13).copy(alpha = 0.4f), radius * 0.18f, center)
+                drawCircle(accent.copy(alpha = if (route == "home") 0.06f else 0.02f), radius * 0.18f, center)
             }
         }
-        Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.25f)))
+
     }
 }
 

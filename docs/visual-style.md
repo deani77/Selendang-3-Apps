@@ -1,0 +1,17 @@
+# App visual style
+
+The home page uses Planter’s Log with Ladang Selendang 3 as estate context. A large forest-green dashboard action leads into the operational summary. Six secondary modules use consistent cards, symbols, borders and spacing; the application name and offline status stay in the footer.
+
+The shared visual language uses a restrained forest palette, low-contrast original vector palm artwork, rounded content surfaces and clear typography. Decorative backgrounds are local and excluded from accessibility. Data stays on opaque surfaces. Light appearance uses ivory backgrounds, white surfaces and dark green accents; dark appearance uses charcoal-green backgrounds, deep green surfaces and pale mint accents. System text colors, scalable type and scroll access support readability.
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Background | #F3F6F1 | #101C17 |
+| Surface | #FFFFFF | #1A2B23 |
+| Accent | #20543E | #9EDDB9 |
+| Soft accent | #E5EFE7 | #243F31 |
+| Border | #D5E2D8 | #365243 |
+
+On iOS the semantic colors, background and screen/group-box styles live in EstateTheme.swift. Home buttons, the pinned iPad summary, phone dashboard, estate panels, field details, upkeep, production, Settings and their child screens follow this style. Android uses the matching EstateColors.kt Material palette across its screens, with adaptive home buttons, vector background and estate panel headers. Device-specific navigation and data layouts remain intact.
+
+Every numeric metric retains its unit and source period. Missing operational records remain Pending. Changing appearance does not alter imports, saved records, sync or calculations. No estate records, tokens or signing details are part of the visual design assets.
