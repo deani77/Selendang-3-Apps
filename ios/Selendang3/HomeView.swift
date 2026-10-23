@@ -16,9 +16,9 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 if isPad {
                     homeHeading.padding(.horizontal, 20)
-                    HomeDashboardSummaryView(horizontal: true)
+                    IPadHomeDashboardCard()
                         .padding(.horizontal, 20).padding(.bottom, 16)
-                    ScrollView { navigationGrid.padding(20) }
+                    ScrollView { navigationGrid.padding(.horizontal, 20).padding(.vertical, 12) }
                 } else {
                     GeometryReader { geometry in
                         ScrollView {
@@ -68,7 +68,7 @@ struct HomeView: View {
                 .foregroundStyle(EstateTheme.accent)
         }
         .multilineTextAlignment(.center)
-        .padding(.vertical, 20)
+        .padding(.vertical, isPad ? 16 : 20)
     }
 
     private var navigationGrid: some View {
@@ -127,6 +127,7 @@ struct HomeView: View {
         VStack(spacing: 4) {
             Text("S3 Estate Info").foregroundStyle(.secondary)
             if let data = estate.reference { Text("Estate revision \(data.revision) saved") }
+            else { Text("No estate data saved") }
             Text("v0.4 Alpha · iPhone and iPad\nEstate data and production drafts are saved offline")
                 .foregroundStyle(EstateTheme.accent)
         }

@@ -5,7 +5,7 @@ struct HomeDashboardScreen: View {
     var body: some View {
         Group {
             if isPad {
-                ScrollView { HomeDashboardSummaryView(horizontal: true).padding(20) }
+                ScrollView { IPadHomeDashboardCard().padding(20) }
             } else {
                 OperationalDashboardGrid()
             }
@@ -14,82 +14,6 @@ struct HomeDashboardScreen: View {
         .navigationTitle("Estate Dashboard")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-    }
-}
-
-// Both dashboard layouts read the same saved estate snapshot.
-struct HomeDashboardSummaryView: View {
-    let horizontal: Bool
-    @ObservedObject private var estate = EstateReferenceStore.shared
-    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
-    @ScaledMetric(relativeTo: .title2) private var iPadSummaryHeaderHeight: CGFloat = 80
-    var body: some View {
-        TimelineView(.periodic(from: Date(), by: 60)) { context in
-            let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
-            Group {
-                if horizontal {
-                    HStack(alignment: .top, spacing: 16) {
-                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
-                            summaryCell(row).frame(maxWidth: .infinity, alignment: .top)
-                        }
-                    }.fixedSize(horizontal: false, vertical: true)
-                } else {
-                    VStack(alignment: .leading, spacing: 16) {
-                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
-                            summaryCell(row)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .padding(16)
-        }
-        .background(EstateTheme.hero)
-        .foregroundStyle(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-    }
-
-    private func summaryTitle(_ row: EstateDashboardPanel) -> String {
-        switch row.title {
-        case "Crop data · t/ha": return "Crop Data"
-        case "Upkeep and Manuring · %": return "Upkeep and Manuring"
-        case "Estate cost · Actual YTD · RM/tonne": return "Estate Cost"
-        default: return row.title
-        }
-    }
-
-    private func summaryUnit(_ row: EstateDashboardPanel) -> String {
-        switch row.title {
-        case "Crop data · t/ha": return "(mt/ha)"
-        case "Upkeep and Manuring · %": return "(%)"
-        case "Estate cost · Actual YTD · RM/tonne": return "(RM/mt)"
-        default: return ""
-        }
-    }
-
-    private func summaryCell(_ row: EstateDashboardPanel) -> some View {
-        VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
-            if isPad {
-                VStack(spacing: 2) {
-                    Text(summaryTitle(row)).font(.title2.bold()).lineLimit(2)
-                    Text(summaryUnit(row)).font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, minHeight: iPadSummaryHeaderHeight, alignment: .top)
-                .accessibilityElement(children: .combine)
-            } else {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(summaryTitle(row)).font(.subheadline.bold())
-                    Text(summaryUnit(row)).font(.caption)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityElement(children: .combine)
-            }
-            Text(row.note.replacingOccurrences(of: " · ", with: "\n"))
-                .font(isPad ? .body : .footnote)
-        }
-        .multilineTextAlignment(isPad ? .center : .leading)
     }
 }
 
@@ -176,5 +100,64 @@ private struct OperationalDashboardGrid: View {
         }
         .multilineTextAlignment(centered ? .center : .leading)
         .accessibilityElement(children: .combine)
+    }
+}
+
+// All seven measures stay visible inside one home-page dashboard on iPad.
+struct IPadHomeDashboardCard: View {
+    @ObservedObject private var estate = EstateReferenceStore.shared
+
+    var body: some View {
+        TimelineView(.periodic(from: Date(), by: 60)) { context in
+            let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
+            VStack(spacing: 8) {
+                VStack(spacing: 5) {
+                    Image(systemName: "chart.bar.xaxis").font(.title2)
+                    Text("Estate Dashboard").font(.title3.bold())
+                }
+                .foregroundStyle(.white).padding(.bottom, 4)
+                summaryCard(cards[0], indices: [0, 1, 2, 3], symbol: "leaf.fill")
+                HStack(alignment: .top, spacing: 8) {
+                    summaryCard(cards[1], indices: [0, 1, 2], symbol: "square.grid.3x3.fill")
+                    summaryCard(cards[2], indices: [0, 1], symbol: "person.fill")
+                }.fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .top, spacing: 8) {
+                    summaryCard(cards[3], indices: [0], symbol: "leaf.circle.fill")
+                    summaryCard(cards[4], indices: [0, 1], symbol: "sprinkler.and.droplets.fill")
+                    summaryCard(cards[5], indices: [0, 1], symbol: "ant.fill")
+                }.fixedSize(horizontal: false, vertical: true)
+                summaryCard(cards[6], indices: [0, 1], symbol: "banknote.fill")
+            }
+            .padding(12)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+        .background(EstateTheme.hero, in: RoundedRectangle(cornerRadius: 24))
+    }
+
+    private func summaryCard(_ card: EstateDashboardPanel, indices: [Int], symbol: String) -> some View {
+        VStack(spacing: 5) {
+            Label(card.title, systemImage: symbol)
+                .font(.subheadline.weight(.semibold)).foregroundStyle(EstateTheme.accent)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .top, spacing: 6) {
+                ForEach(indices, id: \.self) { index in
+                    let metric = card.rows[index]
+                    VStack(spacing: 2) {
+                        Text(metric[0]).font(.caption).foregroundStyle(.secondary)
+                        (Text(metric[1]).font(.body.weight(.semibold)) + Text(" " + metric[2]).font(.caption))
+                            .monospacedDigit().foregroundStyle(EstateTheme.accent)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            Spacer(minLength: 0)
+            Text(card.note).font(.caption2).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .multilineTextAlignment(.center).padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(EstateTheme.surface, in: RoundedRectangle(cornerRadius: 13))
     }
 }

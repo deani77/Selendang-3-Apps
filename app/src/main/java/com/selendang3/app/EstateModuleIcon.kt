@@ -57,6 +57,23 @@ fun EstateModuleIcon(route: String, modifier: Modifier, color: Color) {
                 }
                 drawLine(color, p(1f, 23f), p(23f, 23f), 1.5f*u, StrokeCap.Round)
             }
+            "worker" -> {
+                drawCircle(color, 4*u, p(12f, 6f))
+                drawRoundRect(color, p(5f, 12f), Size(14*u, 10*u), CornerRadius(4*u, 4*u))
+            }
+            "pest" -> {
+                drawCircle(color, 3*u, p(12f, 5f))
+                drawRoundRect(color, p(8f, 8f), Size(8*u, 13*u), CornerRadius(4*u, 4*u))
+                for (y in listOf(10f, 15f, 19f)) {
+                    drawLine(color, p(8f, y), p(4f, y+2f), 1.5f*u, StrokeCap.Round)
+                    drawLine(color, p(16f, y), p(20f, y+2f), 1.5f*u, StrokeCap.Round)
+                }
+            }
+            "cost" -> {
+                drawRoundRect(color, p(1f, 5f), Size(22*u, 14*u), CornerRadius(2*u, 2*u),
+                    style = Stroke(1.5f*u))
+                drawCircle(color, 4*u, p(12f, 12f), style = Stroke(1.5f*u))
+            }
             "settings" -> {
                 drawCircle(color, 6*u, p(12f, 12f), style = Stroke(4*u))
                 for (index in 0..7) {

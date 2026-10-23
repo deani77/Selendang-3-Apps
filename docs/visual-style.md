@@ -12,6 +12,6 @@ The shared visual language uses a restrained forest palette, low-contrast origin
 | Soft accent | #E5EFE7 | #243F31 |
 | Border | #D5E2D8 | #365243 |
 
-On iOS the semantic colors, background and screen/group-box styles live in EstateTheme.swift. Home buttons, the pinned iPad summary, phone dashboard, estate panels, field details, upkeep, production, Settings and their child screens follow this style. Android uses the matching EstateColors.kt Material palette across its screens, with adaptive home buttons, vector background and estate panel headers. Device-specific navigation and data layouts remain intact.
+On iOS the semantic colors, background and screen/group-box styles live in EstateTheme.swift. Home buttons, the pinned iPad dashboard containing all seven cards, phone dashboard, estate panels, field details, upkeep, production, Settings and their child screens follow this style. Android uses the matching EstateColors.kt Material palette, icon-above-label home buttons, vector background and estate panel headers. Its opened dashboard uses the same seven sections, labels, units, source periods and missing-data rules as iOS. iPad groups all seven sections inside one large home dashboard card; phones open their dashboard through the home button.
 
 Every numeric metric retains its unit and source period. Missing operational records remain Pending. Changing appearance does not alter imports, saved records, sync or calculations. No estate records, tokens or signing details are part of the visual design assets.

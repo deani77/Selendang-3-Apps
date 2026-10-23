@@ -20,9 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.selendang3.app.data.homeDashboardRows
-import com.selendang3.app.data.estateRainfallToday
-import kotlinx.coroutines.delay
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -142,13 +139,7 @@ fun EstateApp() {
                     }
                     composable("production") { FieldDetailsScreen(estateUpdate) }
                     composable("upkeep") { UpkeepCultivationScreen() }
-                    composable("dashboard") {
-                        Card(Modifier.fillMaxSize()) {
-                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-                                HomeDashboardSummary(estateUpdate)
-                            }
-                        }
-                    }
+                    composable("dashboard") { OperationalDashboardScreen(estateUpdate) }
                     composable("reports") { ProductionScreen() }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
@@ -240,21 +231,3 @@ private fun PlantationBackground(route: String) {
     }
 }
 
-
-@Composable
-private fun HomeDashboardSummary(update: com.selendang3.app.data.EstatePackage?) {
-    val today by produceState(estateRainfallToday()) {
-        while (true) { value = estateRainfallToday(); delay(60_000) }
-    }
-    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        homeDashboardRows(update, today).forEachIndexed { index, row ->
-            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(row.title.substringBefore(" · ") + " (" + row.title.substringAfterLast(" · ") + ")",
-                    style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(row.detail.replace(" · ", "\n"), style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-    }
-}

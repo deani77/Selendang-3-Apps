@@ -55,4 +55,24 @@ class HomeDashboardDataTest {
         assertTrue(homeDashboardRows(over, today)[0].detail.endsWith("YTD vs Year Budget: 200.00%"))
         assertTrue(homeDashboardRows(missing, today)[0].detail.endsWith("YTD vs Year Budget: Pending"))
     }
+
+    @Test fun operationalCardsMatchSharedTitlesUnitsValuesAndPendingWork() {
+        val cards = operationalDashboardCards(fixture(), today)
+        assertEquals(listOf("Crop Production", "Harvesting Coverage", "Harvester Productivity",
+            "Manuring", "Weeding", "Pest & Disease", "Estate Cost"), cards.map { it.title })
+        assertEquals(OperationalMetric("Actual YTD", "25.00", "mt/ha"), cards[0].metrics[2])
+        assertEquals(OperationalMetric("YTD / Year Budget", "83.33", "%"), cards[0].metrics[3])
+        assertEquals("YTD through Sep 2026", cards[0].period)
+        assertEquals(listOf("Circle", "Selective"), cards[4].metrics.map { it.label })
+        assertEquals(listOf("123.00", "45.00"), cards.last().metrics.map { it.value })
+        assertTrue(cards.last().metrics.all { it.unit == "RM/mt" })
+        assertTrue(cards.subList(1, 6).all { it.metrics.all { metric -> metric.value == "Pending" } })
+        for (input in listOf(null, fixture(2025), fixture(2026, 11))) {
+            val pending = operationalDashboardCards(input, today)
+            assertEquals("Pending", pending[0].metrics[2].value)
+            assertEquals("Pending", pending[0].metrics[3].value)
+            assertTrue(pending.last().metrics.all { it.value == "Pending" })
+        }
+        assertTrue(operationalDashboardCards(null, today).all { it.metrics.all { metric -> metric.unit.isNotBlank() } })
+    }
 }
