@@ -112,3 +112,25 @@ precondition(fieldA.allSatisfy { $0.rows.count == 1 })
 precondition(estateFieldTables(homeReference, code: "UNKNOWN").isEmpty)
 precondition(estateFieldCodes(nil).isEmpty)
 print("Field record isolation checks passed")
+
+
+let cards = EstateDashboardData(reference: homeReference, today: october).operationalCards
+precondition(cards.count == 7)
+precondition(cards.map(\.title) == ["Crop Production", "Harvesting Coverage", "Harvester Productivity", "Manuring", "Weeding", "Pest & Disease", "Estate Cost"])
+precondition(cards[0].rows[2] == ["Actual YTD", "25.00", "mt/ha"])
+precondition(cards[0].rows[3] == ["YTD / Year Budget", "83.33", "%"])
+precondition(cards[0].note == "YTD through Sep 2026")
+precondition(cards[6].rows[0] == ["Operation Cost", "123.00", "RM/mt"])
+precondition(cards[6].rows[1] == ["General Charges", "45.00", "RM/mt"])
+precondition(cards[6].note == "YTD through Sep 2026")
+precondition(cards[1...5].allSatisfy { $0.rows.allSatisfy { $0[1] == "Pending" } })
+for date in [january, august] {
+    let stale = EstateDashboardData(reference: homeReference, today: date).operationalCards
+    precondition(stale[0].rows[2][1] == "Pending" && stale[0].rows[3][1] == "Pending")
+    precondition(stale[6].rows[0][1] == "Pending" && stale[6].rows[1][1] == "Pending")
+}
+let emptyCards = EstateDashboardData(reference: nil, today: october).operationalCards
+precondition(emptyCards.allSatisfy { $0.rows.allSatisfy { $0[1] == "Pending" && !$0[2].isEmpty } })
+print("Grouped dashboard checks passed")
+
+precondition(cards[4].rows.map { $0[0] } == ["Circle", "Selective"])

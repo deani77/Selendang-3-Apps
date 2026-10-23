@@ -3,6 +3,8 @@ package com.selendang3.app
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -45,11 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-private val DashboardInk = Color(0xFF202020)
-private val DashboardTeal = Color(0xFF49ACC3)
-private val DashboardYellow = Color(0xFFFFC000)
-private val DashboardRed = Color(0xFFE41E2B)
-private val DashboardGreen = Color(0xFFBCE99A)
 private const val Pending = "—"
 
 /** Slide 1 layout only. No Berabong reference values are used as Selendang 3 data. */
@@ -70,7 +67,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
     val ffbCost = remember(estateUpdate) { estateFfbCosts(estateUpdate) }
     MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
             BoxWithConstraints {
                 val wide = maxWidth >= 840.dp
                 Column(
@@ -82,7 +79,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
                     Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
-                    HorizontalDivider(color = DashboardYellow, thickness = 2.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     if (wide) {
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -100,19 +97,19 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                         PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                         ProductionPanels(ffbCost)
                     }
-                    DashboardPanel("Cost Breakdown", DashboardGreen) {
+                    DashboardPanel("Cost Breakdown") {
                         DashboardTable(
                             listOf("Measure", "Upkeep\nRM/ha", "Har./Coll.\nRM/ton", "G.C.\nRM/ha", "Total FFB\nRM/ton"),
                             listOf("Budget", "Actual", "%").map { listOf(it, Pending, Pending, Pending, Pending) },
                             minimumWidth = 620,
                         )
                     }
-                    DashboardPanel("Checkroll Average", DashboardYellow) {
+                    DashboardPanel("Checkroll Average") {
                         DashboardTable(listOf("Category", "RM/Mdy", "% O/Turn"),
                             listOf(listOf("Harvester", Pending, Pending), listOf("Field Worker", Pending, Pending)),
                             minimumWidth = 380)
                     }
-                    HorizontalDivider(color = DashboardRed, thickness = 4.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
@@ -121,7 +118,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
 
 @Composable
 private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopography?, yph: YphData?, averageSph: EstateAverageSph?, soilSeries: EstateSoilSeries?) {
-    DashboardPanel("Age Profile", DashboardYellow) {
+    DashboardPanel("Age Profile") {
         if (ageProfile == null) {
             ChartPending("Palm age distribution")
             Text("Complete field ages and areas are required.", Modifier.padding(12.dp))
@@ -151,7 +148,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
                 Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         }
     }
-    DashboardPanel("Topography", DashboardTeal) {
+    DashboardPanel("Topography") {
         if (topography == null) {
             ChartPending("Terrain distribution")
             DashboardTable(listOf("Terrain", "Area (ha)", "Share"),
@@ -178,10 +175,10 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
                 Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         }
     }
-    DashboardPanel("YPH", DashboardYellow) {
+    DashboardPanel("YPH") {
         YphPanel(yph)
     }
-    DashboardPanel("Average SPH", DashboardYellow) {
+    DashboardPanel("Average SPH") {
         if (averageSph == null) {
             MetricRow("Palms/ha")
             Text("Complete field palm counts and areas are required.", Modifier.padding(12.dp),
@@ -198,7 +195,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
                 Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         }
     }
-    DashboardPanel("Soil Type", DashboardTeal) {
+    DashboardPanel("Soil Type") {
         if (soilSeries == null) {
             Text("Sync soil series records using the current estate area.", Modifier.padding(12.dp))
         } else {
@@ -222,7 +219,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 
 @Composable
 private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?, workerRatios: EstateWorkerRatios?) {
-    DashboardPanel("Rainfall", DashboardTeal) {
+    DashboardPanel("Rainfall") {
         DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
             val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
                 else "YTD through " + Month.of(row.throughMonth).getDisplayName(TextStyle.FULL, Locale.ENGLISH)
@@ -232,7 +229,7 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
         Text("Five years, newest first. Current-year YTD ends at the last completed month (Malaysia time). Totals need every month in the stated period; missing data remains Pending.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
     }
-    DashboardPanel("Workforce", DashboardTeal) {
+    DashboardPanel("Workforce") {
         Text(workforce?.period?.format(DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH))
             ?: "Reporting month: Pending", Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         DashboardTable(listOf("Category", "People"), listOf(
@@ -243,7 +240,7 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
             listOf("Total Workforce", workforce?.totalWorkforce?.toString() ?: "Pending"),
         ))
     }
-    DashboardPanel("Ratios", DashboardTeal) {
+    DashboardPanel("Ratios") {
         DashboardTable(listOf("Maturity", "Area (ha)", "Workers:ha"), listOf(
             listOf("Immature", workerRatios?.immatureArea?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending",
                 if (workerRatios?.immatureArea == 0.0) Pending else "Pending"),
@@ -261,14 +258,14 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
 
 @Composable
 private fun ProductionPanels(ffbCost: FfbCostComparison?) {
-    DashboardPanel("Kos FFB/TAN", DashboardYellow) { FfbCostPanel(ffbCost) }
-    DashboardPanel("FFB Quality", Color(0xFFDE9999)) {
+    DashboardPanel("Kos FFB/TAN") { FfbCostPanel(ffbCost) }
+    DashboardPanel("FFB Quality") {
         DashboardTable(listOf("Category", "Value"), listOf(
             listOf("Ripe Bunches (%)", Pending), listOf("Unripe (%)", Pending),
             listOf("Empty & Rotten (%)", Pending), listOf("Stone/Trash (ton)", Pending),
         ))
     }
-    DashboardPanel("Actual versus Budget · YTD", DashboardRed, Color.White) {
+    DashboardPanel("Actual versus Budget · YTD") {
         DashboardTable(listOf("Item", "Actual", "Budget"), listOf(
             listOf("OER (%)", Pending, Pending), listOf("KER (%)", Pending, Pending),
             listOf("External Supply (t)", Pending, Pending), listOf("LF", Pending, Pending),
@@ -279,14 +276,14 @@ private fun ProductionPanels(ffbCost: FfbCostComparison?) {
 @Composable
 private fun DashboardPanel(
     title: String,
-    color: Color,
-    titleColor: Color = DashboardInk,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().border(1.dp, Color(0xFFE0E0E0))) {
-        Text(title, color = titleColor, fontWeight = FontWeight.Bold,
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp))
+        .background(MaterialTheme.colorScheme.surface)
+        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))) {
+        Text(title, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().background(color).padding(horizontal = 12.dp, vertical = 10.dp))
+            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer).padding(horizontal = 12.dp, vertical = 10.dp))
         content()
     }
 }
@@ -325,7 +322,7 @@ private fun DashboardTable(headers: List<String>, rows: List<List<String>>, mini
                                 fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal)
                         }
                     }
-                    HorizontalDivider(color = Color(0xFFD6D6D6))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }

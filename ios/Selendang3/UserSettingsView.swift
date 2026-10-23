@@ -27,7 +27,7 @@ struct UserSettingsView: View {
                             Text("Dark").tag("dark")
                             Text("Follow System").tag("system")
                         }.pickerStyle(.inline)
-                    }.navigationTitle("Appearance")
+                    }.estateScreen().navigationTitle("Appearance")
                 }
                 NavigationLink("About") { ModuleView(title: "About") }
             } footer: {
@@ -94,7 +94,7 @@ struct UserSettingsView: View {
                 Text("Revision \(update.revision)\n\(update.reportingPeriod)\n\(update.sections.reduce(0) { $0 + $1.rows.count }) rows across seven sections. This replaces the saved estate reference data. Production drafts are kept separately.")
             }
         }
-        .navigationTitle("Settings")
+        .estateScreen().navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }
@@ -135,7 +135,7 @@ private struct UserProfileView: View {
                 Text("Your profile on this device. This is not a signed-in account.")
             }
         }
-        .navigationTitle("User Profile")
+        .estateScreen().navigationTitle("User Profile")
         .onAppear {
             name = savedName
             position = savedPosition
@@ -159,6 +159,7 @@ private struct SettingsPlaceholder: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle(title)
+        .estateScreen().navigationTitle(title)
     }
 }
+

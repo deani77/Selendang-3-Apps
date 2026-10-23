@@ -10,7 +10,7 @@ struct EstateRecordsView: View {
                 }
             } else { Text("No estate data imported. Open Settings → Estate Data Sync.") }
         }
-        .navigationTitle("All Estate Records")
+        .estateScreen().navigationTitle("All Estate Records")
     }
 }
 
@@ -28,7 +28,7 @@ struct EstateRecordTableView: View {
                 }
             }
         }
-        .navigationTitle(table.title)
+        .estateScreen().navigationTitle(table.title)
     }
 }
 
@@ -62,7 +62,7 @@ struct FieldDetailsView: View {
                                 }
                                 Text("Only saved records explicitly identified for this field are shown. Other field records remain pending.")
                                     .font(.footnote)
-                            }.navigationTitle(code)
+                            }.estateScreen().navigationTitle(code)
                         } label: {
                             Text(code).font(.headline).frame(maxWidth: .infinity, minHeight: 60)
                         }.buttonStyle(.borderedProminent)
@@ -73,7 +73,7 @@ struct FieldDetailsView: View {
                 }
             }.padding()
         }
-        .navigationTitle("Field Details").navigationBarTitleDisplayMode(.inline)
+        .estateScreen().navigationTitle("Field Details").navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }
 }
@@ -92,7 +92,7 @@ struct UpkeepCultivationView: View {
                 Text("Work records and additional dashboard measures are awaiting approved inputs.")
             }
         }
-        .navigationTitle("Upkeep and Cultivation").navigationBarTitleDisplayMode(.inline)
+        .estateScreen().navigationTitle("Upkeep and Cultivation").navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }
 }

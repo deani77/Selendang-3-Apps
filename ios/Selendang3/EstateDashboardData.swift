@@ -243,6 +243,68 @@ struct EstateDashboardData {
         ]
     }
 
+    // Uses the same source periods and validation as the home summaries.
+    var operationalCards: [EstateDashboardPanel] {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Kuala_Lumpur")!
+        let year = calendar.component(.year, from: today)
+        let month = calendar.component(.month, from: today)
+        let current = String(format: "%04d-%02d", year, month)
+        let formatter = DateFormatter()
+        formatter.calendar = calendar; formatter.timeZone = calendar.timeZone
+        formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "MMM yyyy"
+        var ytd: Double?, annualBudgetProgress: Double?, yieldPeriod = "YTD " + String(year)
+        if let source = reference?.yph, source.reportingYear == year,
+           (1...month).contains(source.throughMonth), source.matureAreaHa.isFinite, source.matureAreaHa > 0,
+           let tonnes = source.actualYtdTonnes, tonnes.isFinite, tonnes >= 0 {
+            ytd = tonnes / source.matureAreaHa
+            if let budget = source.fullYearBudgetTonnes, budget.isFinite, budget > 0 {
+                let percent = tonnes / budget * 100
+                if percent.isFinite { annualBudgetProgress = percent }
+            }
+            yieldPeriod = "YTD through " + formatter.string(from: calendar.date(from: DateComponents(year: year, month: source.throughMonth, day: 1))!)
+        }
+        let costPeriod = period("FFB cost YTD reporting period")
+        let costValid = costPeriod != nil && costPeriod!.hasPrefix(String(year) + "-") && costPeriod! <= current &&
+            overview("FFB cost budget year") == String(year)
+        let operation = costValid ? numeric(overview("FFB cost operation actual YTD (RM/tonne)")) : nil
+        let gc = costValid ? numeric(overview("FFB cost general charges actual YTD (RM/tonne)")) : nil
+        var costLabel = "YTD " + String(year)
+        if costValid, let date = ISO8601DateFormatter().date(from: costPeriod! + "-01T00:00:00Z") {
+            costLabel = "YTD through " + formatter.string(from: date)
+        }
+        return [
+            EstateDashboardPanel(title: "Crop Production", headers: [], rows: [
+                [formatter.string(from: calendar.date(byAdding: .month, value: -1, to: today)!), "Pending", "mt/ha"],
+                [formatter.string(from: today) + " MTD", "Pending", "mt/ha"],
+                ["Actual YTD", Self.number(ytd), "mt/ha"],
+                ["YTD / Year Budget", Self.number(annualBudgetProgress), "%"]
+            ], note: yieldPeriod),
+            EstateDashboardPanel(title: "Harvesting Coverage", headers: [], rows: [
+                ["Today", "Pending", "ha"], ["MTD", "Pending", "ha"],
+                ["Completed rounds", "Pending", "rounds"]
+            ], note: formatter.string(from: today)),
+            EstateDashboardPanel(title: "Harvester Productivity", headers: [], rows: [
+                ["Harvested crop", "Pending", "mt/worker-day"],
+                ["Covered area", "Pending", "ha/worker-day"]
+            ], note: "MTD · " + formatter.string(from: today)),
+            EstateDashboardPanel(title: "Manuring", headers: [], rows: [
+                ["Programme progress", "Pending", "%"]
+            ], note: "Reporting period pending"),
+            EstateDashboardPanel(title: "Weeding", headers: [], rows: [
+                ["Circle", "Pending", "%"], ["Selective", "Pending", "%"]
+            ], note: "Reporting period pending"),
+            EstateDashboardPanel(title: "Pest & Disease", headers: [], rows: [
+                ["Affected area", "Pending", "ha"], ["Incidence", "Pending", "%"]
+            ], note: "Reporting period pending"),
+            EstateDashboardPanel(title: "Estate Cost", headers: [], rows: [
+                ["Operation Cost", Self.number(operation), "RM/mt"],
+                ["General Charges", Self.number(gc), "RM/mt"]
+            ], note: costLabel)
+
+        ]
+    }
+
     var panels: [EstateDashboardPanel] {
         [ages,land("Terrain",title:"Topography"),yph,sph,land("Soil series",title:"Soil Type"),rainfall,workforce,ratios,costs,
          EstateDashboardPanel(title:"FFB Quality",headers:["Category","Value"],rows:["Ripe Bunches (%)","Unripe (%)","Empty & Rotten (%)","Stone/Trash (ton)"].map { [$0,"Pending"] }),
@@ -271,3 +333,4 @@ func estateFieldTables(_ reference: EstateReference?, code: String) -> [EstateRe
         return rows.isEmpty ? nil : EstateReferenceTable(id: table.id, columns: table.columns, rows: rows)
     }
 }
+

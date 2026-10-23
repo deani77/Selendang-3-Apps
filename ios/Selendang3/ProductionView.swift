@@ -57,7 +57,7 @@ struct ProductionView: View {
                 summaries
             }
         }
-        .navigationTitle("Crop Production")
+        .estateScreen().navigationTitle("Crop Production")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .alert("Discard unsaved changes?", isPresented: $showDiscard) {
@@ -169,3 +169,4 @@ private struct ProductionEditorView: View {
         }
     }
 }
+
