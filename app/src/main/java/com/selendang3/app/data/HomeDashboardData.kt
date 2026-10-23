@@ -26,13 +26,13 @@ fun homeDashboardRows(update: EstatePackage?, today: LocalDate): List<HomeDashbo
     val yieldPeriod = yph?.let { "YTD through " + label(YearMonth.of(it.reportingYear, it.throughMonth)) } ?: "YTD " + today.year
     val costs = estateFfbCosts(update)?.takeIf { it.actualPeriod.year == today.year && it.actualPeriod <= month }
     return listOf(
-        HomeDashboardRow("Crop data · t/ha",
+        HomeDashboardRow("Crop Data · mt/ha",
             label(month.minusMonths(1)) + ": Pending · " + label(month) + " MTD: Pending\n" +
                 yieldPeriod + ": " + number(yph?.actualYtdYph) + "\nYTD vs Year Budget: " +
                 (annualBudgetProgress?.let { number(it) + "%" } ?: "Pending")),
         HomeDashboardRow("Upkeep and Manuring · %",
             "Weeding: Pending · Manuring: Pending"),
-        HomeDashboardRow("Estate cost · Actual YTD · RM/tonne",
+        HomeDashboardRow("Estate Cost · Actual YTD · RM/mt",
             "Operation: " + number(costs?.groups?.firstOrNull { it.label == "Operation Cost" }?.actualYtdRmPerTonne) +
                 " · GC: " + number(costs?.groups?.firstOrNull { it.label == "General Charges" }?.actualYtdRmPerTonne) +
                 "\n" + (costs?.let { "YTD through " + label(it.actualPeriod) } ?: "YTD " + today.year))

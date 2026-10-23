@@ -19,7 +19,7 @@ class NavigationTest {
         compose.onNodeWithText("Dashboard contents will be added later. Estate panels are now in Estate Details.").assertIsDisplayed()
         compose.onNodeWithText("Age Profile").assertDoesNotExist()
         compose.onNodeWithText("‹  Back").performClick()
-        compose.onNodeWithText("S3 Estate Info").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
     }
     @Test fun homeModulesAndAboutInSettings() {
         compose.onNodeWithText("Reports").assertDoesNotExist()
