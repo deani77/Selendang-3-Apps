@@ -5,7 +5,6 @@ struct HomeView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     @ScaledMetric(relativeTo: .largeTitle) private var iPadHeadingSize: CGFloat = 44
-    @ScaledMetric(relativeTo: .title2) private var iPadSummaryHeaderHeight: CGFloat = 80
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
@@ -14,83 +13,72 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    Text("Estate Dashboard")
-                        .font(isPad ? .system(size: iPadHeadingSize, weight: .bold) : .largeTitle.bold())
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(colorScheme == .dark ? Color.white : green)
-                        .padding(.vertical, 24)
-                    NavigationLink {
-                        ModuleView(title: "Estate Dashboard")
-                    } label: {
-                        TimelineView(.periodic(from: Date(), by: 60)) { context in
-                            let rows = EstateDashboardData(reference: estate.reference, today: context.date).homeRows
-                            Group {
-                                if isPad {
-                                    HStack(alignment: .top, spacing: 16) {
-                                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
-                                            summaryCell(row)
-                                                .frame(maxWidth: .infinity, alignment: .top)
-                                        }
-                                    }
-                                    .fixedSize(horizontal: false, vertical: true)
-                                } else {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
-                                            if index > 0 { Divider().overlay(Color.white.opacity(0.35)) }
-                                            summaryCell(row)
-                                        }
-                                    }
-                                }
+            VStack(spacing: 0) {
+                if isPad {
+                    homeHeading.padding(.horizontal, 20)
+                    HomeDashboardSummaryView(horizontal: true)
+                        .padding(.horizontal, 20).padding(.bottom, 16)
+                    ScrollView { navigationGrid.padding(20) }
+                } else {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            homeHeading
+                            NavigationLink { HomeDashboardScreen() } label: {
+                                Text("Estate Dashboard").font(.title2.bold())
+                                    .frame(maxWidth: .infinity, minHeight: 88)
+                                    .background(Color(red: 0.16, green: 0.35, blue: 0.24))
+                                    .foregroundStyle(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 24))
                             }
-                            .frame(maxWidth: .infinity, minHeight: 160, alignment: isPad ? .top : .leading)
-                            .padding(16)
-                        }
-                            .background(Color(red: 0.16, green: 0.35, blue: 0.24))
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 24))
-                            .accessibilityElement(children: .combine)
-                            .accessibilityHint("Opens Estate Dashboard")
+                            navigationGrid
+                        }.padding(20)
                     }
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: isPad ? 14 : 8) {
-                        ForEach(sections, id: \.self) { title in
-                            NavigationLink {
-                                if title == "Settings" {
-                                    UserSettingsView()
-                                } else if title == "Estate Details" {
-                                    EstateInformationView()
-                                } else if title == "Field Details" {
-                                    FieldDetailsView()
-                                } else if title == "Upkeep and Cultivation" {
-                                    UpkeepCultivationView()
-                                } else if title == "Crop Production" {
-                                    ProductionView()
-                                } else {
-                                    ModuleView(title: title)
-                                }
-                            } label: {
-                                Text(title)
-                                    .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
-                                    .multilineTextAlignment(.center)
-                                    .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48)
-                                    .padding(isPad ? 8 : 4)
-                                    .background(Color(red: 0.85, green: 0.89, blue: 0.82))
-                                    .foregroundStyle(green)
-                                    .clipShape(RoundedRectangle(cornerRadius: 18))
-                            }
-                        }
-                    }
-
                 }
-                .padding(20)
             }
             .safeAreaInset(edge: .bottom, spacing: 0) { homeFooter }
             .background(LinearGradient(colors: colorScheme == .dark ? [green, .black] : [Color(red: 0.94, green: 0.97, blue: 0.92), .white], startPoint: .top, endPoint: .bottom))
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(.green)
+    }
+
+    private var homeHeading: some View {
+        Text("Estate Dashboard")
+            .font(isPad ? .system(size: iPadHeadingSize, weight: .bold) : .largeTitle.bold())
+            .multilineTextAlignment(.center)
+            .foregroundStyle(colorScheme == .dark ? Color.white : green)
+            .padding(.vertical, 24)
+    }
+
+    private var navigationGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: isPad ? 14 : 8) {
+            ForEach(sections, id: \.self) { title in
+                NavigationLink {
+                    if title == "Settings" {
+                        UserSettingsView()
+                    } else if title == "Estate Details" {
+                        EstateInformationView()
+                    } else if title == "Field Details" {
+                        FieldDetailsView()
+                    } else if title == "Upkeep and Cultivation" {
+                        UpkeepCultivationView()
+                    } else if title == "Crop Production" {
+                        ProductionView()
+                    } else {
+                        ModuleView(title: title)
+                    }
+                } label: {
+                    Text(title)
+                        .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48)
+                        .padding(isPad ? 8 : 4)
+                        .background(Color(red: 0.85, green: 0.89, blue: 0.82))
+                        .foregroundStyle(green)
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                }
+            }
+        }
     }
 
     private var homeFooter: some View {
@@ -108,46 +96,7 @@ struct HomeView: View {
         .background(colorScheme == .dark ? Color.black : Color.white)
     }
 
-    private func summaryTitle(_ row: EstateDashboardPanel) -> String {
-        switch row.title {
-        case "Crop data · t/ha": return "Crop Data"
-        case "Upkeep and Manuring · %": return "Upkeep and Manuring"
-        case "Estate cost · Actual YTD · RM/tonne": return "Estate Cost"
-        default: return row.title
-        }
-    }
 
-    private func summaryUnit(_ row: EstateDashboardPanel) -> String {
-        switch row.title {
-        case "Crop data · t/ha": return "(mt/ha)"
-        case "Upkeep and Manuring · %": return "(%)"
-        case "Estate cost · Actual YTD · RM/tonne": return "(RM/mt)"
-        default: return ""
-        }
-    }
-
-    private func summaryCell(_ row: EstateDashboardPanel) -> some View {
-        VStack(alignment: isPad ? .center : .leading, spacing: isPad ? 8 : 4) {
-            if isPad {
-                VStack(spacing: 2) {
-                    Text(summaryTitle(row)).font(.title2.bold()).lineLimit(2)
-                    Text(summaryUnit(row)).font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, minHeight: iPadSummaryHeaderHeight, alignment: .top)
-                .accessibilityElement(children: .combine)
-            } else {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(summaryTitle(row)).font(.subheadline.bold())
-                    Text(summaryUnit(row)).font(.caption)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityElement(children: .combine)
-            }
-            Text(row.note.replacingOccurrences(of: " · ", with: "\n"))
-                .font(isPad ? .body : .footnote)
-        }
-        .multilineTextAlignment(isPad ? .center : .leading)
-    }
 }
 
 struct ModuleView: View {

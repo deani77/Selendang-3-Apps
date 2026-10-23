@@ -113,10 +113,11 @@ fun EstateApp() {
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Spacer(Modifier.height(18.dp))
                             Button(onClick = { nav.navigate("dashboard") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp).semantics { contentDescription = "Open Estate Dashboard" },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
-                                HomeDashboardSummary(estateUpdate)
+                                Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold)
                             }
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
@@ -138,7 +139,11 @@ fun EstateApp() {
                     composable("production") { FieldDetailsScreen(estateUpdate) }
                     composable("upkeep") { UpkeepCultivationScreen() }
                     composable("dashboard") {
-                        InfoCard("Estate Dashboard", "Dashboard contents will be added later. Estate panels are now in Estate Details.")
+                        Card(Modifier.fillMaxSize()) {
+                            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+                                HomeDashboardSummary(estateUpdate)
+                            }
+                        }
                     }
                     composable("reports") { ProductionScreen() }
                     composable("settings") {
@@ -243,10 +248,11 @@ private fun HomeDashboardSummary(update: com.selendang3.app.data.EstatePackage?)
     Column(Modifier.fillMaxWidth().padding(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         homeDashboardRows(update, today).forEachIndexed { index, row ->
-            if (index > 0) HorizontalDivider(color = Color.White.copy(alpha = 0.35f))
+            if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(row.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(row.detail, style = MaterialTheme.typography.bodySmall)
+                Text(row.title.substringBefore(" · ") + " (" + row.title.substringAfterLast(" · ") + ")",
+                    style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(row.detail.replace(" · ", "\n"), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

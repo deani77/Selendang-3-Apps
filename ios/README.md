@@ -23,3 +23,6 @@ The iPad home summary uses three top-aligned columns, larger titles and smaller 
 
 ## Validation
 CI checks production, snapshot parsing, dashboard calculations and field isolation using fictional fixtures, then compiles for the simulator. Physical-device signing/installation is validated separately.
+
+## Device dashboard behavior
+On iPad mini the home summary stays pinned above the independently scrolling navigation buttons. iPhone and Android show a compact Estate Dashboard button; tapping opens the complete Crop Data, Upkeep and Manuring, and Estate Cost summaries. Shared data, titles, metric units and reporting periods are retained. iPhone keeps its smaller fonts. Detailed estate panels remain under Estate Details.

@@ -8,7 +8,8 @@ import org.junit.Test
 class NavigationTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
-    @Test fun detailsShowsMovedPanelsAndDashboardIsPlaceholder() {
+    @Test fun detailsShowsPanelsAndPhoneDashboardOpensSummary() {
+        compose.onNodeWithText("Crop Data (mt/ha)").assertDoesNotExist()
         compose.onNodeWithText("Estate Details").performScrollTo().performClick()
         compose.onNodeWithText("ESTATE DETAILS · SELENDANG 3").assertIsDisplayed()
         compose.onNodeWithText("Age Profile").performScrollTo().assertIsDisplayed()
@@ -16,7 +17,9 @@ class NavigationTest {
         compose.onNodeWithText("Checkroll Average").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithContentDescription("Open Estate Dashboard").performScrollTo().performClick()
-        compose.onNodeWithText("Dashboard contents will be added later. Estate panels are now in Estate Details.").assertIsDisplayed()
+        compose.onNodeWithText("Crop Data (mt/ha)").assertIsDisplayed()
+        compose.onNodeWithText("Upkeep and Manuring (%)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Estate Cost (RM/mt)").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Age Profile").assertDoesNotExist()
         compose.onNodeWithText("‹  Back").performClick()
         compose.onNodeWithText("S3 Estate Info").assertIsDisplayed()
