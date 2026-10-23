@@ -17,6 +17,7 @@ struct EstateDashboardView: View {
                     } else { Text("No estate data imported. Open Settings → Sync Now.") }
                     Text("Uses saved offline records. Each measure retains its reporting period. Pending means data is unavailable.")
                         .font(.footnote).foregroundStyle(.secondary)
+                    NavigationLink("All Estate Records") { EstateRecordsView() }
                     LazyVGrid(columns:[GridItem(.adaptive(minimum:320),alignment:.top)],alignment:.leading,spacing:16) {
                         ForEach(data.panels) { section in panel(section) }
                     }

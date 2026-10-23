@@ -251,3 +251,23 @@ struct EstateDashboardData {
          EstateDashboardPanel(title:"Checkroll Average",headers:["Category","RM/Mdy","% O/Turn"],rows:[["Harvester","Pending","Pending"],["Field Worker","Pending","Pending"]])]
     }
 }
+
+
+func estateFieldCodes(_ reference: EstateReference?) -> [String] {
+    guard let table = reference?.sections.first(where: { $0.id == "fields" }),
+          let column = table.columns.firstIndex(of: "Field code") else { return [] }
+    return Array(Set(table.rows.compactMap { row -> String? in
+        guard column < row.count, let code = row[column]?.text.trimmingCharacters(in: .whitespacesAndNewlines),
+              !code.isEmpty else { return nil }
+        return code
+    })).sorted()
+}
+
+func estateFieldTables(_ reference: EstateReference?, code: String) -> [EstateReferenceTable] {
+    guard estateFieldCodes(reference).contains(code) else { return [] }
+    return (reference?.sections ?? []).compactMap { table in
+        guard let column = table.columns.firstIndex(where: { ["Field code", "Field / category", "Field"].contains($0) }) else { return nil }
+        let rows = table.rows.filter { column < $0.count && $0[column]?.text.trimmingCharacters(in: .whitespacesAndNewlines) == code }
+        return rows.isEmpty ? nil : EstateReferenceTable(id: table.id, columns: table.columns, rows: rows)
+    }
+}

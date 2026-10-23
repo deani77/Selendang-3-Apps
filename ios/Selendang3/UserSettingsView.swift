@@ -15,31 +15,25 @@ struct UserSettingsView: View {
     var body: some View {
         Form {
             Section {
+                NavigationLink("Inbox") {
+                    SettingsPlaceholder(title: "Inbox", heading: "No messages yet",
+                        message: "Announcements and replies will appear here once messaging is connected.")
+                }
                 NavigationLink("User Profile") { UserProfileView() }
-                NavigationLink("About") { ModuleView(title: "About") }
                 NavigationLink("Appearance") {
                     Form {
                         Picker("Theme", selection: $theme) {
                             Text("Light").tag("light")
                             Text("Dark").tag("dark")
                             Text("Follow System").tag("system")
-                        }
-                        .pickerStyle(.inline)
-                    }
-                    .navigationTitle("Appearance")
+                        }.pickerStyle(.inline)
+                    }.navigationTitle("Appearance")
                 }
-                NavigationLink("Inbox") {
-                    SettingsPlaceholder(title: "Inbox", heading: "No messages yet",
-                        message: "Announcements and replies will appear here once messaging is connected.")
-                }
-                NavigationLink("Suggestions") {
-                    SettingsPlaceholder(title: "Suggestions", heading: "Share an idea",
-                        message: "Suggestion submission and replies will be available once the service is connected.")
-                }
+                NavigationLink("About") { ModuleView(title: "About") }
             } footer: {
                 Text("Profile and appearance are saved on this device. The access token is kept only for this Settings session.")
             }
-            Section("Estate and production synchronization") {
+            Section("Estate Data Sync") {
                 TextField("Full HTTPS snapshot address", text: $address).textInputAutocapitalization(.never).autocorrectionDisabled()
                 SecureField("Access token", text: $accessToken).textInputAutocapitalization(.never).autocorrectionDisabled()
                 Text(production.status)

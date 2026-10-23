@@ -1,0 +1,73 @@
+package com.selendang3.app
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.selendang3.app.data.*
+
+@Composable
+fun FieldDetailsScreen(update: EstatePackage?) {
+    var selected by rememberSaveable { mutableStateOf<String?>(null) }
+    val codes = estateFieldCodes(update)
+    val field = selected?.takeIf { it in codes }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (field == null) {
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Field Dashboard", style = MaterialTheme.typography.titleLarge)
+                    Text("Fields available: " + if (update == null) "Pending" else codes.size.toString())
+                    Text(update?.reportingPeriod ?: "No saved estate records")
+                    Text("Choose a field below for its saved details. Additional dashboard measures are pending definition.")
+                }
+            }
+            codes.chunked(2).forEach { group ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    group.forEach { code ->
+                        FilledTonalButton(onClick = { selected = code },
+                            modifier = Modifier.weight(1f).heightIn(min = 60.dp)) { Text(code) }
+                    }
+                    if (group.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+            if (codes.isEmpty()) Text("Import estate records through Settings → Estate Data Sync to see field buttons.")
+        } else {
+            TextButton(onClick = { selected = null }) { Text("‹ All Fields") }
+            Text(field, style = MaterialTheme.typography.titleLarge)
+            estateFieldTables(update, field).forEach { table ->
+                Text(estateSections.firstOrNull { it.route == table.id }?.title ?: table.id,
+                    style = MaterialTheme.typography.titleMedium)
+                table.rows.forEach { row ->
+                    Card(Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            table.columns.zip(row).forEach { (label, value) -> Text("$label: ${value ?: "Pending"}") }
+                        }
+                    }
+                }
+            }
+            Text("Only saved records explicitly identified for this field are shown. Other field records remain pending.")
+        }
+    }
+}
+
+@Composable
+fun UpkeepCultivationScreen() {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Upkeep and Cultivation Dashboard", style = MaterialTheme.typography.titleLarge)
+                Text("Weeding progress: Pending")
+                Text("Manuring progress: Pending")
+                Text("Pest and disease work: Pending")
+            }
+        }
+        Text("Weeding, manuring, pest and disease management, and other estate upkeep and cultivation work.")
+        Text("Crop production activities are recorded under Crop Production.")
+        Text("Work records and additional dashboard measures are awaiting approved inputs.")
+    }
+}

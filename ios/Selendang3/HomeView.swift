@@ -61,6 +61,10 @@ struct HomeView: View {
                                     UserSettingsView()
                                 } else if title == "Estate Details" {
                                     EstateInformationView()
+                                } else if title == "Field Details" {
+                                    FieldDetailsView()
+                                } else if title == "Upkeep and Cultivation" {
+                                    UpkeepCultivationView()
                                 } else if title == "Crop Production" {
                                     ProductionView()
                                 } else {

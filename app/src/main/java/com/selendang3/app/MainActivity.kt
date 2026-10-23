@@ -52,8 +52,8 @@ val estateSections = listOf(
 
 val mainSections = listOf(
     Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
-    Section("production", "Field Details", "Field details contents will be added later."),
-    Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
+    Section("production", "Field Details", "Field dashboard and records by field."),
+    Section("upkeep", "Upkeep and Cultivation", "Estate work dashboard, excluding crop production."),
     Section("reports", "Crop Production", "Field production, daily drafts and period totals."),
     Section("settings", "Settings", "Offline data synchronization"),
     Section("tools", "Planter Tools", "Planter tools will be added later."),
@@ -88,6 +88,7 @@ fun EstateApp() {
     val title = when (route) {
         "home" -> "Estate Dashboard"
         "dashboard" -> "Estate Dashboard"
+        "estate-records" -> "All Estate Records"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
     MaterialTheme(colorScheme = if (dark) darkColorScheme(
@@ -120,7 +121,22 @@ fun EstateApp() {
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
                     }
-                    composable("information") { EstateDashboard(estateUpdate) }
+                    composable("information") {
+                        Column {
+                            OutlinedButton(onClick = { nav.navigate("estate-records") }) { Text("All Estate Records") }
+                            Box(Modifier.weight(1f)) { EstateDashboard(estateUpdate) }
+                        }
+                    }
+                    composable("estate-records") {
+                        Column(Modifier.verticalScroll(rememberScrollState())) {
+                            SectionGrid(estateSections) { nav.navigate(it) }
+                        }
+                    }
+                    estateSections.forEach { section ->
+                        composable(section.route) { EstateSectionData(section, estateUpdate) }
+                    }
+                    composable("production") { FieldDetailsScreen(estateUpdate) }
+                    composable("upkeep") { UpkeepCultivationScreen() }
                     composable("dashboard") {
                         InfoCard("Estate Dashboard", "Dashboard contents will be added later. Estate panels are now in Estate Details.")
                     }
@@ -131,7 +147,7 @@ fun EstateApp() {
                             preferences.edit().putString("theme", it).apply()
                         }
                     }
-                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" }.forEach { section ->
+                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" && it.route != "production" && it.route != "upkeep" }.forEach { section ->
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
