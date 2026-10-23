@@ -5,6 +5,7 @@ struct HomeView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     @ScaledMetric(relativeTo: .largeTitle) private var iPadHeadingSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .body) private var minimumPhoneHomeHeight: CGFloat = 520
     private let green = Color(red: 0.08, green: 0.22, blue: 0.15)
     private let sections = [
         "Estate Details", "Field Details", "Upkeep and Cultivation",
@@ -20,18 +21,28 @@ struct HomeView: View {
                         .padding(.horizontal, 20).padding(.bottom, 16)
                     ScrollView { navigationGrid.padding(20) }
                 } else {
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            homeHeading
-                            NavigationLink { HomeDashboardScreen() } label: {
-                                Text("Estate Dashboard").font(.title2.bold())
-                                    .frame(maxWidth: .infinity, minHeight: 88)
-                                    .background(Color(red: 0.16, green: 0.35, blue: 0.24))
-                                    .foregroundStyle(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    GeometryReader { geometry in
+                        ScrollView {
+                            VStack(spacing: 8) {
+                                homeHeading.fixedSize(horizontal: false, vertical: true).padding(.bottom, 12)
+                                NavigationLink { HomeDashboardScreen() } label: {
+                                    Text("Estate Dashboard").font(.title2.bold())
+                                        .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
+                                        .background(Color(red: 0.16, green: 0.35, blue: 0.24))
+                                        .foregroundStyle(.white)
+                                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                                }
+                                .frame(maxHeight: .infinity).padding(.bottom, 12)
+                                ForEach(0..<3, id: \.self) { row in
+                                    HStack(spacing: 8) {
+                                        navigationButton(sections[row * 2], stretches: true)
+                                        navigationButton(sections[row * 2 + 1], stretches: true)
+                                    }.frame(maxHeight: .infinity)
+                                }
                             }
-                            navigationGrid
-                        }.padding(20)
+                            .padding(20)
+                            .frame(height: max(geometry.size.height, minimumPhoneHomeHeight))
+                        }
                     }
                 }
             }
@@ -43,7 +54,7 @@ struct HomeView: View {
     }
 
     private var homeHeading: some View {
-        Text("Estate Dashboard")
+        Text("Planter’s Log")
             .font(isPad ? .system(size: iPadHeadingSize, weight: .bold) : .largeTitle.bold())
             .multilineTextAlignment(.center)
             .foregroundStyle(colorScheme == .dark ? Color.white : green)
@@ -51,34 +62,38 @@ struct HomeView: View {
     }
 
     private var navigationGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: isPad ? 14 : 8) {
-            ForEach(sections, id: \.self) { title in
-                NavigationLink {
-                    if title == "Settings" {
-                        UserSettingsView()
-                    } else if title == "Estate Details" {
-                        EstateInformationView()
-                    } else if title == "Field Details" {
-                        FieldDetailsView()
-                    } else if title == "Upkeep and Cultivation" {
-                        UpkeepCultivationView()
-                    } else if title == "Crop Production" {
-                        ProductionView()
-                    } else {
-                        ModuleView(title: title)
-                    }
-                } label: {
-                    Text(title)
-                        .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48)
-                        .padding(isPad ? 8 : 4)
-                        .background(Color(red: 0.85, green: 0.89, blue: 0.82))
-                        .foregroundStyle(green)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                }
-            }
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
+            ForEach(sections, id: \.self) { title in navigationButton(title) }
         }
+    }
+
+    private func navigationButton(_ title: String, stretches: Bool = false) -> some View {
+        NavigationLink {
+            if title == "Settings" {
+                UserSettingsView()
+            } else if title == "Estate Details" {
+                EstateInformationView()
+            } else if title == "Field Details" {
+                FieldDetailsView()
+            } else if title == "Upkeep and Cultivation" {
+                UpkeepCultivationView()
+            } else if title == "Crop Production" {
+                ProductionView()
+            } else {
+                ModuleView(title: title)
+            }
+        } label: {
+            Text(title)
+                .font(isPad ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: isPad ? 64 : 48,
+                    maxHeight: stretches ? .infinity : nil)
+                .padding(isPad ? 8 : 4)
+                .background(Color(red: 0.85, green: 0.89, blue: 0.82))
+                .foregroundStyle(green)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+        }
+        .frame(maxWidth: .infinity, maxHeight: stretches ? .infinity : nil)
     }
 
     private var homeFooter: some View {
