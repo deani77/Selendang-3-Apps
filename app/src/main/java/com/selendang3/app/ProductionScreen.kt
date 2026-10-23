@@ -40,6 +40,12 @@ fun ProductionScreen() {
     fun change(action: () -> Unit) { if (dirty) pendingChange = action else action() }
     val parsedDate = runCatching { LocalDate.parse(date).takeIf { it.toString() == date } }.getOrNull()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Crop Production Dashboard", style = MaterialTheme.typography.titleLarge)
+                CropDashboardSummary()
+            }
+        }
         Text("Production by field", style = MaterialTheme.typography.titleLarge)
         if (ready) Text(store.status(), style = MaterialTheme.typography.bodySmall)
         Text("Drafts are saved on this device. Use Settings → Sync Now to upload and download production. PDF capture is not connected yet.")
@@ -164,4 +170,18 @@ private fun ProductionEditor(record: ProductionDraft?, date: String, field: Stri
         } catch (failure: Exception) { notice = failure.message ?: "Check the entered values." }
     }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "Saving…" else "Save Draft") }
     notice?.let { Text(it) }
+}
+
+@Composable
+private fun CropDashboardSummary() {
+    val context = LocalContext.current
+    val dao = remember(context) { EstateDatabase.get(context).estateDao() }
+    val snapshot by dao.observeSnapshot().collectAsState(initial = null)
+    val update = remember(snapshot?.content) { snapshot?.let { EstatePackages.parse(it.content) } }
+    val today by produceState(estateRainfallToday()) {
+        while (true) { value = estateRainfallToday(); kotlinx.coroutines.delay(60_000) }
+    }
+    Text(homeDashboardRows(update, today)[0].detail.replace(" · ", "\n"))
+    Text("Crop yield: mt/ha. Verified estate snapshot; daily drafts below remain provisional.",
+        style = MaterialTheme.typography.bodySmall)
 }

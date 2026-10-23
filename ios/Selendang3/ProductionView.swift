@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProductionView: View {
     @StateObject private var store = ProductionStore.shared
+    @ObservedObject private var estate = EstateReferenceStore.shared
     @State private var section = "Today Crop Production"
     @State private var field = productionFields[0]
     @State private var date = Date()
@@ -17,6 +18,14 @@ struct ProductionView: View {
 
     var body: some View {
         Form {
+            Section("Crop Production Dashboard") {
+                TimelineView(.periodic(from: Date(), by: 60)) { context in
+                    let summary = EstateDashboardData(reference: estate.reference, today: context.date).homeRows[0]
+                    Text(summary.note.replacingOccurrences(of: " · ", with: "\n"))
+                    Text("Crop yield: mt/ha. Verified estate snapshot; daily drafts below remain provisional.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+            }
             Section {
                 Text("Production by field").font(.headline)
                 Text(store.status).font(.footnote)
@@ -48,7 +57,7 @@ struct ProductionView: View {
                 summaries
             }
         }
-        .navigationTitle("Estate Production")
+        .navigationTitle("Crop Production")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .alert("Discard unsaved changes?", isPresented: $showDiscard) {

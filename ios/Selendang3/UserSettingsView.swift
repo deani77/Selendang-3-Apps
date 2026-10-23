@@ -6,10 +6,19 @@ struct UserSettingsView: View {
     @AppStorage("server_address") private var address = ""
     @State private var accessToken = ""
     @State private var syncMessage: String?
+    @StateObject private var estate = EstateReferenceStore.shared
+    @State private var syncBusy = false
+    @State private var pendingEstateData: Data?
+    @State private var pendingEstate: EstateReference?
+    @State private var showEstatePreview = false
 
     var body: some View {
         Form {
             Section {
+                NavigationLink("Inbox") {
+                    SettingsPlaceholder(title: "Inbox", heading: "No messages yet",
+                        message: "Announcements and replies will appear here once messaging is connected.")
+                }
                 NavigationLink("User Profile") { UserProfileView() }
                 NavigationLink("Appearance") {
                     Form {
@@ -17,33 +26,46 @@ struct UserSettingsView: View {
                             Text("Light").tag("light")
                             Text("Dark").tag("dark")
                             Text("Follow System").tag("system")
-                        }
-                        .pickerStyle(.inline)
-                    }
-                    .navigationTitle("Appearance")
+                        }.pickerStyle(.inline)
+                    }.navigationTitle("Appearance")
                 }
-                NavigationLink("Inbox") {
-                    SettingsPlaceholder(title: "Inbox", heading: "No messages yet",
-                        message: "Announcements and replies will appear here once messaging is connected.")
-                }
-                NavigationLink("Suggestions") {
-                    SettingsPlaceholder(title: "Suggestions", heading: "Share an idea",
-                        message: "Suggestion submission and replies will be available once the service is connected.")
-                }
+                NavigationLink("About") { ModuleView(title: "About") }
             } footer: {
                 Text("Profile and appearance are saved on this device. The access token is kept only for this Settings session.")
             }
-            Section("Production synchronization") {
+            Section("Estate Data Sync") {
                 TextField("Full HTTPS snapshot address", text: $address).textInputAutocapitalization(.never).autocorrectionDisabled()
-                SecureField("Access token", text: $accessToken)
+                SecureField("Access token", text: $accessToken).textInputAutocapitalization(.never).autocorrectionDisabled()
                 Text(production.status)
-                Text("Uploads saved daily drafts and downloads production from other phones. Estate reference download is currently available in Android only.").font(.footnote)
-                Button(production.syncing ? "Syncing…" : "Sync Now") {
+                Text("Uploads pending daily production drafts and checks estate reference data. New estate updates require confirmation before replacing the offline copy.").font(.footnote)
+                if let reference = estate.reference { Text("Saved estate revision \(reference.revision) · available offline") }
+                if let checked = estate.lastChecked { Text("Estate last checked: " + checked.formatted()).font(.footnote) }
+                if let error = estate.storageError { Text(error).foregroundStyle(.red) }
+                Button(syncBusy ? "Syncing…" : "Sync Now") {
+                    syncBusy = true
+                    syncMessage = "Connecting to the estate server…"
                     Task {
-                        do { try await production.sync(address: address, token: accessToken); syncMessage = production.status }
-                        catch { syncMessage = "Sync failed: \(error.localizedDescription) Local drafts are retained." }
+                        var results: [String] = []
+                        var endpoint: EstateSyncEndpoint
+                        do { endpoint = try EstateSyncEndpoint(address: address, token: accessToken) }
+                        catch { syncMessage = error.localizedDescription; syncBusy = false; return }
+                        do {
+                            try await production.sync(address: endpoint.snapshot.absoluteString, token: endpoint.token)
+                            results.append("Production sync completed: " + production.status)
+                        } catch { results.append("Production sync failed: " + error.localizedDescription + " Local drafts retained.") }
+                        do {
+                            let (update, data) = try await estate.download(address: endpoint.snapshot.absoluteString, token: endpoint.token)
+                            if update.revision > (estate.reference?.revision ?? 0) {
+                                pendingEstate = update; pendingEstateData = data; showEstatePreview = true
+                                results.append("Estate revision \(update.revision) downloaded. Review and confirm the import.")
+                            } else { results.append("Estate is up to date at revision \(update.revision).") }
+                        } catch { results.append("Estate sync failed: " + error.localizedDescription) }
+                        syncMessage = results.joined(separator: "\n\n")
+                        syncBusy = false
                     }
-                }.disabled(production.syncing || accessToken.isEmpty || address.isEmpty || production.storageError != nil)
+                }.disabled(syncBusy || production.syncing)
+                if syncBusy { ProgressView("Synchronizing…") }
+                Text("Your token stays in this Settings session and is never stored in the app.").font(.footnote)
                 if let error = production.storageError { Text(error).foregroundStyle(.red) }
                 if let message = syncMessage { Text(message) }
             }
@@ -52,9 +74,24 @@ struct UserSettingsView: View {
                     Text("Both copies are preserved. Compare all values before choosing.")
                     Text("Phone: " + productionValues(entry.record))
                     if let remote = entry.conflict { Text("Server: " + productionValues(remote.record)) }
-                    Button("Use server copy") { resolve(entry.id, false) }.disabled(production.syncing)
-                    Button("Keep phone copy · upload on next Sync") { resolve(entry.id, true) }.disabled(production.syncing)
+                    Button("Use server copy") { resolve(entry.id, false) }.disabled(syncBusy || production.syncing)
+                    Button("Keep phone copy · upload on next Sync") { resolve(entry.id, true) }.disabled(syncBusy || production.syncing)
                 }
+            }
+        }
+        .alert("Import Estate Update?", isPresented: $showEstatePreview) {
+            Button("Import Estate Update") {
+                do {
+                    guard let data = pendingEstateData else { return }
+                    try estate.apply(data)
+                    syncMessage = (syncMessage ?? "") + "\nEstate revision \(estate.reference?.revision ?? 0) saved. Open Estate Details; these records are available offline."
+                } catch { syncMessage = error.localizedDescription }
+                pendingEstateData = nil; pendingEstate = nil
+            }
+            Button("Cancel", role: .cancel) { pendingEstateData = nil; pendingEstate = nil }
+        } message: {
+            if let update = pendingEstate {
+                Text("Revision \(update.revision)\n\(update.reportingPeriod)\n\(update.sections.reduce(0) { $0 + $1.rows.count }) rows across seven sections. This replaces the saved estate reference data. Production drafts are kept separately.")
             }
         }
         .navigationTitle("Settings")

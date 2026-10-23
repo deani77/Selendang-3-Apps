@@ -18,6 +18,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.selendang3.app.data.homeDashboardRows
+import com.selendang3.app.data.estateRainfallToday
+import kotlinx.coroutines.delay
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,12 +51,12 @@ val estateSections = listOf(
 )
 
 val mainSections = listOf(
-    Section("information", "Estate Information", "Estate profile and rainfall"),
-    Section("production", "Estate Production", "Field production, daily drafts and period totals."),
-    Section("upkeep", "Upkeep and Cultivation", "Weeding, manuring, pest and disease management will be added later."),
-    Section("reports", "Reports", "Estate reports will be added later."),
+    Section("information", "Estate Details", "Estate metrics, rainfall, workforce and costs"),
+    Section("production", "Field Details", "Field dashboard and records by field."),
+    Section("upkeep", "Upkeep and Cultivation", "Estate work dashboard, excluding crop production."),
+    Section("reports", "Crop Production", "Field production, daily drafts and period totals."),
     Section("settings", "Settings", "Offline data synchronization"),
-    Section("about", "About", "Application information"),
+    Section("tools", "Planter Tools", "Planter tools will be added later."),
 )
 
 class MainActivity : ComponentActivity() {
@@ -81,9 +86,10 @@ fun EstateApp() {
     val route = entry?.destination?.route ?: "home"
     val allSections = mainSections + estateSections
     val title = when (route) {
-        "home" -> "S3 Estate Info"
+        "home" -> "Estate Dashboard"
         "dashboard" -> "Estate Dashboard"
-        else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Information"
+        "estate-records" -> "All Estate Records"
+        else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
     MaterialTheme(colorScheme = if (dark) darkColorScheme(
         primary = Color(0xFFB5D89A), onPrimary = Color(0xFF163620),
@@ -107,45 +113,54 @@ fun EstateApp() {
                             verticalArrangement = Arrangement.spacedBy(14.dp)) {
                             Spacer(Modifier.height(18.dp))
                             Button(onClick = { nav.navigate("dashboard") },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
-                                Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                                HomeDashboardSummary(estateUpdate)
                             }
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }
                     }
                     composable("information") {
-                        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            InfoCard("Estate summary", estateUpdate?.let { "${it.reportingPeriod} · revision ${it.revision}\nSaved on this device for offline access." }
-                                ?: "No estate records on this device. Import Estate Data in Settings.")
+                        Column {
+                            OutlinedButton(onClick = { nav.navigate("estate-records") }) { Text("All Estate Records") }
+                            Box(Modifier.weight(1f)) { EstateDashboard(estateUpdate) }
+                        }
+                    }
+                    composable("estate-records") {
+                        Column(Modifier.verticalScroll(rememberScrollState())) {
                             SectionGrid(estateSections) { nav.navigate(it) }
                         }
                     }
-                    composable("dashboard") { EstateDashboard(estateUpdate) }
-                    composable("production") { ProductionScreen() }
+                    estateSections.forEach { section ->
+                        composable(section.route) { EstateSectionData(section, estateUpdate) }
+                    }
+                    composable("production") { FieldDetailsScreen(estateUpdate) }
+                    composable("upkeep") { UpkeepCultivationScreen() }
+                    composable("dashboard") {
+                        InfoCard("Estate Dashboard", "Dashboard contents will be added later. Estate panels are now in Estate Details.")
+                    }
+                    composable("reports") { ProductionScreen() }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
                             themeChoice = it
                             preferences.edit().putString("theme", it).apply()
                         }
                     }
-                    estateSections.forEach { section ->
-                        composable(section.route) {
-                            EstateSectionData(section, estateUpdate)
-                        }
-                    }
-                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "production" }.forEach { section ->
+                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" && it.route != "production" && it.route != "upkeep" }.forEach { section ->
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
-                                "about" -> "S3 Estate Info\nv${BuildConfig.VERSION_NAME}\nAndroid estate information application. Initial Alpha interface."
                                 else -> section.description
                             }
                             InfoCard(section.title, message)
                         }
                     }
+                }
+                if (route == "home") {
+                    Text("S3 Estate Info", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp), textAlign = TextAlign.Center)
                 }
                 val lastSync = sync?.lastSuccessEpochMillis?.let { DateFormat.getDateTimeInstance().format(Date(it)) }
                 Text("v${BuildConfig.VERSION_NAME}  •  ${if (online) "Online" else "Offline"}\nLast update: ${snapshot?.let { DateFormat.getDateTimeInstance().format(Date(it.updatedAt)) + " · " + it.source } ?: "No data yet"}\nLast VPS sync: ${lastSync ?: "Not synced yet"}",
@@ -163,7 +178,7 @@ private fun SectionGrid(sections: List<Section>, onOpen: (String) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 row.forEach { section ->
                     FilledTonalButton(onClick = { onOpen(section.route) },
-                        modifier = Modifier.weight(1f).heightIn(min = 88.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 72.dp),
                         shape = RoundedCornerShape(18.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = Color(0xEDDFE8D5), contentColor = Color(0xFF173B2A))) {
@@ -190,14 +205,15 @@ private fun InfoCard(title: String, body: String) {
 @Composable
 private fun PlantationBackground(route: String) {
     // Original lightweight illustration; replace with approved plantation photos later.
-    // Estate Information subsections share the same background.
+    // Estate Details subsections share the same background.
     val top = when(route) {
         "home" -> Color(0xFF254F32)
         "dashboard" -> Color(0xFF6A633E)
         "production" -> Color(0xFF65432D)
         "upkeep" -> Color(0xFF3C5827)
         "reports" -> Color(0xFF254A4A)
-        "settings", "about" -> Color(0xFF18392E)
+        "tools" -> Color(0xFF405B53)
+        "settings" -> Color(0xFF18392E)
         else -> Color(0xFF365B43)
     }
     Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(top, Color(0xFF0A211A))))) {
@@ -218,3 +234,20 @@ private fun PlantationBackground(route: String) {
     }
 }
 
+
+@Composable
+private fun HomeDashboardSummary(update: com.selendang3.app.data.EstatePackage?) {
+    val today by produceState(estateRainfallToday()) {
+        while (true) { value = estateRainfallToday(); delay(60_000) }
+    }
+    Column(Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        homeDashboardRows(update, today).forEachIndexed { index, row ->
+            if (index > 0) HorizontalDivider(color = Color.White.copy(alpha = 0.35f))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(row.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(row.detail, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}

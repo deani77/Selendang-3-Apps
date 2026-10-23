@@ -12,8 +12,8 @@ android {
         applicationId = "com.selendang3.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.9 Alpha"
+        versionCode = 11
+        versionName = "0.10 Alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true; buildConfig = true }

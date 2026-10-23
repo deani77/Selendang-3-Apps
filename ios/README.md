@@ -1,27 +1,25 @@
-# Selendang 3 for iPhone and iPad
+# S3 Estate Info for iPhone and iPad
 
-Native SwiftUI starter in the same repository as Android. Android stays in its existing root folders; no migration is required. Requires iOS 16 or later.
+Native SwiftUI app for iOS 16 or later, sharing the private snapshot and production API with Android.
 
-## Build on a Mac
+## Navigation
+- Home: quick-glance crop, upkeep/manuring and estate-cost summaries.
+- Estate Details: estate panels and All Estate Records, covering every saved source table.
+- Field Details: dashboard, field buttons from saved records, and field-specific source details.
+- Upkeep and Cultivation: dashboard for weeding, manuring, pest/disease and other estate work, excluding crop production. Unconnected measures remain Pending.
+- Crop Production: dashboard and all production history, entry and period-total screens.
+- Planter Tools: reserved for estate-operation calculators to be specified.
+- Settings: Inbox, User Profile, Appearance, About, followed by Estate Data Sync. Suggestions removed.
 
-1. Install Xcode, launch it once and complete its setup.
-2. Install XcodeGen using Homebrew: `brew install xcodegen`.
-3. From this folder run `xcodegen generate`.
-4. Open `Selendang3.xcodeproj`, select the Selendang3 scheme and an iPhone simulator, then Run.
-5. To run on an actual iPhone, select your Apple development team in Signing & Capabilities and use a unique bundle identifier if needed. Credentials and team identifiers are not committed here.
+Field details include only rows explicitly keyed to the selected field; estate-wide figures are not substituted for missing field records. Additional field dashboard metrics and work records await approved definitions/inputs.
 
-XcodeGen is a build-time utility, not an app dependency: https://github.com/yonaskolb/XcodeGen (MIT licence). No third-party application source was copied.
+## Build
+Run `xcodegen generate` in ios/, then open Selendang3.xcodeproj. Select the owner's Personal Team locally for physical-device builds. Keep team identifiers, profiles, private estate records and credentials out of Git. Build outside cloud-managed Documents if Finder metadata affects signing.
 
-## Included
+## Offline and sync
+Estate Data Sync uploads pending production drafts and separately checks estate snapshots. Newer estate snapshots require review/confirmation. Saved source records, production drafts and conflict copies remain available offline. Tokens stay in the active Settings session. Navigation changes do not migrate or delete records.
 
-Home navigation matching the Android modules, a SwiftUI dashboard covering the current Android slide 1 panels, and the S3 oil palm launcher artwork. iPad layouts adapt to wider screens. All figures remain pending. Chart areas are placeholders; data entry, persistence, authentication, calculations and server sync are not implemented. Other modules are labelled placeholders.
+The iPad home summary uses three top-aligned columns, larger titles and smaller data; iPhone typography and stacking stay unchanged. Crop budget achievement is actual YTD tonnes / full-year budget tonnes × 100, with source periods shown. Missing monthly crop or progress data remains Pending. Zero/missing annual budgets do not produce a percentage.
 
-The current reference age bands omit some ages; confirm the full classification before data entry. Do not infer LF's meaning or reporting dates.
-
-## Validation and distribution
-
-The iOS workflow generates the project and compiles for the simulator without signing. It does not distribute an installable iPhone app and does not perform device or visual tests. A Mac with Xcode is needed for device testing and signing. No Apple Developer credentials, server endpoints or private estate data are included.
-
-Android and iOS currently share designs and concepts, not executable business logic. A common server and data contract can be added after requirements are agreed.
-
-The 1024px icon source is in Artwork/S3.jpg. Project generation uses macOS sips to convert it to an opaque PNG in the app icon asset catalog before building.
+## Validation
+CI checks production, snapshot parsing, dashboard calculations and field isolation using fictional fixtures, then compiles for the simulator. Physical-device signing/installation is validated separately.

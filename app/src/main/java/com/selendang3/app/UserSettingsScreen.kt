@@ -26,7 +26,7 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
             Text(page, style = MaterialTheme.typography.headlineSmall)
             when (page) {
                 "Settings" -> {
-                    listOf("User Profile", "Appearance", "Inbox", "Suggestions").forEach { item ->
+                    listOf("Inbox", "User Profile", "Appearance", "About").forEach { item ->
                         OutlinedButton(onClick = { page = item }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                             Text(item)
                         }
@@ -34,6 +34,11 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
                     HorizontalDivider()
                     EstateDataControls()
 
+                }
+                "About" -> {
+                    Text("S3 Estate Info", style = MaterialTheme.typography.titleMedium)
+                    Text("v${BuildConfig.VERSION_NAME}")
+                    Text("Android estate information application. Initial Alpha interface.")
                 }
                 "User Profile" -> {
                     Text("Your profile on this device. This is not a signed-in account.")
@@ -62,10 +67,6 @@ fun UserSettingsScreen(themeChoice: String, onThemeChange: (String) -> Unit) {
                 "Inbox" -> {
                     Text("No messages yet", style = MaterialTheme.typography.titleMedium)
                     Text("Announcements and replies will appear here once messaging is connected.")
-                }
-                "Suggestions" -> {
-                    Text("Share an idea", style = MaterialTheme.typography.titleMedium)
-                    Text("Suggestion submission and replies will be available once the service is connected.")
                 }
             }
         }

@@ -77,7 +77,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    Text("DASHBOARD · SELENDANG 3", fontWeight = FontWeight.Bold,
+                    Text("ESTATE DETAILS · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
                     Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
@@ -147,7 +147,7 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
                     String.format(Locale.US, "%.2f%%", band.area / ageProfile.totalArea * 100)) })
             Text("Total area: " + String.format(Locale.US, "%,.2f ha", ageProfile.totalArea),
                 Modifier.padding(12.dp), fontWeight = FontWeight.Bold)
-            Text("Area-weighted from supplied field ages. Review the source-record status in Estate Information.",
+            Text("Area-weighted from supplied field ages.",
                 Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
         }
     }

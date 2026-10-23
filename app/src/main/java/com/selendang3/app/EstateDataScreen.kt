@@ -84,7 +84,7 @@ fun EstateDataControls() {
         }
     }
 
-    Text("Estate data", style = MaterialTheme.typography.titleLarge)
+    Text("Estate Data Sync", style = MaterialTheme.typography.titleLarge)
     Text(snapshot?.let { "Saved revision ${it.revision} · ${it.source}\nUpdated: ${DateFormat.getDateTimeInstance().format(Date(it.updatedAt))}" }
         ?: "No estate data imported yet.")
     Button(onClick = { picker.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
@@ -94,7 +94,7 @@ fun EstateDataControls() {
     Text("Import a prepared estate update JSON file. Excel and Markdown must be converted first. Each confirmed update replaces all seven sections. Export your saved data before changing devices.",
         style = MaterialTheme.typography.bodySmall)
     HorizontalDivider()
-    Text("VPS synchronization", style = MaterialTheme.typography.titleLarge)
+    Text("Server connection", style = MaterialTheme.typography.titleLarge)
     Text("Sync uploads pending production drafts and downloads production records and estate reference updates. Offline drafts stay on this device until acknowledged by the server.")
     Text("Production: ${productionEntries.count { it.pending && it.conflict == null }} pending upload · ${productionEntries.count { it.conflict != null }} conflicts · ${productionEntries.count { !it.pending }} synced")
     productionError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
