@@ -86,7 +86,7 @@ fun EstateApp() {
     val route = entry?.destination?.route ?: "home"
     val allSections = mainSections + estateSections
     val title = when (route) {
-        "home" -> "Estate Dashboard"
+        "home" -> "Planter’s Log"
         "dashboard" -> "Estate Dashboard"
         "estate-records" -> "All Estate Records"
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
