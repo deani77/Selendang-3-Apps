@@ -114,10 +114,19 @@ fun EstateApp() {
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).semantics { contentDescription = "Open Estate Dashboard" },
                                 shape = RoundedCornerShape(24.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF285A3C), contentColor = Color.White)) {
-                                Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.width(16.dp))
-                                Text("↗", style = MaterialTheme.typography.titleLarge)
+                                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Canvas(Modifier.size(26.dp)) {
+                                        listOf(0.45f, 0.72f, 1f).forEachIndexed { index, fraction ->
+                                            val bar = size.width / 5f
+                                            drawRect(Color.White,
+                                                topLeft = Offset(index * bar * 1.5f, size.height * (1f - fraction)),
+                                                size = androidx.compose.ui.geometry.Size(bar, size.height * fraction))
+                                        }
+                                    }
+                                    Text("Estate Dashboard", style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold)
+                                }
                             }
                             SectionGrid(mainSections) { nav.navigate(it) }
                         }

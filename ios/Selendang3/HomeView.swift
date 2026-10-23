@@ -25,11 +25,9 @@ struct HomeView: View {
                             VStack(spacing: 8) {
                                 homeHeading.fixedSize(horizontal: false, vertical: true).padding(.bottom, 12)
                                 NavigationLink { HomeDashboardScreen() } label: {
-                                    HStack(spacing: 14) {
+                                    VStack(spacing: 10) {
                                         Image(systemName: "chart.bar.xaxis").font(.title2)
                                         Text("Estate Dashboard").font(.title2.bold())
-                                        Spacer(minLength: 0)
-                                        Image(systemName: "arrow.up.right").font(.subheadline.weight(.semibold))
                                     }
                                     .padding(20)
                                     .frame(maxWidth: .infinity, minHeight: 88, maxHeight: .infinity)
