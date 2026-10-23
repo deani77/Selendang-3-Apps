@@ -111,53 +111,75 @@ struct IPadHomeDashboardCard: View {
         TimelineView(.periodic(from: Date(), by: 60)) { context in
             let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
             VStack(spacing: 8) {
-                VStack(spacing: 5) {
-                    Image(systemName: "chart.bar.xaxis").font(.title2)
-                    Text("Estate Dashboard").font(.title3.bold())
+                VStack(spacing: 4) {
+                    Image(systemName: "chart.bar.xaxis").font(.title3)
+                    Text("Estate Dashboard").font(.title3.weight(.semibold))
                 }
-                .foregroundStyle(.white).padding(.bottom, 4)
-                summaryCard(cards[0], indices: [0, 1, 2, 3], symbol: "leaf.fill")
-                HStack(alignment: .top, spacing: 8) {
-                    summaryCard(cards[1], indices: [0, 1, 2], symbol: "square.grid.3x3.fill")
-                    summaryCard(cards[2], indices: [0, 1], symbol: "person.fill")
+                .foregroundStyle(EstateTheme.accent)
+                summaryCard(cards[0], indices: [0, 1, 2, 3], emphasized: true)
+                HStack(alignment: .top, spacing: 10) {
+                    summaryCard(cards[1], indices: [0, 1, 2])
+                    summaryCard(cards[2], indices: [0, 1])
                 }.fixedSize(horizontal: false, vertical: true)
-                HStack(alignment: .top, spacing: 8) {
-                    summaryCard(cards[3], indices: [0], symbol: "leaf.circle.fill")
-                    summaryCard(cards[4], indices: [0, 1], symbol: "sprinkler.and.droplets.fill")
-                    summaryCard(cards[5], indices: [0, 1], symbol: "ant.fill")
+                HStack(alignment: .top, spacing: 10) {
+                    summaryCard(cards[3], indices: [0])
+                    summaryCard(cards[4], indices: [0, 1])
+                    summaryCard(cards[5], indices: [0, 1])
                 }.fixedSize(horizontal: false, vertical: true)
-                summaryCard(cards[6], indices: [0, 1], symbol: "banknote.fill")
+                summaryCard(cards[6], indices: [0, 1], emphasized: true)
+                Text("—  Awaiting data").font(.caption2).foregroundStyle(Color.primary.opacity(0.65))
             }
             .padding(12)
             .fixedSize(horizontal: false, vertical: true)
         }
-        .background(EstateTheme.hero, in: RoundedRectangle(cornerRadius: 24))
+        .background(EstateTheme.surface, in: RoundedRectangle(cornerRadius: 24))
+        .overlay(RoundedRectangle(cornerRadius: 24).stroke(EstateTheme.border, lineWidth: 1))
     }
 
-    private func summaryCard(_ card: EstateDashboardPanel, indices: [Int], symbol: String) -> some View {
-        VStack(spacing: 5) {
-            Label(card.title, systemImage: symbol)
-                .font(.subheadline.weight(.semibold)).foregroundStyle(EstateTheme.accent)
+    private func summaryCard(_ card: EstateDashboardPanel, indices: [Int], emphasized: Bool = false) -> some View {
+        VStack(spacing: 6) {
+            Text(card.title)
+                .font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
-            HStack(alignment: .top, spacing: 6) {
+            HStack(alignment: .top, spacing: 8) {
                 ForEach(indices, id: \.self) { index in
                     let metric = card.rows[index]
                     VStack(spacing: 2) {
-                        Text(metric[0]).font(.caption).foregroundStyle(.secondary)
-                        (Text(metric[1]).font(.body.weight(.semibold)) + Text(" " + metric[2]).font(.caption))
-                            .monospacedDigit().foregroundStyle(EstateTheme.accent)
+                        Text(metric[0]).font(.caption).foregroundStyle(Color.primary.opacity(0.65))
+                            .frame(minHeight: ["Harvesting Coverage", "Harvester Productivity"].contains(card.title) ? 28 : 14, alignment: .bottom)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                metricValue(metric[1])
+                                Text(metric[2]).font(.caption2).foregroundStyle(Color.primary.opacity(0.65))
+                            }.fixedSize()
+                            VStack(spacing: 2) {
+                                metricValue(metric[1])
+                                Text(metric[2]).font(.caption2).foregroundStyle(Color.primary.opacity(0.65))
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .top)
                     .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityElement(children: .combine)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(metric[0] + ": " + metric[1] + " " + metric[2])
                 }
             }
             Spacer(minLength: 0)
-            Text(card.note).font(.caption2).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if card.note != "Reporting period pending" {
+                Text(card.note).font(.caption2).foregroundStyle(Color.primary.opacity(0.65))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .multilineTextAlignment(.center).padding(8)
+        .multilineTextAlignment(.center).padding(6)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(EstateTheme.surface, in: RoundedRectangle(cornerRadius: 13))
+        .background(emphasized ? EstateTheme.softAccent.opacity(0.55) : EstateTheme.background,
+            in: RoundedRectangle(cornerRadius: 13))
     }
+
+    private func metricValue(_ value: String) -> some View {
+        Text(value == "Pending" ? "—" : value)
+            .font(.title3.weight(.semibold)).monospacedDigit()
+            .foregroundStyle(value == "Pending" ? Color.secondary : Color.primary)
+    }
+
 }
