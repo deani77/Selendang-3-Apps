@@ -92,45 +92,78 @@ struct HomeDashboardSummaryView: View {
     }
 }
 
-// Six-card phone preview; scrolling remains available for larger accessibility text.
+// Six-card phone preview; larger accessibility text retains scroll access.
 private struct OperationalDashboardGrid: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+    private let green = Color(red: 0.16, green: 0.35, blue: 0.24)
 
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
                 TimelineView(.periodic(from: Date(), by: 60)) { context in
                     let cards = EstateDashboardData(reference: estate.reference, today: context.date).operationalCards
-                    LazyVGrid(columns: columns, alignment: .center, spacing: 10) {
-                        ForEach(cards) { card in
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(card.title)
-                                    .font(.subheadline.bold())
-                                    .frame(maxWidth: .infinity, minHeight: 34, alignment: .topLeading)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                Text(card.note).font(.caption2).foregroundStyle(.white.opacity(0.85))
-                                ForEach(card.rows.indices, id: \.self) { index in
-                                    let metric = card.rows[index]
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(metric[0]).font(.caption2).foregroundStyle(.white.opacity(0.85))
-                                        Text(metric[1] + " " + metric[2]).font(.caption.bold())
-                                            .fixedSize(horizontal: false, vertical: true)
-                                    }
-                                    .accessibilityElement(children: .combine)
-                                }
-                                Spacer(minLength: 0)
-                            }
-                            .padding(10)
-                            .frame(maxWidth: .infinity, minHeight: max(210, (geometry.size.height - 44) / 3), alignment: .topLeading)
-                            .foregroundStyle(.white)
-                            .background(Color(red: 0.16, green: 0.35, blue: 0.24))
-                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                    LazyVGrid(columns: columns, spacing: 10) {
+                        ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
+                            dashboardCard(card, index: index, height: max(218, (geometry.size.height - 44) / 3))
                         }
                     }
                 }
                 .padding(12)
             }
+            .background(Color(uiColor: .systemGroupedBackground))
         }
+    }
+
+    private func dashboardCard(_ card: EstateDashboardPanel, index: Int, height: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: ["leaf.fill", "square.grid.3x3.fill", "person.fill", "sprinkler.and.droplets.fill", "chart.bar.fill", "banknote.fill"][index])
+                    .font(.caption).foregroundStyle(green).frame(width: 16)
+                Text(card.title).font(.subheadline.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
+            Rectangle().fill(green.opacity(0.15)).frame(height: 1)
+            if index == 0 {
+                prominentMetric(card.rows[2])
+                compactMetric(card.rows[0])
+                compactMetric(card.rows[1])
+                compactMetric(card.rows[3])
+            } else if index >= 4 {
+                prominentMetric(card.rows[0])
+            } else {
+                ForEach(card.rows.indices, id: \.self) { row in
+                    compactMetric(card.rows[row])
+                }
+            }
+            Spacer(minLength: 0)
+            Text(card.note).font(.caption2).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: height, alignment: .topLeading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).stroke(green.opacity(0.12), lineWidth: 1))
+    }
+
+    private func prominentMetric(_ metric: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(metric[0]).font(.caption2).foregroundStyle(.secondary)
+            (Text(metric[1]).font(.title2.weight(.bold)) + Text(" " + metric[2]).font(.caption))
+                .foregroundStyle(green).monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func compactMetric(_ metric: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(metric[0]).font(.caption2).foregroundStyle(.secondary)
+            (Text(metric[1]).font(.caption.weight(.semibold)) + Text(" " + metric[2]).font(.caption2))
+                .monospacedDigit().fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
