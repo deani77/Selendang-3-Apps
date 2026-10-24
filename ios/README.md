@@ -8,7 +8,7 @@ Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and
 - Field Details shows basic field identity, area, palms, planting/age and explicitly field-keyed soil/infrastructure records.
 - Crop Production shows the responsive Target/Actual table and field pills. Tapping a field opens its saved crop, harvesting, productivity and bunch-weight records. No manual forms, date-entry filters or upload controls are exposed.
 - Upkeep and Cultivation shows saved estate work summaries; missing measures stay Pending.
-- Planter Tools provides offline Plant Density and Chemical Dosage per Pump calculators. Calculator inputs never alter estate records.
+- Planter Tools provides six offline calculators: Plant Density, Chemical Dosage per Pump, Fertilizer Requirement, Nozzle Calibration, Work Costing and Unit Conversion. Calculator inputs never alter estate records.
 - Settings contains Inbox, User Profile, Appearance, About and Estate Data Sync.
 
 ## Server-only operation (build 33)
@@ -30,3 +30,11 @@ Plant density uses spacing in metres or feet (1 ft = 0.3048 m), with triangular/
 Chemical per pump = formulated-product rate per treated hectare × final pump solution volume / calibrated spray volume per hectare. Rate units: L/ha, mL/ha, kg/ha or g/ha. Output units: mL/pump or g/pump. Coverage = tank L / spray L/ha; pumps per hectare = spray L/ha / tank L. Nozzle flow in L/min is not accepted as application volume. No product rates or treatment recommendations are supplied. Blank, non-finite, non-positive and impossible liquid-volume inputs yield no dose. Small non-zero quantities retain significant digits rather than displaying zero.
 
 Formula references: https://opb.mpob.gov.my/case-study-of-a-high-income-smallholder/ and https://extension.missouri.edu/publications/g1272 . Inputs/results stay local and temporary; both tools work offline in light/dark themes. Swift and Kotlin tests cover geometry, feet conversion, all rate units and invalid-input boundaries.
+
+## Additional calculators (build 36)
+- Fertilizer Requirement: whole palm population × user-supplied kg/palm, with user-supplied kg/bag. Reports kg, mt, fractional bags, whole bags rounded up and unused balance. No fertilizer rate or bag size is assumed.
+- Nozzle Calibration: measured plain-water volume / measured test area × 10,000 gives L/ha. Test using the same walking speed and operating pressure as the intended application. Reference: https://blogs.ifas.ufl.edu/alachuaco/2022/02/04/calibrating-a-backpack-sprayer-the-1-128th-rule/ .
+- Work Costing: total labour/material/other RM divided by hectares, whole palms or crop mt; zero costs are allowed and denominators must be positive.
+- Unit Conversion: hectares, international acres, m², metres, feet, kg and mt. Conversions stay within the selected dimension and use exact definitions of the units.
+
+All inputs remain temporary and isolated from estate records; no server request is made by these tools. Tests cover partial bag rounding, zero costs, invalid populations/denominators, calibration scaling and conversion round trips.

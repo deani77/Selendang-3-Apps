@@ -10,6 +10,10 @@ struct PlanterToolsView: View {
                 NavigationLink { PumpDosageCalculatorView() } label: {
                     Label("Chemical Dosage per Pump", systemImage: "drop.fill")
                 }
+                NavigationLink { FertilizerCalculatorView() } label: { Label("Fertilizer Requirement", systemImage: "leaf.circle.fill") }
+                NavigationLink { NozzleCalibrationView() } label: { Label("Nozzle Calibration", systemImage: "drop.circle.fill") }
+                NavigationLink { WorkCostCalculatorView() } label: { Label("Work Costing", systemImage: "banknote.fill") }
+                NavigationLink { PlantationUnitConverterView() } label: { Label("Unit Conversion", systemImage: "arrow.left.arrow.right") }
             } footer: {
                 Text("Offline calculators. Inputs and results are temporary and do not change estate records.")
             }

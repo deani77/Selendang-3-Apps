@@ -19,10 +19,21 @@ fun PlanterToolsScreen() {
         if (tool.isEmpty()) {
             FilledTonalButton(onClick = { tool = "density" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Plant Density") }
             FilledTonalButton(onClick = { tool = "dose" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Chemical Dosage per Pump") }
+            FilledTonalButton(onClick = { tool = "fertilizer" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Fertilizer Requirement") }
+            FilledTonalButton(onClick = { tool = "calibration" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Nozzle Calibration") }
+            FilledTonalButton(onClick = { tool = "cost" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Work Costing") }
+            FilledTonalButton(onClick = { tool = "units" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Unit Conversion") }
             Text("Offline calculators. Inputs and results are temporary and do not change estate records.", style = MaterialTheme.typography.bodySmall)
         } else {
             TextButton(onClick = { tool = "" }) { Text("‹ All Tools") }
-            if (tool == "density") DensityCalculator() else PumpDosageCalculator()
+            when (tool) {
+                "density" -> DensityCalculator()
+                "dose" -> PumpDosageCalculator()
+                "fertilizer" -> FertilizerCalculator()
+                "calibration" -> NozzleCalibrationCalculator()
+                "cost" -> WorkCostCalculator()
+                "units" -> PlantationUnitConverter()
+            }
         }
     }
 }
@@ -83,12 +94,12 @@ private fun PumpDosageCalculator() {
 }
 
 @Composable
-private fun NumberInput(label: String, value: String, onChange: (String) -> Unit) {
+internal fun NumberInput(label: String, value: String, onChange: (String) -> Unit) {
     OutlinedTextField(value, onChange, label = { Text(label) }, singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth())
 }
 @Composable
-private fun ToolResult(body: @Composable ColumnScope.() -> Unit) {
+internal fun ToolResult(body: @Composable ColumnScope.() -> Unit) {
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { Text("Result", style = MaterialTheme.typography.titleMedium); body() }
     }
