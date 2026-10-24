@@ -45,22 +45,23 @@ private struct FieldCropReportView: View {
     let code: String
     @ObservedObject private var estate = EstateReferenceStore.shared
     var body: some View {
-        List {
-            Section {
-                Text("VPS report · Read-only")
-                Text(estate.reference?.reportingPeriod ?? "No saved estate report")
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
-            let tables = estateFieldCropTables(estate.reference, code: code)
-            if tables.isEmpty { Text("Crop records pending for this field.") }
-            ForEach(tables) { table in
-                Section(table.id == "fields" ? "Crop, harvesting and productivity" : table.title) {
-                    ForEach(table.rows.indices, id: \.self) { index in
-                        ForEach(table.columns.indices, id: \.self) { column in
-                            LabeledContent(table.columns[column], value: table.rows[index][column]?.text ?? "Pending")
+        TimelineView(.periodic(from: Date(), by: 60)) { context in
+            let summary = CropProductionTableData(reference: estate.reference, today: context.date).fieldSummary(code: code)
+            List {
+                Section {
+                    Text("VPS report · Read-only")
+                    if let summary = summary { Text(summary.note).font(.footnote).foregroundStyle(.secondary) }
+                }
+                if let summary = summary {
+                    ForEach(summary.groups) { group in
+                        Section(group.title) {
+                            ForEach(group.rows) { row in LabeledContent(row.label, value: row.value) }
+                            if group.title == "Harvesting" {
+                                Text(summary.crewNote).font(.footnote).foregroundStyle(.secondary)
+                            }
                         }
                     }
-                }
+                } else { Text("Crop records pending for this field.") }
             }
         }.estateScreen().navigationTitle(code + " · Crop Records")
     }
