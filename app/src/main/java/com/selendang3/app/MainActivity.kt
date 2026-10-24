@@ -138,7 +138,7 @@ fun EstateApp() {
                         composable(section.route) { EstateSectionData(section, estateUpdate) }
                     }
                     composable("production") { FieldDetailsScreen(estateUpdate) }
-                    composable("upkeep") { UpkeepCultivationScreen() }
+                    composable("upkeep") { UpkeepCultivationScreen(estateUpdate) }
                     composable("dashboard") { OperationalDashboardScreen(estateUpdate) }
                     composable("reports") { ProductionScreen() }
                     composable("tools") { PlanterToolsScreen() }

@@ -56,13 +56,15 @@ fun FieldDetailsScreen(update: EstatePackage?) {
 }
 
 @Composable
-fun UpkeepCultivationScreen() {
+fun UpkeepCultivationScreen(update: EstatePackage?) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Upkeep and Cultivation Dashboard", style = MaterialTheme.typography.titleLarge)
                 Text("Weeding progress: Pending")
-                Text("Manuring progress: Pending")
+                val manuring = operationalDashboardCards(update, estateRainfallToday())[3]
+                Text("Manuring progress: ${manuring.metrics[0].value} %")
+                Text(manuring.period, style = MaterialTheme.typography.bodySmall)
                 Text("Pest and disease work: Pending")
             }
         }
