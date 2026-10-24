@@ -253,3 +253,28 @@ estateAreaFixture["sections"] = areaSections
 let invalidAreaPanel = try areaPanel(estateAreaFixture)
 precondition(invalidAreaPanel.rows.allSatisfy { $0[1] == "Pending" })
 print("Estate area summary: source period, hectare formatting and area reconciliation passed")
+
+var rainChartFixture = fixture
+var rainSections = rainChartFixture["sections"] as! [[String:Any]]
+let annualMonthly: [Int:Double] = [2022:10,2023:20,2024:10,2025:15,2026:1]
+let rainRows: [[Any]] = (2022...2026).flatMap { year in months.map { [year,$0,annualMonthly[year]!] as [Any] } }
+rainSections[4] = section("rainfall", ["Year","Month / total","Rainfall (mm)"], rainRows)
+rainChartFixture["sections"] = rainSections
+let rainChart = panel("Rainfall",try dashboard(rainChartFixture))
+precondition(rainChart.bars.count == 5 && rainChart.unit == "mm")
+precondition(rainChart.bars.first { $0.category == "2026" }!.series == "Current YTD")
+precondition(rainChart.bars.first { $0.category == "2026" }!.value == 9)
+precondition(rainChart.bars.first { $0.category == "2023" }!.series == "Highest full year")
+precondition(Set(rainChart.bars.filter { $0.series == "Lowest full year" }.map(\.category)) == Set(["2022","2024"]))
+let missingRainRows = rainRows.filter { !(($0[0] as! Int) == 2024 && ($0[1] as! String) == "Dec") }
+rainSections[4] = section("rainfall", ["Year","Month / total","Rainfall (mm)"], missingRainRows)
+rainChartFixture["sections"] = rainSections
+let missingRain = panel("Rainfall",try dashboard(rainChartFixture))
+precondition(!missingRain.bars.contains { $0.category == "2024" })
+precondition(missingRain.rows.first { $0[0] == "2024" }![2] == "Pending")
+let equalRainRows: [[Any]] = (2022...2026).flatMap { year in months.map { [year,$0,10] as [Any] } }
+rainSections[4] = section("rainfall", ["Year","Month / total","Rainfall (mm)"], equalRainRows)
+rainChartFixture["sections"] = rainSections
+let equalRain = panel("Rainfall",try dashboard(rainChartFixture))
+precondition(equalRain.bars.allSatisfy { $0.series == "Full year" || $0.series == "Current YTD" })
+print("Rainfall chart: high/low ties, current YTD separation and missing-year gaps passed")

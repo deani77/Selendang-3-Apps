@@ -218,13 +218,14 @@ private fun ProfilePanels(ageProfile: EstateAgeProfile?, topography: EstateTopog
 @Composable
 private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: EstateWorkforce?, workerRatios: EstateWorkerRatios?) {
     DashboardPanel("Rainfall") {
+        RainfallBarChart(rainfall)
         DashboardTable(listOf("Year", "Period", "Rainfall (mm)"), rainfall.mapIndexed { index, row ->
             val period = if (index > 0) "Full year" else if (row.throughMonth == 0) "YTD · no completed month"
                 else "YTD through " + Month.of(row.throughMonth).getDisplayName(TextStyle.FULL, Locale.ENGLISH)
             listOf(row.year.toString(), period,
                 row.totalMm?.let { String.format(Locale.US, "%,.2f", it) } ?: "Pending")
         })
-        Text("Five years, newest first. Current-year YTD ends at the last completed month (Malaysia time). Totals need every month in the stated period; missing data remains Pending.",
+        Text("Five years; table newest first. Current-year YTD ends at the last completed month (Malaysia time). High/low colours compare completed full years. Tied extremes share a colour; equal totals have no distinct extreme. Missing data remains Pending.",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
     }
     DashboardPanel("Workforce") {

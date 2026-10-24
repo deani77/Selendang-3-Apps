@@ -31,7 +31,9 @@ struct EstateDashboardView: View {
         VStack(alignment:.leading,spacing:0) {
             Text(section.title).font(.headline).foregroundStyle(EstateTheme.accent).frame(maxWidth:.infinity,alignment:.leading)
                 .padding(12).background(EstateTheme.softAccent)
-            if !section.bars.isEmpty {
+            if section.title == "Rainfall" {
+                RainfallBarChart(section: section)
+            } else if !section.bars.isEmpty {
                 Chart(section.bars) { bar in
                     BarMark(x:.value("Measure",bar.category),y:.value(section.unit,bar.value))
                         .foregroundStyle(by:.value("Series",bar.series)).position(by:.value("Series",bar.series))
