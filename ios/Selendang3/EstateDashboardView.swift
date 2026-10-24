@@ -9,6 +9,7 @@ struct EstateDashboardView: View {
             ScrollView {
                 VStack(alignment:.leading,spacing:16) {
                     Text("ESTATE DETAILS · SELENDANG 3").font(.title2.bold())
+                    panel(data.areaSummary)
                     if let reference = estate.reference {
                         Text("Saved estate revision \(reference.revision)").font(.headline)
                         Text(reference.reportingPeriod).font(.footnote)

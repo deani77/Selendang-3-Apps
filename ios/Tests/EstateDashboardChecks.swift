@@ -236,3 +236,20 @@ let futureField = try cropTable(fieldFixture,date:august).fieldSummary(code:"A")
 precondition(futureField.groups[1].rows.allSatisfy { $0.value == "Pending" })
 precondition(futureField.groups[3].rows.allSatisfy { $0.value == "Pending" })
 print("Field crop summary: ordered metrics, monthly/YTD/year budgets, 21 ha crew ceiling and dated productivity passed")
+
+var estateAreaFixture = fixture
+var areaSections = estateAreaFixture["sections"] as! [[String:Any]]
+areaSections[0] = section("overview", ["Item","Details"], [
+    ["Estate area reporting period","2026-09"], ["Perimeter area (ha)",1200], ["Mature area (ha)",1000]])
+estateAreaFixture["sections"] = areaSections
+func areaPanel(_ input: [String:Any]) throws -> EstateDashboardPanel {
+    EstateDashboardData(reference:try EstateReference.parse(JSONSerialization.data(withJSONObject:input)),today:october).areaSummary
+}
+let estateAreaPanel = try areaPanel(estateAreaFixture)
+precondition(estateAreaPanel.rows == [["Perimeter Hectare","1,200.00"],["Mature Hectare","1,000.00"]])
+precondition(estateAreaPanel.note.contains("2026-09"))
+areaSections[0] = section("overview", ["Item","Details"], [["Estate area reporting period","2026-09"], ["Perimeter area (ha)",900], ["Mature area (ha)",1000]])
+estateAreaFixture["sections"] = areaSections
+let invalidAreaPanel = try areaPanel(estateAreaFixture)
+precondition(invalidAreaPanel.rows.allSatisfy { $0[1] == "Pending" })
+print("Estate area summary: source period, hectare formatting and area reconciliation passed")

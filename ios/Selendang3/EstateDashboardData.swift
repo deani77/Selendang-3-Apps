@@ -200,6 +200,25 @@ struct EstateDashboardData {
             note:"Actual YTD through \(actualPeriod ?? "Pending") vs Budget Year \(budgetYear ?? "Pending"). Operation Cost = Penjagaan + Membaja + Pungutan; General Charges = Perbelanjaan Am.",bars:bars,unit:"RM/tonne")
     }
 
+    var areaSummary: EstateDashboardPanel {
+        let sourcePeriod = period("Estate area reporting period")
+        let current = String(format: "%04d-%02d", reportCalendar.component(.year, from: today), reportCalendar.component(.month, from: today))
+        let perimeter = numeric(overview("Perimeter area (ha)"))
+        let mature = numeric(overview("Mature area (ha)"))
+        let complete = sourcePeriod != nil && sourcePeriod! <= current && perimeter != nil && perimeter! > 0 && mature != nil && mature! <= perimeter!
+        let format = NumberFormatter(); format.locale = Locale(identifier: "en_US_POSIX")
+        format.numberStyle = .decimal; format.usesGroupingSeparator = true; format.groupingSize = 3
+        format.groupingSeparator = ","; format.decimalSeparator = "."
+        format.minimumFractionDigits = 2; format.maximumFractionDigits = 2
+        func label(_ value: Double?) -> String {
+            guard complete, let value = value else { return "Pending" }
+            return format.string(from: NSNumber(value: value)) ?? "Pending"
+        }
+        return EstateDashboardPanel(title: "Estate Area", headers: ["Measure", "Area (ha)"], rows: [
+            ["Perimeter Hectare", label(perimeter)], ["Mature Hectare", label(mature)]
+        ], note: complete ? "Reporting period: " + sourcePeriod! : "Awaiting verified estate area records.")
+    }
+
     private var reportCalendar: Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "Asia/Kuala_Lumpur")!

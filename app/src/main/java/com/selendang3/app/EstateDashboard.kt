@@ -34,6 +34,7 @@ import com.selendang3.app.data.EstateWorkerRatios
 import com.selendang3.app.data.estateWorkerRatios
 import com.selendang3.app.data.FfbCostComparison
 import com.selendang3.app.data.estateFfbCosts
+import com.selendang3.app.data.estateAreaSummary
 import com.selendang3.app.data.EstatePackage
 import com.selendang3.app.data.EstateAgeProfile
 import com.selendang3.app.data.EstateTopography
@@ -62,6 +63,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
             while (true) { value = estateRainfallToday(); delay(60_000) }
         }
     }
+    val estateArea = remember(estateUpdate, today) { estateAreaSummary(estateUpdate, today) }
     val rainfall = remember(estateUpdate, today) { estateAnnualRainfall(estateUpdate, today) }
     val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
     val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
@@ -76,6 +78,14 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                 ) {
                     Text("ESTATE DETAILS · SELENDANG 3", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
+                    DashboardPanel("Estate Area") {
+                        DashboardTable(listOf("Measure", "Area (ha)"), listOf(
+                            listOf("Perimeter Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.perimeterHa).trim() } ?: Pending),
+                            listOf("Mature Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.matureHa).trim() } ?: Pending)
+                        ), minimumWidth = 320)
+                        Text(estateArea?.let { "Reporting period: ${it.period}" } ?: "Awaiting verified estate area records.",
+                            Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
+                    }
                     Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
                     Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
                         style = MaterialTheme.typography.bodySmall)
