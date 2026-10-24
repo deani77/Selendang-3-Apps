@@ -260,8 +260,8 @@ private fun ProductionPanels(ffbCost: FfbCostComparison?) {
     DashboardPanel("Kos FFB/TAN") { FfbCostPanel(ffbCost) }
     DashboardPanel("FFB Quality") {
         DashboardTable(listOf("Category", "Value"), listOf(
-            listOf("Ripe Bunches (%)", Pending), listOf("Unripe (%)", Pending),
-            listOf("Empty & Rotten (%)", Pending), listOf("Stone/Trash (ton)", Pending),
+            listOf("Ripe (%)", Pending), listOf("Underipe (%)", Pending),
+            listOf("Unripe (%)", Pending), listOf("Reject (%)", Pending),
         ))
     }
     DashboardPanel("OER (%)") {
