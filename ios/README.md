@@ -40,3 +40,6 @@ Formula references: https://opb.mpob.gov.my/case-study-of-a-high-income-smallhol
 All inputs remain temporary and isolated from estate records; no server request is made by these tools. Tests cover partial bag rounding, zero costs, invalid populations/denominators, calibration scaling and conversion round trips.
 
 Calculator number inputs use a decimal point and permit correctly grouped thousands (for example, 1,000.50). Ambiguous or malformed comma inputs are rejected rather than interpreted as a smaller dose or population.
+
+## Field Crop Records (build 37)
+Each field pill opens a concise read-only report: field code; hectare; monthly, YTD and annual crop budgets (mt); actual MTD/YTD (mt); required harvesters; monthly harvesting rounds; and productivity in mt/manday and ha/manday. All budget values use the same report month as the crop actuals. Required harvesters = field hectares / 21 ha per harvester; display the unrounded ratio in the note and round the whole-worker requirement up. Missing or future report figures remain Pending. Basic field area is used for crew planning, while report metrics remain dated to their source. No server schema or data update is required.

@@ -218,3 +218,21 @@ precondition(cropField.allSatisfy { $0.rows.count == 1 && $0.rows[0][0]?.text ==
 precondition(estateFieldCropTables(routedReference,code:"UNKNOWN").isEmpty)
 precondition(routedReference.sections[1].columns.count == 6) // Projection leaves stored records intact.
 print("Basic field versus crop record routing checks passed")
+
+var fieldFixture = tableFixture
+var fieldReport = fieldFixture["cropProductionReport"] as! [String:Any]
+fieldReport["fields"] = [["field":"A","sentToMillMtdMt":120,"sentToMillYtdMt":1200,"roundsMtd":2.5,"mtPerHarvesterDayMtd":1.2,"haPerHarvesterDayMtd":3.4]]
+fieldFixture["cropProductionReport"] = fieldReport
+let fieldSummary = try cropTable(fieldFixture).fieldSummary(code:"A")!
+precondition(fieldSummary.groups.map(\.rows.count) == [2,5,2,2])
+precondition(fieldSummary.groups[0].rows.map(\.value) == ["A","100.00"])
+precondition(fieldSummary.groups[1].rows.map(\.value) == ["100.00","1000.00","1200.00","120.00","1200.00"])
+precondition(fieldSummary.groups[2].rows.map(\.value) == ["5","2.50"])
+precondition(fieldSummary.crewNote.contains("4.76 harvesters"))
+precondition(fieldSummary.groups[3].rows.map(\.value) == ["1.20","3.40"])
+let unknownField = try cropTable(fieldFixture).fieldSummary(code:"UNKNOWN")
+precondition(unknownField == nil)
+let futureField = try cropTable(fieldFixture,date:august).fieldSummary(code:"A")!
+precondition(futureField.groups[1].rows.allSatisfy { $0.value == "Pending" })
+precondition(futureField.groups[3].rows.allSatisfy { $0.value == "Pending" })
+print("Field crop summary: ordered metrics, monthly/YTD/year budgets, 21 ha crew ceiling and dated productivity passed")
