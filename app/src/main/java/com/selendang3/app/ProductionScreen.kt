@@ -59,14 +59,17 @@ private fun FieldCropReport(update: EstatePackage?, code: String, back: () -> Un
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onClick = back) { Text("‹ All Fields") }
         Text("$code · Crop Records", style = MaterialTheme.typography.titleLarge)
-        Text("VPS report · Read-only\n${update?.reportingPeriod.orEmpty()}", style = MaterialTheme.typography.bodySmall)
-        val tables = estateFieldCropTables(update, code)
-        if (tables.isEmpty()) Text("Crop records pending for this field.")
-        tables.forEach { table ->
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    table.rows.forEach { row ->
-                        table.columns.zip(row).forEach { (label, value) -> Text("$label: ${value ?: "Pending"}") }
+        Text("VPS report · Read-only", style = MaterialTheme.typography.bodySmall)
+        val summary = fieldCropSummary(update, estateRainfallToday(), code)
+        if (summary == null) Text("Crop records pending for this field.")
+        else {
+            Text(summary.note, style = MaterialTheme.typography.bodySmall)
+            summary.groups.forEach { group ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(group.title, style = MaterialTheme.typography.titleMedium)
+                        group.rows.forEach { row -> Text("${row.label}: ${row.value}") }
+                        if (group.title == "Harvesting") Text(summary.crewNote, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

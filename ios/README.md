@@ -40,3 +40,12 @@ Formula references: https://opb.mpob.gov.my/case-study-of-a-high-income-smallhol
 All inputs remain temporary and isolated from estate records; no server request is made by these tools. Tests cover partial bag rounding, zero costs, invalid populations/denominators, calibration scaling and conversion round trips.
 
 Calculator number inputs use a decimal point and permit correctly grouped thousands (for example, 1,000.50). Ambiguous or malformed comma inputs are rejected rather than interpreted as a smaller dose or population.
+
+## Field Crop Records (build 37)
+Each field pill opens a concise read-only report: field code; hectare; monthly, YTD and annual crop budgets (mt); actual MTD/YTD (mt); required harvesters; monthly harvesting rounds; and productivity in mt/manday and ha/manday. All budget values use the same report month as the crop actuals. Required harvesters = field hectares / 21 ha per harvester; display the unrounded ratio in the note and round the whole-worker requirement up. Missing or future report figures remain Pending. Basic field area is used for crew planning, while report metrics remain dated to their source. No server schema or data update is required.
+
+Build 38 simplifies Harvesting Coverage to Hectare Completed (ha, using the saved monthly cumulative hectares) and Completed rounds. The daily Report day metric is removed on every variant.
+
+Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter Hectare and Mature Hectare read dated, owner-confirmed overview records (Estate area reporting period, Perimeter area (ha), Mature area (ha)). Areas display in hectares with comma grouping and two decimals. Invalid, duplicate, future or unreconciled records remain Pending. Source values are supplied privately through VPS sync and are not bundled with the app.
+
+Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
