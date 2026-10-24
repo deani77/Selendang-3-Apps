@@ -38,3 +38,5 @@ Formula references: https://opb.mpob.gov.my/case-study-of-a-high-income-smallhol
 - Unit Conversion: hectares, international acres, m², metres, feet, kg and mt. Conversions stay within the selected dimension and use exact definitions of the units.
 
 All inputs remain temporary and isolated from estate records; no server request is made by these tools. Tests cover partial bag rounding, zero costs, invalid populations/denominators, calibration scaling and conversion round trips.
+
+Calculator number inputs use a decimal point and permit correctly grouped thousands (for example, 1,000.50). Ambiguous or malformed comma inputs are rejected rather than interpreted as a smaller dose or population.

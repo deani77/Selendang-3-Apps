@@ -27,9 +27,11 @@ class PlanterCalculationsTest {
             assertNull(PlanterCalculations.dose(2.0, ProductRateUnit.LITRES, 16.0, value))
         }
         assertNull(PlanterCalculations.dose(201.0, ProductRateUnit.LITRES, 16.0, 200.0))
-        assertEquals(9.5, PlanterCalculations.input("9,5")!!, 0.0)
+        assertNull(PlanterCalculations.input("9,5"))
+        assertEquals(1000.0, PlanterCalculations.input("1,000")!!, 0.0)
+        assertEquals(2000.5, PlanterCalculations.input("2,000.50")!!, 0.0)
         assertEquals(0.5, PlanterCalculations.input(".5")!!, 0.0)
-        listOf("", "0", "-1", "nan", "infinity", "2,000.50").forEach { assertNull(PlanterCalculations.input(it)) }
+        listOf("", "0", "-1", "nan", "infinity", "1,00").forEach { assertNull(PlanterCalculations.input(it)) }
         assertNotEquals("0.00", PlanterCalculations.number(0.00001))
     }
     @Test fun fertilizerBagsRoundUpAndRetainBalance() {

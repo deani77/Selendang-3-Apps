@@ -23,7 +23,7 @@ fun PlanterToolsScreen() {
             FilledTonalButton(onClick = { tool = "calibration" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Nozzle Calibration") }
             FilledTonalButton(onClick = { tool = "cost" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Work Costing") }
             FilledTonalButton(onClick = { tool = "units" }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text("Unit Conversion") }
-            Text("Offline calculators. Inputs and results are temporary and do not change estate records.", style = MaterialTheme.typography.bodySmall)
+            Text("Offline calculators. Inputs and results are temporary and do not change estate records. Use a decimal point; commas group thousands.", style = MaterialTheme.typography.bodySmall)
         } else {
             TextButton(onClick = { tool = "" }) { Text("‹ All Tools") }
             when (tool) {

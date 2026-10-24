@@ -15,8 +15,8 @@ data class PumpDoseResult(val productPerPump: Double, val hectaresPerPump: Doubl
 object PlanterCalculations {
     fun input(text: String, allowZero: Boolean = false): Double? {
         val clean = text.trim()
-        if (!Regex("^([0-9]+([.,][0-9]*)?|[.,][0-9]+)$").matches(clean)) return null
-        return clean.replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() && (if (allowZero) it >= 0 else it > 0) }
+        if (!Regex("^([0-9]+([.][0-9]*)?|[.][0-9]+|[0-9]{1,3}(,[0-9]{3})+([.][0-9]*)?)$").matches(clean)) return null
+        return clean.replace(",", "").toDoubleOrNull()?.takeIf { it.isFinite() && (if (allowZero) it >= 0 else it > 0) }
     }
     fun density(distance: Double, unit: PlantingDistanceUnit, pattern: PlantingPattern): PlantDensityResult? {
         if (!distance.isFinite() || distance <= 0) return null

@@ -17,8 +17,10 @@ for value in [0.0, -1.0, Double.infinity, Double.nan] {
     precondition(PlanterCalculations.dose(rate: 2, unit: .litres, tankLitres: 16, sprayLitresPerHectare: value) == nil)
 }
 precondition(PlanterCalculations.dose(rate: 201, unit: .litres, tankLitres: 16, sprayLitresPerHectare: 200) == nil)
-precondition(PlanterCalculations.input("9,5") == 9.5)
-for text in ["", "0", "-1", "nan", "infinity", "2,000.50"] { precondition(PlanterCalculations.input(text) == nil) }
+precondition(PlanterCalculations.input("9,5") == nil)
+precondition(PlanterCalculations.input("1,000") == 1000)
+precondition(PlanterCalculations.input("2,000.50") == 2000.5)
+for text in ["", "0", "-1", "nan", "infinity", "1,00"] { precondition(PlanterCalculations.input(text) == nil) }
 precondition(PlanterCalculations.number(0.00001) != "0.00")
 print("Planter calculators: geometry, feet conversion, rate-unit conversions, tank coverage and invalid-input checks passed")
 

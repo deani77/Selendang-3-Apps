@@ -15,7 +15,7 @@ struct PlanterToolsView: View {
                 NavigationLink { WorkCostCalculatorView() } label: { Label("Work Costing", systemImage: "banknote.fill") }
                 NavigationLink { PlantationUnitConverterView() } label: { Label("Unit Conversion", systemImage: "arrow.left.arrow.right") }
             } footer: {
-                Text("Offline calculators. Inputs and results are temporary and do not change estate records.")
+                Text("Offline calculators. Inputs and results are temporary and do not change estate records. Use a decimal point; commas group thousands.")
             }
         }.estateScreen().navigationTitle("Planter Tools")
             .navigationBarTitleDisplayMode(.inline).toolbar(.visible, for: .navigationBar)

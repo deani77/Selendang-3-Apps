@@ -21,8 +21,8 @@ struct PumpDoseResult {
 enum PlanterCalculations {
     static func input(_ text: String, allowZero: Bool = false) -> Double? {
         let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard clean.range(of: "^([0-9]+([.,][0-9]*)?|[.,][0-9]+)$", options: .regularExpression) != nil,
-              let value = Double(clean.replacingOccurrences(of: ",", with: ".")), value.isFinite, (allowZero ? value >= 0 : value > 0) else { return nil }
+        guard clean.range(of: "^([0-9]+([.][0-9]*)?|[.][0-9]+|[0-9]{1,3}(,[0-9]{3})+([.][0-9]*)?)$", options: .regularExpression) != nil,
+              let value = Double(clean.replacingOccurrences(of: ",", with: "")), value.isFinite, (allowZero ? value >= 0 : value > 0) else { return nil }
         return value
     }
     static func density(distance: Double, unit: PlantingDistanceUnit, pattern: PlantingPattern) -> PlantDensityResult? {
