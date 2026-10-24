@@ -200,3 +200,21 @@ let futureTable = try cropTable(tableFixture,date:august)
 precondition(futureTable.rows[0].values.allSatisfy { $0 == "Pending" })
 precondition(!CropProductionTableData.groups.flatMap { $0.1 }.contains("Today"))
 print("Field crop table totals, target periods and missing-data checks passed")
+
+var routedFixture = tableFixture
+var routedSections = routedFixture["sections"] as! [[String:Any]]
+routedSections[1] = section("fields", ["Field code","Area (ha)","Total palms","Sent to mill MTD (mt)","Harvested area MTD (ha)","Crop report dates / previous month"],
+    [["A",100,1000,120,200,"2026-10-21"],["B",900,9000,180,300,"2026-10-21"]])
+routedSections[5] = section("abw", ["Field","Average bunch weight (kg/bunch)"], [["A",18],["B",20]])
+routedFixture["sections"] = routedSections
+let routedReference = try EstateReference.parse(JSONSerialization.data(withJSONObject:routedFixture))
+let basicField = estateFieldTables(routedReference,code:"A")
+let cropField = estateFieldCropTables(routedReference,code:"A")
+precondition(basicField.map(\.id) == ["fields","ages"])
+precondition(basicField[0].columns == ["Field code","Area (ha)","Total palms"])
+precondition(cropField.map(\.id) == ["fields","abw"])
+precondition(cropField[0].columns == ["Field code","Sent to mill MTD (mt)","Harvested area MTD (ha)","Crop report dates / previous month"])
+precondition(cropField.allSatisfy { $0.rows.count == 1 && $0.rows[0][0]?.text == "A" })
+precondition(estateFieldCropTables(routedReference,code:"UNKNOWN").isEmpty)
+precondition(routedReference.sections[1].columns.count == 6) // Projection leaves stored records intact.
+print("Basic field versus crop record routing checks passed")

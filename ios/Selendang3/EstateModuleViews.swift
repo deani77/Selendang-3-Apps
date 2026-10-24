@@ -40,8 +40,8 @@ struct FieldDetailsView: View {
                 GroupBox("Field Dashboard") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Fields available: " + (estate.reference == nil ? "Pending" : String(estateFieldCodes(estate.reference).count)))
-                        Text(estate.reference?.reportingPeriod ?? "No saved estate records")
-                        Text("Choose a field below for its saved details. Additional dashboard measures are pending definition.")
+                        Text("Basic field profiles · area, palms, planting and age records")
+                        Text("Choose a field for its basic information. Crop and harvesting records are under Crop Production.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -60,7 +60,7 @@ struct FieldDetailsView: View {
                                         }
                                     }
                                 }
-                                Text("Only saved records explicitly identified for this field are shown. Other field records remain pending.")
+                                Text("Basic records for this field only. Crop, harvesting and productivity records are under Crop Production.")
                                     .font(.footnote)
                             }.estateScreen().navigationTitle(code)
                         } label: {

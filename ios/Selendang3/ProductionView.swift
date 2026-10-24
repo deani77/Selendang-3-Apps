@@ -23,6 +23,25 @@ struct ProductionView: View {
                     CropProductionTableView(data: CropProductionTableData(reference: estate.reference, today: context.date))
                 }
             }
+            Section("Field Crop Records") {
+                ForEach(estateFieldCodes(estate.reference), id: \.self) { code in
+                    NavigationLink(code) {
+                        List {
+                            let tables = estateFieldCropTables(estate.reference, code: code)
+                            if tables.isEmpty { Text("Crop records pending for this field.") }
+                            ForEach(tables) { table in
+                                Section(table.id == "fields" ? "Crop, harvesting and productivity" : table.title) {
+                                    ForEach(table.rows.indices, id: \.self) { index in
+                                        ForEach(table.columns.indices, id: \.self) { column in
+                                            LabeledContent(table.columns[column], value: table.rows[index][column]?.text ?? "Pending")
+                                        }
+                                    }
+                                }
+                            }
+                        }.estateScreen().navigationTitle(code + " · Crop Records")
+                    }
+                }
+            }
             Section {
                 Text("Production by field").font(.headline)
                 Text(store.status).font(.footnote)

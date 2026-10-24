@@ -182,4 +182,29 @@ private fun CropDashboardSummary() {
         while (true) { value = estateRainfallToday(); kotlinx.coroutines.delay(60_000) }
     }
     CropProductionDashboardTable(cropProductionTable(update, today))
+    FieldCropRecords(update)
+}
+
+@Composable
+private fun FieldCropRecords(update: EstatePackage?) {
+    var selected by rememberSaveable { mutableStateOf<String?>(null) }
+    Text("Field Crop Records", style = MaterialTheme.typography.titleMedium)
+    estateFieldCodes(update).chunked(3).forEach { group ->
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            group.forEach { code ->
+                FilterChip(selected = selected == code, onClick = { selected = if (selected == code) null else code }, label = { Text(code) })
+            }
+        }
+    }
+    selected?.let { code ->
+        val tables = estateFieldCropTables(update, code)
+        if (tables.isEmpty()) Text("Crop records pending for this field.")
+        tables.forEach { table ->
+            ProductionCard("$code · Crop Records") {
+                table.rows.forEach { row ->
+                    table.columns.zip(row).forEach { (label, value) -> Text("$label: ${value ?: "Pending"}") }
+                }
+            }
+        }
+    }
 }

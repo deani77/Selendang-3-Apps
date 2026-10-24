@@ -34,3 +34,6 @@ Manuring progress is applied YTD mass / annual programme mass × 100, separate f
 
 ## Responsive Crop Production table
 Build 31 uses a field table with Crop (mt), Yield (mt/ha) and Achievement (%) views. Each view fits phone and iPad widths with This Month, Year to Date and Full Year columns. T means Target; A means Actual. Daily and backlog columns are omitted. Full-year achievement uses actual YTD / annual target; totals recalculate yield from total mass / total area. Optional cropBudget records supply approved private field budgets through sync. Missing data and zero denominators stay Pending. No private records are bundled with the app.
+
+## Field versus crop records
+Build 32 limits Field Details to field identity, area, palms, planting/age and explicitly field-keyed soil or infrastructure records. Crop Production contains Field Crop Records for the selected field, including crop totals, harvesting, productivity, report periods and field-keyed ABW where available. This is a display change: the imported snapshot stays intact and needs no new server revision. Estate-level values are never substituted for missing field records.

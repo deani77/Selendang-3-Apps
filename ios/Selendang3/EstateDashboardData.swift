@@ -370,12 +370,31 @@ func estateFieldCodes(_ reference: EstateReference?) -> [String] {
     })).sorted()
 }
 
+// Keep the source snapshot intact; route its field columns to their owning modules.
+private let basicFieldColumns: Set<String> = ["Field code", "Alternate code", "Area (ha)",
+    "Source palms/ha", "Total palms", "Review status", "Planting year", "Planting date",
+    "Age / years", "Maturity", "Soil series", "Terrain"]
+
 func estateFieldTables(_ reference: EstateReference?, code: String) -> [EstateReferenceTable] {
+    fieldRecordTables(reference, code: code, crop: false)
+}
+func estateFieldCropTables(_ reference: EstateReference?, code: String) -> [EstateReferenceTable] {
+    fieldRecordTables(reference, code: code, crop: true)
+}
+private func fieldRecordTables(_ reference: EstateReference?, code: String, crop: Bool) -> [EstateReferenceTable] {
     guard estateFieldCodes(reference).contains(code) else { return [] }
     return (reference?.sections ?? []).compactMap { table in
-        guard let column = table.columns.firstIndex(where: { ["Field code", "Field / category", "Field"].contains($0) }) else { return nil }
-        let rows = table.rows.filter { column < $0.count && $0[column]?.text.trimmingCharacters(in: .whitespacesAndNewlines) == code }
-        return rows.isEmpty ? nil : EstateReferenceTable(id: table.id, columns: table.columns, rows: rows)
+        guard let key = table.columns.firstIndex(where: { ["Field code", "Field / category", "Field"].contains($0) }) else { return nil }
+        let rows = table.rows.filter { key < $0.count && $0[key]?.text.trimmingCharacters(in: .whitespacesAndNewlines) == code }
+        guard !rows.isEmpty else { return nil }
+        let indices: [Int]
+        if table.id == "fields" {
+            indices = table.columns.indices.filter { crop ? ($0 == key || !basicFieldColumns.contains(table.columns[$0])) : basicFieldColumns.contains(table.columns[$0]) }
+            if crop && indices.count <= 1 { return nil }
+        } else if crop ? table.id == "abw" : ["ages", "soil", "roads"].contains(table.id) {
+            indices = Array(table.columns.indices)
+        } else { return nil }
+        guard !indices.isEmpty else { return nil }
+        return EstateReferenceTable(id: table.id, columns: indices.map { table.columns[$0] }, rows: rows.map { row in indices.map { row[$0] } })
     }
 }
-

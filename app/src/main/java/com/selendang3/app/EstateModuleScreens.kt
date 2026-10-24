@@ -22,8 +22,8 @@ fun FieldDetailsScreen(update: EstatePackage?) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Field Dashboard", style = MaterialTheme.typography.titleLarge)
                     Text("Fields available: " + if (update == null) "Pending" else codes.size.toString())
-                    Text(update?.reportingPeriod ?: "No saved estate records")
-                    Text("Choose a field below for its saved details. Additional dashboard measures are pending definition.")
+                    Text("Basic field profiles · area, palms, planting and age records")
+                    Text("Choose a field for its basic information. Crop and harvesting records are under Crop Production.")
                 }
             }
             codes.chunked(2).forEach { group ->
@@ -50,7 +50,7 @@ fun FieldDetailsScreen(update: EstatePackage?) {
                     }
                 }
             }
-            Text("Only saved records explicitly identified for this field are shown. Other field records remain pending.")
+            Text("Basic records for this field only. Crop, harvesting and productivity records are under Crop Production.")
         }
     }
 }
