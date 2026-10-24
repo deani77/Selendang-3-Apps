@@ -43,3 +43,5 @@ Calculator number inputs use a decimal point and permit correctly grouped thousa
 
 ## Field Crop Records (build 37)
 Each field pill opens a concise read-only report: field code; hectare; monthly, YTD and annual crop budgets (mt); actual MTD/YTD (mt); required harvesters; monthly harvesting rounds; and productivity in mt/manday and ha/manday. All budget values use the same report month as the crop actuals. Required harvesters = field hectares / 21 ha per harvester; display the unrounded ratio in the note and round the whole-worker requirement up. Missing or future report figures remain Pending. Basic field area is used for crew planning, while report metrics remain dated to their source. No server schema or data update is required.
+
+Build 38 simplifies Harvesting Coverage to Hectare Completed (ha, using the saved monthly cumulative hectares) and Completed rounds. The daily Report day metric is removed on every variant.

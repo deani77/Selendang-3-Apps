@@ -326,7 +326,7 @@ struct EstateDashboardData {
                 ["YTD / Year Budget", Self.number(annualBudgetProgress), "%"]
             ], note: yieldPeriod + (currentCrop.map { " · MTD through " + $0.reportDate } ?? "")),
             EstateDashboardPanel(title: "Harvesting Coverage", headers: [], rows: [
-                ["Report day", Self.number(nonnegative(currentCrop?.totals.hectaresToday)), "ha"], ["MTD", Self.number(nonnegative(currentCrop?.totals.hectaresMtd)), "ha"],
+                ["Hectare Completed", Self.number(nonnegative(currentCrop?.totals.hectaresMtd)), "ha"],
                 ["Completed rounds", Self.number(nonnegative(currentCrop?.totals.roundsMtd)), "rounds"]
             ], note: currentCrop.map { "Report: " + $0.reportDate } ?? "Reporting period pending"),
             EstateDashboardPanel(title: "Harvester Productivity", headers: [], rows: [

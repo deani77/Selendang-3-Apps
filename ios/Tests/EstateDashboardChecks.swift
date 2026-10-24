@@ -148,7 +148,7 @@ func reportCards(_ input: [String:Any], date: Date = october) throws -> [EstateD
 }
 let populated = try reportCards(reportFixture)
 precondition(populated[0].rows[0][1] == "2.75" && populated[0].rows[1][1] == "1.25")
-precondition(populated[1].rows.map { $0[1] } == ["100.00","2000.00","2.00"])
+precondition(populated[1].rows.map { $0[1] } == ["2000.00","2.00"])
 precondition(populated[1].note == "Report: 2026-10-21")
 precondition(populated[2].rows.map { $0[1] } == ["2.50","3.00"])
 precondition(populated[3].rows[0][1] == "80.00")
@@ -166,7 +166,7 @@ let incompleteMonth = try reportCards(bad)
 precondition(incompleteMonth[0].rows[0][1] == "Pending")
 bad["cropProductionReport"] = ["reportDate":"2026-10-21","totals":["hectaresMtd":-1]] as [String:Any]
 let negativeArea = try reportCards(bad)
-precondition(negativeArea[1].rows[1][1] == "Pending")
+precondition(negativeArea[1].rows[0][1] == "Pending")
 print("Report-backed dashboard and stale/missing-data checks passed")
 
 var tableFixture = reportFixture
