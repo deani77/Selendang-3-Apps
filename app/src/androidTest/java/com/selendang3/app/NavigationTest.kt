@@ -42,15 +42,13 @@ class NavigationTest {
         compose.onNodeWithText("‹ Settings").performScrollTo().performClick()
         compose.onNodeWithText("User Profile").performScrollTo().assertIsDisplayed()
     }
-    @Test fun cropProductionOpensAndCanSaveLocalDraft() {
+    @Test fun cropProductionIsServerManagedAndHasNoDataEntry() {
         compose.onNodeWithText("Crop Production").performScrollTo().performClick()
         compose.onNodeWithText("Crop Production Dashboard").assertIsDisplayed()
-        compose.onNodeWithText("Production by field").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("PM04D").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Crop sent to mill (t)").performScrollTo().performTextReplacement("2.5")
-        compose.onNodeWithText("Save Draft").performScrollTo().performClick()
-        compose.onNodeWithText("Draft saved on this device. Pending upload in Settings → Sync Now.").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Month Crop Production").performScrollTo().performClick()
-        compose.onNodeWithText("Crop sent to mill: 2.50 t · 1/1 saved days reported").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Field Crop Records").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Save Draft").assertDoesNotExist()
+        compose.onNodeWithText("Crop sent to mill (t)").assertDoesNotExist()
+        compose.onNodeWithText("Today Crop Production").assertDoesNotExist()
+        compose.onNodeWithText("Upload PDF · coming next").assertDoesNotExist()
     }
 }
