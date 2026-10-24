@@ -134,3 +134,87 @@ precondition(emptyCards.allSatisfy { $0.rows.allSatisfy { $0[1] == "Pending" && 
 print("Grouped dashboard checks passed")
 
 precondition(cards[4].rows.map { $0[0] } == ["Circle", "Selective"])
+
+// Complete monthly reports are independent of sparse daily production drafts.
+var reportFixture = fixture
+reportFixture["cropProductionReport"] = ["reportDate":"2026-10-21", "totals":[
+    "sentToMillMtdMtPerHa":1.25,"hectaresToday":100,"hectaresMtd":2000,"roundsMtd":2,
+    "mtPerHarvesterDayMtd":2.5,"haPerHarvesterDayMtd":3]] as [String:Any]
+reportFixture["cropProductionReportHistory"] = [["reportDate":"2026-09-30","isCompleteMonth":true,
+    "totals":["sentToMillMtdMtPerHa":2.75]] as [String:Any]]
+reportFixture["manuringReport"] = ["reportDate":"2026-10-22","annualProgrammeMt":1000,"appliedYtdMt":800] as [String:Any]
+func reportCards(_ input: [String:Any], date: Date = october) throws -> [EstateDashboardPanel] {
+    EstateDashboardData(reference: try EstateReference.parse(JSONSerialization.data(withJSONObject:input)), today:date).operationalCards
+}
+let populated = try reportCards(reportFixture)
+precondition(populated[0].rows[0][1] == "2.75" && populated[0].rows[1][1] == "1.25")
+precondition(populated[1].rows.map { $0[1] } == ["100.00","2000.00","2.00"])
+precondition(populated[1].note == "Report: 2026-10-21")
+precondition(populated[2].rows.map { $0[1] } == ["2.50","3.00"])
+precondition(populated[3].rows[0][1] == "80.00")
+precondition(populated[4].rows.allSatisfy { $0[1] == "Pending" })
+let later = try reportCards(reportFixture,date:november)
+precondition(later[0].rows[1][1] == "Pending" && later[1].rows.allSatisfy { $0[1] == "Pending" })
+let futureReports = try reportCards(reportFixture,date:august)
+precondition(futureReports[0].rows[1][1] == "Pending" && futureReports[3].rows[0][1] == "Pending")
+var bad = reportFixture
+bad["manuringReport"] = ["reportDate":"2026-10-22","annualProgrammeMt":0,"appliedYtdMt":800] as [String:Any]
+let zeroProgramme = try reportCards(bad)
+precondition(zeroProgramme[3].rows[0][1] == "Pending")
+bad["cropProductionReportHistory"] = [["reportDate":"2026-09-29","isCompleteMonth":true,"totals":["sentToMillMtdMtPerHa":2.75]] as [String:Any]]
+let incompleteMonth = try reportCards(bad)
+precondition(incompleteMonth[0].rows[0][1] == "Pending")
+bad["cropProductionReport"] = ["reportDate":"2026-10-21","totals":["hectaresMtd":-1]] as [String:Any]
+let negativeArea = try reportCards(bad)
+precondition(negativeArea[1].rows[1][1] == "Pending")
+print("Report-backed dashboard and stale/missing-data checks passed")
+
+var tableFixture = reportFixture
+var tableReport = tableFixture["cropProductionReport"] as! [String:Any]
+tableReport["fields"] = [["field":"A","sentToMillMtdMt":120,"sentToMillYtdMt":1200],
+                         ["field":"B","sentToMillMtdMt":180,"sentToMillYtdMt":2400]]
+tableFixture["cropProductionReport"] = tableReport
+let budgetMonths: [[String:Any]] = ["A", "B"].flatMap { field in
+    (1...12).map { month in ["field":field,"year":2026,"month":month,"tonnes":field == "A" ? 100 : 200] as [String:Any] }
+}
+tableFixture["cropBudget"] = ["year":2026,"monthlyBudget":budgetMonths]
+func cropTable(_ input: [String:Any], date: Date = october) throws -> CropProductionTableData {
+    CropProductionTableData(reference:try EstateReference.parse(JSONSerialization.data(withJSONObject:input)), today:date)
+}
+let table = try cropTable(tableFixture)
+precondition(table.rows.count == 2 && table.rows[0].values.count == 13)
+precondition(Array(table.rows[0].values.prefix(3)) == ["100.00","1000.00","1200.00"])
+precondition(table.rows[0].values[6] == "120.00" && table.rows[0].values[12] == "100.00")
+precondition(table.total?.values[10] == "100.00" && table.total?.values[11] == "120.00")
+precondition(table.total?.values[8] == "0.30") // area-weighted, not sum of field yields
+var missingTable = tableFixture
+missingTable.removeValue(forKey:"cropBudget")
+let missingBudgetTable = try cropTable(missingTable)
+precondition(missingBudgetTable.rows[0].values[0] == "Pending")
+precondition(missingBudgetTable.rows[0].values[6] == "120.00")
+var incompleteBudget = tableFixture
+incompleteBudget["cropBudget"] = ["year":2026,"monthlyBudget":Array(budgetMonths.dropLast())]
+let incompleteTable = try cropTable(incompleteBudget)
+precondition(incompleteTable.total?.values[2] == "Pending")
+let futureTable = try cropTable(tableFixture,date:august)
+precondition(futureTable.rows[0].values.allSatisfy { $0 == "Pending" })
+precondition(!CropProductionTableData.groups.flatMap { $0.1 }.contains("Today"))
+print("Field crop table totals, target periods and missing-data checks passed")
+
+var routedFixture = tableFixture
+var routedSections = routedFixture["sections"] as! [[String:Any]]
+routedSections[1] = section("fields", ["Field code","Area (ha)","Total palms","Sent to mill MTD (mt)","Harvested area MTD (ha)","Crop report dates / previous month"],
+    [["A",100,1000,120,200,"2026-10-21"],["B",900,9000,180,300,"2026-10-21"]])
+routedSections[5] = section("abw", ["Field","Average bunch weight (kg/bunch)"], [["A",18],["B",20]])
+routedFixture["sections"] = routedSections
+let routedReference = try EstateReference.parse(JSONSerialization.data(withJSONObject:routedFixture))
+let basicField = estateFieldTables(routedReference,code:"A")
+let cropField = estateFieldCropTables(routedReference,code:"A")
+precondition(basicField.map(\.id) == ["fields","ages"])
+precondition(basicField[0].columns == ["Field code","Area (ha)","Total palms"])
+precondition(cropField.map(\.id) == ["fields","abw"])
+precondition(cropField[0].columns == ["Field code","Sent to mill MTD (mt)","Harvested area MTD (ha)","Crop report dates / previous month"])
+precondition(cropField.allSatisfy { $0.rows.count == 1 && $0.rows[0][0]?.text == "A" })
+precondition(estateFieldCropTables(routedReference,code:"UNKNOWN").isEmpty)
+precondition(routedReference.sections[1].columns.count == 6) // Projection leaves stored records intact.
+print("Basic field versus crop record routing checks passed")

@@ -75,4 +75,23 @@ class HomeDashboardDataTest {
         }
         assertTrue(operationalDashboardCards(null, today).all { it.metrics.all { metric -> metric.unit.isNotBlank() } })
     }
+    @Test fun approvedReportsPopulateSharedCardsAndKeepActualReportDates() {
+        val json = """{
+          "cropProductionReport":{"reportDate":"2026-10-21","totals":{"sentToMillMtdMtPerHa":1.25,"hectaresToday":100,"hectaresMtd":2000,"roundsMtd":2,"mtPerHarvesterDayMtd":2.5,"haPerHarvesterDayMtd":3}},
+          "cropProductionReportHistory":[{"reportDate":"2026-09-30","isCompleteMonth":true,"totals":{"sentToMillMtdMtPerHa":2.75}}],
+          "manuringReport":{"reportDate":"2026-10-22","annualProgrammeMt":1000,"appliedYtdMt":800}
+        }"""
+        val input = fixture().copy(json = json)
+        val cards = operationalDashboardCards(input, today)
+        assertEquals(listOf("2.75", "1.25"), cards[0].metrics.take(2).map { it.value })
+        assertEquals(listOf("100.00", "2000.00", "2.00"), cards[1].metrics.map { it.value })
+        assertEquals("Report: 2026-10-21", cards[1].period)
+        assertEquals(listOf("2.50", "3.00"), cards[2].metrics.map { it.value })
+        assertEquals("80.00", cards[3].metrics.single().value)
+        assertTrue(homeDashboardRows(input, today)[1].detail.contains("Manuring: 80.00%"))
+        val later = operationalDashboardCards(input, LocalDate.of(2026, 11, 1))
+        assertEquals("Pending", later[0].metrics[1].value)
+        val future = operationalDashboardCards(input, LocalDate.of(2026, 8, 1))
+        assertEquals("Pending", future[3].metrics.single().value)
+    }
 }

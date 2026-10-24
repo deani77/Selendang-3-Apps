@@ -87,6 +87,8 @@ struct HomeView: View {
                 FieldDetailsView()
             } else if title == "Upkeep and Cultivation" {
                 UpkeepCultivationView()
+            } else if title == "Planter Tools" {
+                PlanterToolsView()
             } else if title == "Crop Production" {
                 ProductionView()
             } else {

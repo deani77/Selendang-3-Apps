@@ -2,7 +2,6 @@ import SwiftUI
 
 struct UserSettingsView: View {
     @AppStorage("theme") private var theme = "system"
-    @StateObject private var production = ProductionStore.shared
     @AppStorage("server_address") private var address = ""
     @State private var accessToken = ""
     @State private var syncMessage: String?
@@ -36,8 +35,7 @@ struct UserSettingsView: View {
             Section("Estate Data Sync") {
                 TextField("Full HTTPS snapshot address", text: $address).textInputAutocapitalization(.never).autocorrectionDisabled()
                 SecureField("Access token", text: $accessToken).textInputAutocapitalization(.never).autocorrectionDisabled()
-                Text(production.status)
-                Text("Uploads pending daily production drafts and checks estate reference data. New estate updates require confirmation before replacing the offline copy.").font(.footnote)
+                Text("Downloads estate data from the VPS only. Confirm new updates to replace the offline copy. Data entry and uploads are unavailable.").font(.footnote)
                 if let reference = estate.reference { Text("Saved estate revision \(reference.revision) · available offline") }
                 if let checked = estate.lastChecked { Text("Estate last checked: " + checked.formatted()).font(.footnote) }
                 if let error = estate.storageError { Text(error).foregroundStyle(.red) }
@@ -50,10 +48,6 @@ struct UserSettingsView: View {
                         do { endpoint = try EstateSyncEndpoint(address: address, token: accessToken) }
                         catch { syncMessage = error.localizedDescription; syncBusy = false; return }
                         do {
-                            try await production.sync(address: endpoint.snapshot.absoluteString, token: endpoint.token)
-                            results.append("Production sync completed: " + production.status)
-                        } catch { results.append("Production sync failed: " + error.localizedDescription + " Local drafts retained.") }
-                        do {
                             let (update, data) = try await estate.download(address: endpoint.snapshot.absoluteString, token: endpoint.token)
                             if update.revision > (estate.reference?.revision ?? 0) {
                                 pendingEstate = update; pendingEstateData = data; showEstatePreview = true
@@ -63,48 +57,33 @@ struct UserSettingsView: View {
                         syncMessage = results.joined(separator: "\n\n")
                         syncBusy = false
                     }
-                }.disabled(syncBusy || production.syncing)
+                }.disabled(syncBusy)
                 if syncBusy { ProgressView("Synchronizing…") }
                 Text("Your token stays in this Settings session and is never stored in the app.").font(.footnote)
-                if let error = production.storageError { Text(error).foregroundStyle(.red) }
                 if let message = syncMessage { Text(message) }
             }
-            ForEach(production.entries.filter { $0.conflict != nil }) { entry in
-                Section("Conflict: \(entry.record.field) · \(entry.record.date)") {
-                    Text("Both copies are preserved. Compare all values before choosing.")
-                    Text("Phone: " + productionValues(entry.record))
-                    if let remote = entry.conflict { Text("Server: " + productionValues(remote.record)) }
-                    Button("Use server copy") { resolve(entry.id, false) }.disabled(syncBusy || production.syncing)
-                    Button("Keep phone copy · upload on next Sync") { resolve(entry.id, true) }.disabled(syncBusy || production.syncing)
-                }
-            }
+
         }
         .alert("Import Estate Update?", isPresented: $showEstatePreview) {
             Button("Import Estate Update") {
                 do {
                     guard let data = pendingEstateData else { return }
                     try estate.apply(data)
-                    syncMessage = (syncMessage ?? "") + "\nEstate revision \(estate.reference?.revision ?? 0) saved. Open Estate Details; these records are available offline."
+                    syncMessage = (syncMessage ?? "") + "\nEstate revision \(estate.reference?.revision ?? 0) saved. These records are available offline."
                 } catch { syncMessage = error.localizedDescription }
                 pendingEstateData = nil; pendingEstate = nil
             }
             Button("Cancel", role: .cancel) { pendingEstateData = nil; pendingEstate = nil }
         } message: {
             if let update = pendingEstate {
-                Text("Revision \(update.revision)\n\(update.reportingPeriod)\n\(update.sections.reduce(0) { $0 + $1.rows.count }) rows across seven sections. This replaces the saved estate reference data. Production drafts are kept separately.")
+                Text("Revision \(update.revision)\n\(update.reportingPeriod)\n\(update.sections.reduce(0) { $0 + $1.rows.count }) rows across seven sections. This replaces the saved estate reference data. These server records remain available offline.")
             }
         }
         .estateScreen().navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
     }
-    private func productionValues(_ row: ProductionDraft) -> String {
-        "Harvested: \(row.harvested.map(String.init(describing:)) ?? "Pending") t; mill: \(row.sentToMill.map(String.init(describing:)) ?? "Pending") t; backlog: \(row.backlog.map(String.init(describing:)) ?? "Pending") t; hectares: \(row.hectares.map(String.init(describing:)) ?? "Pending"); harvesters: \(row.harvesters.map(String.init(describing:)) ?? "Pending")"
-    }
-    private func resolve(_ id: String, _ keepLocal: Bool) {
-        do { try production.resolve(id, keepLocal: keepLocal); syncMessage = production.status }
-        catch { syncMessage = error.localizedDescription }
-    }
+
 }
 
 private struct UserProfileView: View {

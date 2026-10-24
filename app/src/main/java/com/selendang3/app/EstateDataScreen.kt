@@ -31,40 +31,8 @@ fun EstateDataControls() {
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var preview by remember { mutableStateOf<EstatePackage?>(null) }
-    var source by remember { mutableStateOf("File import") }
+    var source by remember { mutableStateOf("VPS") }
     val scope = rememberCoroutineScope()
-    val productionStore = remember(context) { ProductionDraftStore(context) }
-    var productionEntries by remember { mutableStateOf<List<ProductionEntry>>(emptyList()) }
-    var productionError by remember { mutableStateOf<String?>(null) }
-    fun refreshProduction() {
-        try { productionEntries = productionStore.entries() }
-        catch (_: Exception) { productionError = "Production storage could not be read. Saved drafts are protected." }
-    }
-    LaunchedEffect(Unit) { refreshProduction() }
-
-    fun prepare(read: () -> String, origin: String) {
-        busy = true
-        message = null
-        scope.launch {
-            try {
-                val update = withContext(Dispatchers.IO) { EstatePackages.parse(read()) }
-                EstatePackages.requireNewer(update.revision, snapshot?.revision)
-                source = origin
-                preview = update
-            } catch (cancelled: CancellationException) { throw cancelled
-            } catch (failure: Exception) {
-                message = if (failure is IllegalArgumentException) failure.message else
-                    "Could not read this update. Check the file or server connection. Saved data is unchanged."
-            } finally { busy = false }
-        }
-    }
-
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) prepare({
-            context.contentResolver.openInputStream(uri)?.use { EstatePackages.read(it) }
-                ?: throw IllegalArgumentException("Could not open this file.")
-        }, "File import")
-    }
     val exporter = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         val content = snapshot?.content
         if (uri != null && content != null) {
@@ -87,30 +55,13 @@ fun EstateDataControls() {
     Text("Estate Data Sync", style = MaterialTheme.typography.titleLarge)
     Text(snapshot?.let { "Saved revision ${it.revision} · ${it.source}\nUpdated: ${DateFormat.getDateTimeInstance().format(Date(it.updatedAt))}" }
         ?: "No estate data imported yet.")
-    Button(onClick = { picker.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
-        enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Import Estate Data") }
     OutlinedButton(onClick = { exporter.launch("S3-estate-data-r${snapshot?.revision}.json") },
         enabled = snapshot != null && !busy, modifier = Modifier.fillMaxWidth()) { Text("Export Estate Data") }
-    Text("Import a prepared estate update JSON file. Excel and Markdown must be converted first. Each confirmed update replaces all seven sections. Export your saved data before changing devices.",
+    Text("Estate data is downloaded from the VPS only and stays available offline. Data entry and uploads are unavailable.",
         style = MaterialTheme.typography.bodySmall)
     HorizontalDivider()
     Text("Server connection", style = MaterialTheme.typography.titleLarge)
-    Text("Sync uploads pending production drafts and downloads production records and estate reference updates. Offline drafts stay on this device until acknowledged by the server.")
-    Text("Production: ${productionEntries.count { it.pending && it.conflict == null }} pending upload · ${productionEntries.count { it.conflict != null }} conflicts · ${productionEntries.count { !it.pending }} synced")
-    productionError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-    productionEntries.filter { it.conflict != null }.forEach { local ->
-        val server = local.conflict!!
-        Card(Modifier.fillMaxWidth()) { Column(Modifier.padding(12.dp)) {
-            Text("Conflict: ${local.record.field} · ${local.record.date}", style = MaterialTheme.typography.titleMedium)
-            Text("Both copies are preserved. Choose which values to keep.")
-            fun values(row: ProductionDraft) = "Harvested: ${row.harvested ?: "Pending"} t; sent to mill: ${row.sentToMill ?: "Pending"} t; backlog: ${row.backlog ?: "Pending"} t; hectares: ${row.hectares ?: "Pending"}; harvesters: ${row.harvesters ?: "Pending"}"
-            Text("Phone: ${values(local.record)}")
-            Text("Server: ${values(server.record)}")
-            TextButton(enabled = !busy, onClick = { productionStore.resolve(local.record.key, false); refreshProduction() }) { Text("Use server copy") }
-            TextButton(enabled = !busy, onClick = { productionStore.resolve(local.record.key, true); refreshProduction() }) { Text("Keep phone copy · upload on next Sync") }
-        } }
-    }
-    Text("Enter your trusted server's full HTTPS update address. File import works even when the VPS is unavailable.")
+    Text("Enter your trusted server's full HTTPS update address.")
     OutlinedTextField(address, { address = it }, label = { Text("Server update address") }, singleLine = true,
         enabled = !busy, modifier = Modifier.fillMaxWidth())
     OutlinedTextField(accessToken, { accessToken = it }, label = { Text("Access token") }, singleLine = true,
@@ -123,27 +74,17 @@ fun EstateDataControls() {
         busy = true
         message = null
         scope.launch {
-            var productionMessage: String
-            try {
-                productionMessage = withContext(Dispatchers.IO) { ProductionSync.sync(productionStore, requestedAddress, requestedToken) }
-                productionError = null
-            } catch (cancelled: CancellationException) { busy = false; throw cancelled
-            } catch (_: Exception) {
-                productionMessage = "Production sync failed. Local drafts are retained. Check connection and token write permission, then retry."
-                productionError = productionMessage
-            }
-            refreshProduction()
             try {
                 val update = withContext(Dispatchers.IO) { EstatePackages.parse(EstateServer.download(requestedAddress, requestedToken)) }
                 if (snapshot == null || update.revision > snapshot!!.revision) { source = "VPS"; preview = update }
                 else require(update.revision == snapshot!!.revision) { "Server estate revision is older than this phone." }
-                message = "Production: $productionMessage. Estate reference checked; review any new update below."
+                message = if (preview != null) "Estate data downloaded. Review and confirm the new update." else "Estate data is up to date and available offline."
             } catch (cancelled: CancellationException) { throw cancelled
-            } catch (_: Exception) { message = "Production: $productionMessage. Estate download failed; saved estate data is unchanged."
+            } catch (_: Exception) { message = "Estate download failed; saved estate data is unchanged."
             } finally { busy = false }
         }
     }, enabled = !busy && address.isNotBlank() && accessToken.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Sync Now") }
-    if (busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("Synchronizing estate and production data…") }
+    if (busy) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("Downloading estate data…") }
     message?.let { Text(it) }
 
     preview?.let { update ->

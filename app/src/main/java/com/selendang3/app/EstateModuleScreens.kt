@@ -22,8 +22,8 @@ fun FieldDetailsScreen(update: EstatePackage?) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Field Dashboard", style = MaterialTheme.typography.titleLarge)
                     Text("Fields available: " + if (update == null) "Pending" else codes.size.toString())
-                    Text(update?.reportingPeriod ?: "No saved estate records")
-                    Text("Choose a field below for its saved details. Additional dashboard measures are pending definition.")
+                    Text("Basic field profiles · area, palms, planting and age records")
+                    Text("Choose a field for its basic information. Crop and harvesting records are under Crop Production.")
                 }
             }
             codes.chunked(2).forEach { group ->
@@ -50,19 +50,21 @@ fun FieldDetailsScreen(update: EstatePackage?) {
                     }
                 }
             }
-            Text("Only saved records explicitly identified for this field are shown. Other field records remain pending.")
+            Text("Basic records for this field only. Crop, harvesting and productivity records are under Crop Production.")
         }
     }
 }
 
 @Composable
-fun UpkeepCultivationScreen() {
+fun UpkeepCultivationScreen(update: EstatePackage?) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Upkeep and Cultivation Dashboard", style = MaterialTheme.typography.titleLarge)
                 Text("Weeding progress: Pending")
-                Text("Manuring progress: Pending")
+                val manuring = operationalDashboardCards(update, estateRainfallToday())[3]
+                Text("Manuring progress: ${manuring.metrics[0].value} %")
+                Text(manuring.period, style = MaterialTheme.typography.bodySmall)
                 Text("Pest and disease work: Pending")
             }
         }

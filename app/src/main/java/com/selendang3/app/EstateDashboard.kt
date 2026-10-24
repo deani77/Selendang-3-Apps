@@ -97,18 +97,6 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                         PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
                         ProductionPanels(ffbCost)
                     }
-                    DashboardPanel("Cost Breakdown") {
-                        DashboardTable(
-                            listOf("Measure", "Upkeep\nRM/ha", "Har./Coll.\nRM/ton", "G.C.\nRM/ha", "Total FFB\nRM/ton"),
-                            listOf("Budget", "Actual", "%").map { listOf(it, Pending, Pending, Pending, Pending) },
-                            minimumWidth = 620,
-                        )
-                    }
-                    DashboardPanel("Checkroll Average") {
-                        DashboardTable(listOf("Category", "RM/Mdy", "% O/Turn"),
-                            listOf(listOf("Harvester", Pending, Pending), listOf("Field Worker", Pending, Pending)),
-                            minimumWidth = 380)
-                    }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
@@ -265,12 +253,11 @@ private fun ProductionPanels(ffbCost: FfbCostComparison?) {
             listOf("Empty & Rotten (%)", Pending), listOf("Stone/Trash (ton)", Pending),
         ))
     }
-    DashboardPanel("Actual versus Budget · YTD") {
-        DashboardTable(listOf("Item", "Actual", "Budget"), listOf(
-            listOf("OER (%)", Pending, Pending), listOf("KER (%)", Pending, Pending),
-            listOf("External Supply (t)", Pending, Pending), listOf("LF", Pending, Pending),
-        ))
+    DashboardPanel("OER (%)") {
+        DashboardTable(listOf("Period", "Actual (%)", "Budget (%)"), listOf(listOf("YTD", Pending, Pending)), minimumWidth = 320)
+        Text("Awaiting approved OER records.", Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
     }
+
 }
 
 @Composable
