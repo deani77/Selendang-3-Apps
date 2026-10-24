@@ -20,10 +20,7 @@ struct ProductionView: View {
         Form {
             Section("Crop Production Dashboard") {
                 TimelineView(.periodic(from: Date(), by: 60)) { context in
-                    let summary = EstateDashboardData(reference: estate.reference, today: context.date).homeRows[0]
-                    Text(summary.note.replacingOccurrences(of: " · ", with: "\n"))
-                    Text("Crop yield: mt/ha. Verified estate snapshot; daily drafts below remain provisional.")
-                        .font(.footnote).foregroundStyle(.secondary)
+                    CropProductionTableView(data: CropProductionTableData(reference: estate.reference, today: context.date))
                 }
             }
             Section {

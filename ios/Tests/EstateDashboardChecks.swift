@@ -168,3 +168,35 @@ bad["cropProductionReport"] = ["reportDate":"2026-10-21","totals":["hectaresMtd"
 let negativeArea = try reportCards(bad)
 precondition(negativeArea[1].rows[1][1] == "Pending")
 print("Report-backed dashboard and stale/missing-data checks passed")
+
+var tableFixture = reportFixture
+var tableReport = tableFixture["cropProductionReport"] as! [String:Any]
+tableReport["fields"] = [["field":"A","sentToMillMtdMt":120,"sentToMillYtdMt":1200],
+                         ["field":"B","sentToMillMtdMt":180,"sentToMillYtdMt":2400]]
+tableFixture["cropProductionReport"] = tableReport
+let budgetMonths: [[String:Any]] = ["A", "B"].flatMap { field in
+    (1...12).map { month in ["field":field,"year":2026,"month":month,"tonnes":field == "A" ? 100 : 200] as [String:Any] }
+}
+tableFixture["cropBudget"] = ["year":2026,"monthlyBudget":budgetMonths]
+func cropTable(_ input: [String:Any], date: Date = october) throws -> CropProductionTableData {
+    CropProductionTableData(reference:try EstateReference.parse(JSONSerialization.data(withJSONObject:input)), today:date)
+}
+let table = try cropTable(tableFixture)
+precondition(table.rows.count == 2 && table.rows[0].values.count == 13)
+precondition(Array(table.rows[0].values.prefix(3)) == ["100.00","1000.00","1200.00"])
+precondition(table.rows[0].values[6] == "120.00" && table.rows[0].values[12] == "100.00")
+precondition(table.total?.values[10] == "100.00" && table.total?.values[11] == "120.00")
+precondition(table.total?.values[8] == "0.30") // area-weighted, not sum of field yields
+var missingTable = tableFixture
+missingTable.removeValue(forKey:"cropBudget")
+let missingBudgetTable = try cropTable(missingTable)
+precondition(missingBudgetTable.rows[0].values[0] == "Pending")
+precondition(missingBudgetTable.rows[0].values[6] == "120.00")
+var incompleteBudget = tableFixture
+incompleteBudget["cropBudget"] = ["year":2026,"monthlyBudget":Array(budgetMonths.dropLast())]
+let incompleteTable = try cropTable(incompleteBudget)
+precondition(incompleteTable.total?.values[2] == "Pending")
+let futureTable = try cropTable(tableFixture,date:august)
+precondition(futureTable.rows[0].values.allSatisfy { $0 == "Pending" })
+precondition(!CropProductionTableData.groups.flatMap { $0.1 }.contains("Today"))
+print("Field crop table totals, target periods and missing-data checks passed")

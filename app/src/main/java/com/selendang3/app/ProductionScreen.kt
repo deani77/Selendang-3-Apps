@@ -181,7 +181,5 @@ private fun CropDashboardSummary() {
     val today by produceState(estateRainfallToday()) {
         while (true) { value = estateRainfallToday(); kotlinx.coroutines.delay(60_000) }
     }
-    Text(homeDashboardRows(update, today)[0].detail.replace(" · ", "\n"))
-    Text("Crop yield: mt/ha. Verified estate snapshot; daily drafts below remain provisional.",
-        style = MaterialTheme.typography.bodySmall)
+    CropProductionDashboardTable(cropProductionTable(update, today))
 }
