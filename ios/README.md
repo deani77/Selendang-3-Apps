@@ -4,7 +4,7 @@ Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and
 
 ## Navigation
 - Home and Estate Dashboard display saved server summaries, retaining source dates and units.
-- Estate Details contains estate reference panels and saved source tables.
+- Estate Details contains estate reference panels and saved source tables. OER (%) retains Actual/Budget YTD only. Checkroll Average and Cost Breakdown panels are removed.
 - Field Details shows basic field identity, area, palms, planting/age and explicitly field-keyed soil/infrastructure records.
 - Crop Production shows the responsive Target/Actual table and field pills. Tapping a field opens its saved crop, harvesting, productivity and bunch-weight records. No manual forms, date-entry filters or upload controls are exposed.
 - Upkeep and Cultivation shows saved estate work summaries; missing measures stay Pending.

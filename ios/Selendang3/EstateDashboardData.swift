@@ -353,9 +353,9 @@ struct EstateDashboardData {
     var panels: [EstateDashboardPanel] {
         [ages,land("Terrain",title:"Topography"),yph,sph,land("Soil series",title:"Soil Type"),rainfall,workforce,ratios,costs,
          EstateDashboardPanel(title:"FFB Quality",headers:["Category","Value"],rows:["Ripe Bunches (%)","Unripe (%)","Empty & Rotten (%)","Stone/Trash (ton)"].map { [$0,"Pending"] }),
-         EstateDashboardPanel(title:"Actual versus Budget · YTD",headers:["Item","Actual","Budget"],rows:["OER (%)","KER (%)","External Supply (t)","LF"].map { [$0,"Pending","Pending"] }),
-         EstateDashboardPanel(title:"Cost Breakdown",headers:["Measure","Value"],rows:[["Awaiting approved records","Pending"]]),
-         EstateDashboardPanel(title:"Checkroll Average",headers:["Category","RM/Mdy","% O/Turn"],rows:[["Harvester","Pending","Pending"],["Field Worker","Pending","Pending"]])]
+         EstateDashboardPanel(title:"OER (%)",headers:["Period","Actual (%)","Budget (%)"],rows:[["YTD","Pending","Pending"]],
+             note:"Awaiting approved OER records.",unit:"%")]
+
     }
 }
 
