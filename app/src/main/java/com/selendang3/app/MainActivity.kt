@@ -53,7 +53,7 @@ val mainSections = listOf(
     Section("upkeep", "Upkeep and Cultivation", "Estate work dashboard, excluding crop production."),
     Section("reports", "Crop Production", "Field production, daily drafts and period totals."),
     Section("settings", "Settings", "Offline data synchronization"),
-    Section("tools", "Planter Tools", "Planter tools will be added later."),
+    Section("tools", "Planter Tools", "Offline plantation calculators."),
 )
 
 class MainActivity : ComponentActivity() {
@@ -141,13 +141,14 @@ fun EstateApp() {
                     composable("upkeep") { UpkeepCultivationScreen() }
                     composable("dashboard") { OperationalDashboardScreen(estateUpdate) }
                     composable("reports") { ProductionScreen() }
+                    composable("tools") { PlanterToolsScreen() }
                     composable("settings") {
                         UserSettingsScreen(themeChoice) {
                             themeChoice = it
                             preferences.edit().putString("theme", it).apply()
                         }
                     }
-                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" && it.route != "production" && it.route != "upkeep" }.forEach { section ->
+                    mainSections.filter { it.route != "information" && it.route != "settings" && it.route != "reports" && it.route != "production" && it.route != "upkeep" && it.route != "tools" }.forEach { section ->
                         composable(section.route) {
                             val message = when(section.route) {
                                 "settings" -> "Offline storage is ready. Data import and synchronization are not configured yet."
