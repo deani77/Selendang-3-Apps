@@ -1,9 +1,6 @@
 name: iOS simulator build
 on:
   pull_request:
-    paths:
-      - 'ios/**'
-      - '.github/workflows/ios.yml'
   push:
     branches: [main]
     paths:
@@ -14,6 +11,7 @@ permissions:
   contents: read
 jobs:
   build:
+    name: iOS build and checks
     runs-on: macos-15
     timeout-minutes: 20
     steps:
