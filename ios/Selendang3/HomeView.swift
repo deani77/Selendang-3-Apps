@@ -61,7 +61,7 @@ struct HomeView: View {
 
     private var homeHeading: some View {
         VStack(spacing: 6) {
-            Text("LADANG SELENDANG 3").font(.caption.weight(.semibold)).tracking(2)
+            Text(estate.reference?.estateName?.uppercased() ?? "ESTATE INFORMATION").font(.caption.weight(.semibold)).tracking(2)
                 .foregroundStyle(.secondary)
             Text("Planter’s Log")
                 .font(isPad ? .system(size: iPadHeadingSize, weight: .bold, design: .rounded) : .largeTitle.weight(.bold))
