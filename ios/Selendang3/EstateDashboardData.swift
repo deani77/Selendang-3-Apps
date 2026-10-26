@@ -384,19 +384,16 @@ struct EstateDashboardData {
     }
 
     var ffbQuality: EstateDashboardPanel {
-        var rows = ["Ripe","Underipe","Unripe","Reject"].map { [$0,"Pending","Pending"] }
+        var rows = ["Ripe (%)","Underipe (%)","Unripe (%)","Reject (mt)"].map { [$0,"Pending","Pending"] }
         var note = "Awaiting approved FFB quality records."
         if let report = reference?.ffbRejectReport, let date = reportDate(report.reportDate) {
             let sameMonth = reportCalendar.isDate(date, equalTo: today, toGranularity: .month)
             let sameYear = reportCalendar.isDate(date, equalTo: today, toGranularity: .year)
-            func percent(_ value: Double?) -> Double? { nonnegative(value).flatMap { $0 <= 100 ? $0 : nil } }
-            rows[3][1] = Self.number(sameMonth ? percent(report.totals.rejectMtdPercent) : nil)
-            rows[3][2] = Self.number(sameYear ? percent(report.totals.rejectYtdPercent) : nil)
-            note = "Reject report: " + report.reportDate + ". Report-month reject: " + Self.number(nonnegative(report.totals.rejectMtdMt)) +
-                " mt. Report YTD reject: " + Self.number(nonnegative(report.totals.rejectYtdMt)) +
-                " mt. YTD reject % needs matching YTD mill deliveries. Other quality categories remain Pending."
+            rows[3][1] = Self.number(sameMonth ? nonnegative(report.totals.rejectMtdMt) : nil)
+            rows[3][2] = Self.number(sameYear ? nonnegative(report.totals.rejectYtdMt) : nil)
+            note = "Reject report: " + report.reportDate + ". Rejected FFB quantities are shown in mt. Other quality categories remain Pending."
         }
-        return EstateDashboardPanel(title:"FFB Quality", headers:["Category","This Month (%)","YTD (%)"], rows:rows, note:note, unit:"%")
+        return EstateDashboardPanel(title:"FFB Quality", headers:["Category","This Month","YTD"], rows:rows, note:note)
     }
     var panels: [EstateDashboardPanel] {
         [ages,land("Terrain",title:"Topography"),yph,sph,land("Soil series",title:"Soil Type"),rainfall,workforce,ratios,costs,
