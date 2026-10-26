@@ -35,6 +35,7 @@ struct EstateReference: Decodable {
     let cropProductionReportHistory: [EstateCropReport]?
     let manuringReport: EstateManuringReport?
     let cropBudget: EstateCropBudget?
+    let ffbRejectReport: EstateFfbRejectReport?
     var estateName: String? {
         guard let overview = sections.first(where: { $0.id == "overview" }),
               let item = overview.columns.firstIndex(of: "Item"),
@@ -120,4 +121,15 @@ struct EstateCropBudgetMonth: Decodable {
     let year: Int
     let month: Int
     let tonnes: Double?
+}
+
+struct EstateFfbRejectReport: Decodable {
+    let reportDate: String
+    let totals: EstateFfbRejectTotals
+}
+struct EstateFfbRejectTotals: Decodable {
+    let rejectMtdMt: Double?
+    let rejectMtdPercent: Double?
+    let rejectYtdMt: Double?
+    let rejectYtdPercent: Double?
 }
