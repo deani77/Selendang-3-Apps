@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 
 private const val Pending = "—"
 
-/** Slide 1 layout only. No Berabong reference values are used as Selendang 3 data. */
+/** Estate details use saved server records; unavailable values remain Pending. */
 @Composable
 fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val ageProfile = remember(estateUpdate) { estateAgeProfile(estateUpdate) }
@@ -76,7 +76,7 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
                     Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    Text("ESTATE DETAILS · SELENDANG 3", fontWeight = FontWeight.Bold,
+                    Text(estateUpdate?.estateName?.let { "ESTATE DETAILS · ${it.uppercase(Locale.ROOT)}" } ?: "ESTATE DETAILS", fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge)
                     DashboardPanel("Estate Area") {
                         DashboardTable(listOf("Measure", "Area (ha)"), listOf(

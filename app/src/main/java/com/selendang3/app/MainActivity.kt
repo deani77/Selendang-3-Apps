@@ -96,7 +96,7 @@ fun EstateApp() {
                     TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
                 } else {
                     Spacer(Modifier.height(20.dp))
-                    Text("LADANG SELENDANG 3", modifier = Modifier.fillMaxWidth(),
+                    Text(estateUpdate?.estateName?.uppercase(java.util.Locale.ROOT) ?: "ESTATE INFORMATION", modifier = Modifier.fillMaxWidth(),
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center)
                 }

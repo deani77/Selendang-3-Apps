@@ -25,3 +25,26 @@ for address in ["http://example.com/v1/estates/selendang-3/snapshot", "https://u
     do { _ = try EstateSyncEndpoint(address:address,token:"example"); fatalError("Unsafe endpoint accepted") } catch {}
 }
 print("Estate reference validation checks passed")
+
+precondition(sample.estateName == nil)
+func namedEstate(_ rows: [[Any]], columns: [String] = ["Item","Details"]) throws -> EstateReference {
+    var fixture = estateFixture()
+    var tables = fixture["sections"] as! [[String:Any]]
+    tables[0] = ["id":"overview","columns":columns,"rows":rows]
+    fixture["sections"] = tables
+    return try EstateReference.parse(encoded(fixture))
+}
+let syncedName = try namedEstate([["Estate name","  Example Estate  "]])
+precondition(syncedName.estateName == "Example Estate")
+// Re-reading saved snapshot bytes derives the same name without an active connection.
+let savedName = try namedEstate([["Estate name","Example Estate"]])
+precondition(savedName.estateName == syncedName.estateName)
+for rows: [[Any]] in [[], [["Estate name",NSNull()]], [["Estate name",""]], [["Estate name"," "]],
+    [["Estate name","A"],["Estate name","B"]], [["Estate name","A\nB"]],
+    [["Estate name",String(repeating:"x",count:121)]]] {
+    let result = try namedEstate(rows)
+    precondition(result.estateName == nil)
+}
+let renamed = try namedEstate([["Estate name","Updated Estate"]])
+precondition(renamed.estateName == "Updated Estate")
+print("Synced estate name: missing/invalid/duplicate names, saved data and server rename checks passed")

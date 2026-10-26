@@ -9,9 +9,10 @@ class NavigationTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test fun detailsShowsPanelsAndPhoneDashboardOpensSummary() {
+        compose.onNodeWithText("ESTATE INFORMATION").assertIsDisplayed()
         compose.onNodeWithText("Crop Data (mt/ha)").assertDoesNotExist()
         compose.onNodeWithText("Estate Details").performScrollTo().performClick()
-        compose.onNodeWithText("ESTATE DETAILS · SELENDANG 3").assertIsDisplayed()
+        compose.onNodeWithText("ESTATE DETAILS").assertIsDisplayed()
         compose.onNodeWithText("Age Profile").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Rainfall").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("OER (%)").performScrollTo().assertIsDisplayed()
