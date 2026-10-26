@@ -262,7 +262,7 @@ private fun PeopleAndRainfallPanels(rainfall: List<AnnualRainfall>, workforce: E
 private fun ProductionPanels(ffbCost: FfbCostComparison?, quality: FfbQuality) {
     DashboardPanel("Kos FFB/TAN") { FfbCostPanel(ffbCost) }
     DashboardPanel("FFB Quality") {
-        DashboardTable(listOf("Category", "This Month (%)", "YTD (%)"), quality.rows)
+        DashboardTable(listOf("Category", "This Month", "YTD"), quality.rows)
         Text(quality.note, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
     }
     DashboardPanel("OER (%)") {
