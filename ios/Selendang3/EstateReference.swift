@@ -150,6 +150,7 @@ struct EstateManuringReport: Decodable {
 }
 
 struct EstateCropField: Decodable {
+    let areaHa: Double?
     let roundsMtd: Double?
     let mtPerHarvesterDayMtd: Double?
     let haPerHarvesterDayMtd: Double?

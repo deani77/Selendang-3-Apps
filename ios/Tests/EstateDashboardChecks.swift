@@ -224,9 +224,9 @@ var fieldReport = fieldFixture["cropProductionReport"] as! [String:Any]
 fieldReport["fields"] = [["field":"A","sentToMillMtdMt":120,"sentToMillYtdMt":1200,"roundsMtd":2.5,"mtPerHarvesterDayMtd":1.2,"haPerHarvesterDayMtd":3.4]]
 fieldFixture["cropProductionReport"] = fieldReport
 let fieldSummary = try cropTable(fieldFixture).fieldSummary(code:"A")!
-precondition(fieldSummary.groups.map(\.rows.count) == [2,5,2,2,2])
+precondition(fieldSummary.groups.map(\.rows.count) == [2,7,2,2,2])
 precondition(fieldSummary.groups[0].rows.map(\.value) == ["A","100.00"])
-precondition(fieldSummary.groups[1].rows.map(\.value) == ["100.00","1000.00","1200.00","120.00","1200.00"])
+precondition(fieldSummary.groups[1].rows.prefix(5).map(\.value) == ["100.00","1000.00","1200.00","120.00","1200.00"])
 precondition(fieldSummary.groups[3].rows.map(\.value) == ["5","2.50"])
 precondition(fieldSummary.crewNote.contains("4.76 harvesters"))
 precondition(fieldSummary.groups[4].rows.map(\.value) == ["1.20","3.40"])
@@ -320,3 +320,40 @@ qualityFixture["ffbRejectReport"] = ["reportDate":"2026-10-21","totals":["reject
 let invalidQuality = panel("FFB Quality",try dashboard(qualityFixture))
 precondition(invalidQuality.rows[3] == ["Reject (mt)","Pending","Pending"])
 print("FFB reject tonnes: source mass above 100, percentage independence, zero/missing/negative and dated month/year handling passed")
+
+func pastFieldReport(_ date: String, tonnes: Any = 1000, area: Any = 50, code: String = "A") -> [String:Any] {
+    ["reportDate":date, "fields":[["field":code,"sentToMillYtdMt":tonnes,"areaHa":area]], "totals":[:]]
+}
+func previousYearRows(_ history: [[String:Any]], code: String = "A", date: String = "2026-10-21", now: Date = october) throws -> [FieldCropSummaryRow] {
+    var input = fieldFixture
+    var report = input["cropProductionReport"] as! [String:Any]
+    report["reportDate"] = date; input["cropProductionReport"] = report
+    input["cropProductionReportHistory"] = history
+    return Array(try cropTable(input,date:now).fieldSummary(code:code)!.groups[1].rows.suffix(2))
+}
+let previousHistory = [pastFieldReport("2025-12-31",tonnes:1000,area:50), pastFieldReport("2025-10-21",tonnes:600,area:40)]
+let previousRows = try previousYearRows(previousHistory)
+precondition(previousRows.map(\.value) == ["20.00","15.00"])
+precondition(previousRows.map(\.label) == ["Last Year Full Year · 2025 (mt/ha)", "Last Year Same-Period YTD · through 2025-10-21 (mt/ha)"])
+let wrongFieldHistory = try previousYearRows(previousHistory,code:"B")
+precondition(wrongFieldHistory.allSatisfy { $0.value == "Pending" })
+let futureHistory = try previousYearRows(previousHistory,now:august)
+precondition(futureHistory.allSatisfy { $0.value == "Pending" })
+let zeroHistory = try previousYearRows([pastFieldReport("2025-12-31",tonnes:0)])
+precondition(zeroHistory[0].value == "0.00")
+var duplicateFieldReport = pastFieldReport("2025-12-31")
+let historicalField = (duplicateFieldReport["fields"] as! [[String:Any]])[0]
+duplicateFieldReport["fields"] = [historicalField,historicalField]
+for history in [[], [pastFieldReport("2025-12-30")], [pastFieldReport("2025-10-20")],
+    [pastFieldReport("2025-12-31"),pastFieldReport("2025-12-31")], [duplicateFieldReport],
+    [pastFieldReport("2025-12-31",area:0)], [pastFieldReport("2025-12-31",area:NSNull())],
+    [pastFieldReport("2025-12-31",tonnes: -1)], [pastFieldReport("2025-12-31",tonnes:NSNull())]] {
+    let rows = try previousYearRows(history)
+    precondition(rows.allSatisfy { $0.value == "Pending" })
+}
+let leapHistory = try previousYearRows([pastFieldReport("2023-02-28",tonnes:600,area:40)],date:"2024-02-29")
+precondition(leapHistory[1].value == "15.00" && leapHistory[1].label.contains("2023-02-28"))
+let endYear = DateFormatter(); endYear.dateFormat = "yyyy-MM-dd"; endYear.timeZone = TimeZone(identifier:"Asia/Kuala_Lumpur")
+let decemberHistory = try previousYearRows([pastFieldReport("2025-12-31")],date:"2026-12-31",now:endYear.date(from:"2026-12-31")!)
+precondition(decemberHistory.map(\.value) == ["20.00","20.00"])
+print("Previous-year field yield: full year, exact YTD cutoff, historical hectares, zero, missing/duplicate values and leap years passed")
