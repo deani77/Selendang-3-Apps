@@ -1,6 +1,8 @@
 package com.selendang3.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -57,19 +59,90 @@ fun FieldDetailsScreen(update: EstatePackage?) {
 
 @Composable
 fun UpkeepCultivationScreen(update: EstatePackage?) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Upkeep and Cultivation Dashboard", style = MaterialTheme.typography.titleLarge)
-                Text("Weeding progress: Pending")
-                val manuring = operationalDashboardCards(update, estateRainfallToday())[3]
-                Text("Manuring progress: ${manuring.metrics[0].value} %")
-                Text(manuring.period, style = MaterialTheme.typography.bodySmall)
-                Text("Pest and disease work: Pending")
+    var selectedWork by rememberSaveable { mutableStateOf<String?>(null) }
+    val work = selectedWork
+    BackHandler(enabled = work != null) { selectedWork = null }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (work == null) {
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Upkeep and Cultivation Dashboard", style = MaterialTheme.typography.titleLarge)
+                    Text("Weeding progress: Pending")
+                    val manuring = operationalDashboardCards(update, estateRainfallToday())[3]
+                    Text("Manuring progress: ${manuring.metrics[0].value} %")
+                    Text(manuring.period, style = MaterialTheme.typography.bodySmall)
+                    Text("Pest and Disease: Pending")
+                    Text("Water management: Pending")
+                    Text("Road management: Pending")
+                }
+            }
+            Text("Major Upkeep Work", style = MaterialTheme.typography.titleLarge)
+            listOf("Weeding", "Manuring", "Pest and Disease", "Water management", "Road management", "Others").forEach { category ->
+                FilledTonalButton(onClick = { selectedWork = category }, modifier = Modifier.fillMaxWidth()) {
+                    Text(category)
+                }
+            }
+        } else {
+            TextButton(onClick = { selectedWork = null }) { Text("‹ Major Upkeep Work") }
+            Text(work, style = MaterialTheme.typography.titleLarge)
+            if (work == "Others") {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Other Necessary Work", style = MaterialTheme.typography.titleMedium)
+                        Text("Additional upkeep work will appear here when verified records are available.")
+                        Text("Work records: Pending")
+                    }
+                }
+            } else {
+                UpkeepFieldWorkContent(update, work)
             }
         }
-        Text("Weeding, manuring, pest and disease management, and other estate upkeep and cultivation work.")
-        Text("Crop production activities are recorded under Crop Production.")
-        Text("Work records and additional dashboard measures are awaiting approved inputs.")
+    }
+}
+
+@Composable
+private fun UpkeepFieldWorkContent(update: EstatePackage?, work: String) {
+    var selectedField by rememberSaveable(work) { mutableStateOf<String?>(null) }
+    val codes = estateFieldCodes(update)
+    val field = selectedField?.takeIf { it in codes } ?: codes.firstOrNull()
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Fields", style = MaterialTheme.typography.titleMedium)
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            codes.forEach { code ->
+                FilterChip(selected = field == code, onClick = { selectedField = code },
+                    label = { Text(code) }, shape = androidx.compose.foundation.shape.CircleShape)
+            }
+        }
+        if (codes.isEmpty()) {
+            Text("Import estate records through Settings → Estate Data Sync to see fields.")
+        } else if (field == null) {
+            Text("Select a field to view its details and upkeep and cultivation records.")
+        }
+        if (field != null) {
+            Text("Field $field", style = MaterialTheme.typography.titleLarge)
+            estateFieldTables(update, field).forEach { table ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(estateSections.firstOrNull { it.route == table.id }?.title ?: table.id,
+                            style = MaterialTheme.typography.titleMedium)
+                        table.rows.forEach { row ->
+                            table.columns.forEachIndexed { index, label ->
+                                Text("$label: ${row.getOrNull(index) ?: "Pending"}")
+                            }
+                        }
+                    }
+                }
+            }
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("$work · $field", style = MaterialTheme.typography.titleMedium)
+                    Text("$work work: Pending")
+                    Text("Awaiting verified ${work.lowercase()} records for this field.",
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
     }
 }
