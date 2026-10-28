@@ -91,6 +91,7 @@ object EstatePackages {
             EstateTable(id, columns, rows)
         }
         require(tables.map { it.id }.toSet() == sectionIds) { "Duplicate or missing estate sections." }
+        validateSourceFieldProfiles(root)
         val yph = if (root.has("yph") && !root.isNull("yph")) parseYph(root.getJSONObject("yph")) else null
         return EstatePackage(revision, period, exported, tables, root.toString(), yph)
     }
