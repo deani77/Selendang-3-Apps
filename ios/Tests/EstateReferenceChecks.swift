@@ -63,3 +63,45 @@ for rows: [[Any]] in [[], [["Estate name",NSNull()]], [["Estate name",""]], [["E
 let renamed = try namedEstate([["Estate name","Updated Estate"]])
 precondition(renamed.estateName == "Updated Estate")
 print("Synced estate name: missing/invalid/duplicate names, saved data and server rename checks passed")
+
+let validProfile = (withProfiles["fieldProfiles"] as! [[String:Any]])[0]
+func assertRejectedProfiles(_ profiles: Any) throws {
+    var fixture = estateFixture()
+    fixture["fieldProfiles"] = profiles
+    do { _ = try EstateReference.parse(encoded(fixture)); fatalError("Malformed profile accepted: \(profiles)") } catch {}
+}
+func changedProfile(_ change: (inout [String:Any]) -> Void) -> [[String:Any]] {
+    var profile = validProfile
+    change(&profile)
+    return [profile]
+}
+try assertRejectedProfiles([validProfile, validProfile])
+try assertRejectedProfiles([NSNull()])
+try assertRejectedProfiles([String:Any]())
+for key in ["reportYear", "blocks", "maturity", "divisionPalmHeightM"] {
+    try assertRejectedProfiles(changedProfile { $0.removeValue(forKey: key) })
+}
+for year: Any in ["2027", 2027.5, 0, 10000, NSNull()] {
+    try assertRejectedProfiles(changedProfile { $0["reportYear"] = year })
+}
+try assertRejectedProfiles(changedProfile { $0["divisionPalmHeightM"] = -1 })
+try assertRejectedProfiles(changedProfile { $0["plantedAreaHa"] = "10" })
+try assertRejectedProfiles(changedProfile { $0["blocks"] = [String:Any]() })
+try assertRejectedProfiles(changedProfile { $0["blocks"] = [NSNull()] })
+let validBlock = (validProfile["blocks"] as! [[String:Any]])[0]
+for key in ["blockId", "blockName", "harvestingYear"] {
+    var block = validBlock; block.removeValue(forKey: key)
+    try assertRejectedProfiles(changedProfile { $0["blocks"] = [block] })
+}
+var wrongSoil = validBlock; wrongSoil["soilCode"] = 1
+try assertRejectedProfiles(changedProfile { $0["blocks"] = [wrongSoil] })
+try assertRejectedProfiles(changedProfile { $0["blocks"] = [validBlock, validBlock] })
+for profiles: Any in [NSNull(), [[String:Any]]()] {
+    var fixture = estateFixture(); fixture["fieldProfiles"] = profiles
+    let parsed = try EstateReference.parse(encoded(fixture))
+    precondition(parsed.sections.count == sample.sections.count)
+}
+let reloadedProfiles = try EstateReference.parse(encoded(withProfiles))
+precondition(reloadedProfiles.fieldProfiles![0].reportYear == 2027)
+precondition(reloadedProfiles.fieldProfiles![0].divisionPalmHeightM == 0)
+print("Profile validation rejects malformed/duplicate facts and retains 2027, measured zero and legacy snapshots")

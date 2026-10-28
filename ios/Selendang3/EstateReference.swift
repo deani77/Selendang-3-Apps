@@ -64,6 +64,12 @@ struct EstateReference: Decodable {
                 throw ProductionError.invalid("Invalid estate table.")
             }
         }
+        if let profiles = result.fieldProfiles {
+            let codes = profiles.map { $0.fieldCode.trimmingCharacters(in: .whitespacesAndNewlines) }
+            guard Set(codes).count == codes.count, profiles.allSatisfy({ $0.isValid }) else {
+                throw ProductionError.invalid("Invalid or duplicate field profile. Check source field and block details.")
+            }
+        }
         return result
     }
 }
@@ -86,6 +92,24 @@ struct EstateSourceBlock: Decodable {
     let soilCode: String?
     let harvestingYear: Int
     let sourceNote: String?
+}
+
+private func profileText(_ value: String) -> Bool {
+    !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+}
+private func profileMeasures(_ values: [Double]) -> Bool {
+    values.allSatisfy { $0.isFinite && $0 >= 0 }
+}
+extension EstateSourceFieldProfile {
+    var isValid: Bool {
+        let ids = blocks.map { $0.blockId.trimmingCharacters(in: .whitespacesAndNewlines) }
+        return profileText(fieldCode) && profileText(maturity) && (1...9999).contains(reportYear) &&
+            profileMeasures([plantedAreaHa, unplantedAreaHa, divisionStandsPerHa, divisionPalmHeightM]) &&
+            Set(ids).count == ids.count && blocks.allSatisfy {
+                profileText($0.blockId) && profileText($0.blockName) && (1...9999).contains($0.harvestingYear) &&
+                    profileMeasures([$0.plantedAreaHa, $0.unplantedAreaHa])
+            }
+    }
 }
 
 struct EstateSyncEndpoint {

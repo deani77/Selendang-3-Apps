@@ -5,7 +5,15 @@ import org.json.JSONObject
 // Display-only source facts; they do not replace operational areas or infer palm counts.
 fun sourceFieldProfileTables(update: EstatePackage?, code: String): List<EstateTable> {
     if (code !in estateFieldCodes(update)) return emptyList()
-    val profiles = update?.let { JSONObject(it.json).optJSONArray("fieldProfiles") } ?: return emptyList()
+    val json = update?.json ?: return emptyList()
+    return try { sourceProfileTables(JSONObject(json), code) }
+    catch (_: org.json.JSONException) { emptyList() }
+    catch (_: IllegalArgumentException) { emptyList() } // Older saved extensions must never crash Field Details.
+}
+
+private fun sourceProfileTables(root: JSONObject, code: String): List<EstateTable> {
+    validateSourceFieldProfiles(root)
+    val profiles = root.optJSONArray("fieldProfiles") ?: return emptyList()
     val matches = (0 until profiles.length()).map { profiles.getJSONObject(it) }.filter { it.optString("fieldCode") == code }
     val profile = matches.singleOrNull() ?: return emptyList()
     fun value(obj: JSONObject, key: String): String? = if (obj.isNull(key)) null else obj.get(key).toString()
@@ -50,5 +58,51 @@ private fun fieldRecordTables(update: EstatePackage?, code: String, crop: Boolea
             else -> return@mapNotNull null
         }
         if (indices.isEmpty()) null else table.copy(columns = indices.map { table.columns[it] }, rows = rows.map { row -> indices.map { row[it] } })
+    }
+}
+
+// Validate optional source facts at import, before saving or presenting them.
+internal fun validateSourceFieldProfiles(root: JSONObject) {
+    if (root.isNull("fieldProfiles")) return
+    val profiles = root.optJSONArray("fieldProfiles")
+    require(profiles != null) { "fieldProfiles must be an array." }
+    fun text(obj: JSONObject, key: String): String {
+        val value = obj.opt(key)
+        require(value is String && value.isNotBlank()) { "Invalid profile $key." }
+        return value
+    }
+    fun year(obj: JSONObject, key: String) {
+        val number = obj.opt(key) as? Number
+        require(number != null && number.toDouble().isFinite() &&
+            number.toDouble() in 1.0..9999.0 && number.toDouble() == kotlin.math.floor(number.toDouble())) {
+            "Invalid profile $key."
+        }
+    }
+    fun measures(obj: JSONObject, keys: List<String>) = keys.forEach { key ->
+        val value = obj.opt(key) as? Number
+        require(value != null && value.toDouble().isFinite() && value.toDouble() >= 0) { "Invalid profile $key." }
+    }
+    val codes = mutableSetOf<String>()
+    for (i in 0 until profiles.length()) {
+        val profile = profiles.optJSONObject(i)
+        require(profile != null) { "Invalid field profile." }
+        require(codes.add(text(profile, "fieldCode").trim())) { "Duplicate profile field code." }
+        text(profile, "maturity")
+        year(profile, "reportYear")
+        measures(profile, listOf("plantedAreaHa", "unplantedAreaHa", "divisionStandsPerHa", "divisionPalmHeightM"))
+        val blocks = profile.optJSONArray("blocks")
+        require(blocks != null) { "Profile blocks must be an array." }
+        val ids = mutableSetOf<String>()
+        for (j in 0 until blocks.length()) {
+            val block = blocks.optJSONObject(j)
+            require(block != null) { "Invalid profile block." }
+            require(ids.add(text(block, "blockId").trim())) { "Duplicate profile block identifier." }
+            text(block, "blockName")
+            year(block, "harvestingYear")
+            measures(block, listOf("plantedAreaHa", "unplantedAreaHa"))
+            for (key in listOf("soilCode", "sourceNote")) {
+                require(block.isNull(key) || block.opt(key) is String) { "Invalid profile $key." }
+            }
+        }
     }
 }
