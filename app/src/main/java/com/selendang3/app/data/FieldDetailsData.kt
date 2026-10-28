@@ -1,5 +1,26 @@
 package com.selendang3.app.data
 
+import org.json.JSONObject
+
+// Display-only source facts; they do not replace operational areas or infer palm counts.
+fun sourceFieldProfileTables(update: EstatePackage?, code: String): List<EstateTable> {
+    if (code !in estateFieldCodes(update)) return emptyList()
+    val profiles = update?.let { JSONObject(it.json).optJSONArray("fieldProfiles") } ?: return emptyList()
+    val matches = (0 until profiles.length()).map { profiles.getJSONObject(it) }.filter { it.optString("fieldCode") == code }
+    val profile = matches.singleOrNull() ?: return emptyList()
+    fun value(obj: JSONObject, key: String): String? = if (obj.isNull(key)) null else obj.get(key).toString()
+    val summary = EstateTable("Source profile · ${profile.getInt("reportYear")}",
+        listOf("Planted area (ha)", "Unplanted area (ha)", "Division stands/ha", "Division palm height (m)", "Maturity"),
+        listOf(listOf("plantedAreaHa", "unplantedAreaHa", "divisionStandsPerHa", "divisionPalmHeightM", "maturity").map { value(profile, it) }))
+    val blocks = profile.getJSONArray("blocks")
+    return listOf(summary) + (0 until blocks.length()).map { index ->
+        val block = blocks.getJSONObject(index)
+        EstateTable("Block ${block.getString("blockName")}",
+            listOf("Block identifier", "Planted area (ha)", "Unplanted area (ha)", "Soil code", "Harvesting year", "Source note"),
+            listOf(listOf("blockId", "plantedAreaHa", "unplantedAreaHa", "soilCode", "harvestingYear", "sourceNote").map { value(block, it) }))
+    }
+}
+
 fun estateFieldCodes(update: EstatePackage?): List<String> {
     val table = update?.tables?.firstOrNull { it.id == "fields" } ?: return emptyList()
     val column = table.columns.indexOf("Field code")

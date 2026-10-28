@@ -30,6 +30,7 @@ struct EstateReference: Decodable {
     let reportingPeriod: String
     let exportedAt: String
     let sections: [EstateReferenceTable]
+    let fieldProfiles: [EstateSourceFieldProfile]?
     let yph: EstateYph?
     let cropProductionReport: EstateCropReport?
     let cropProductionReportHistory: [EstateCropReport]?
@@ -65,6 +66,26 @@ struct EstateReference: Decodable {
         }
         return result
     }
+}
+
+struct EstateSourceFieldProfile: Decodable {
+    let fieldCode: String
+    let reportYear: Int
+    let plantedAreaHa: Double
+    let unplantedAreaHa: Double
+    let divisionStandsPerHa: Double
+    let divisionPalmHeightM: Double
+    let maturity: String
+    let blocks: [EstateSourceBlock]
+}
+struct EstateSourceBlock: Decodable {
+    let blockId: String
+    let blockName: String
+    let plantedAreaHa: Double
+    let unplantedAreaHa: Double
+    let soilCode: String?
+    let harvestingYear: Int
+    let sourceNote: String?
 }
 
 struct EstateSyncEndpoint {

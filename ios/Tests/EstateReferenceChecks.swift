@@ -26,6 +26,21 @@ for address in ["http://example.com/v1/estates/selendang-3/snapshot", "https://u
 }
 print("Estate reference validation checks passed")
 
+precondition(sample.fieldProfiles == nil)
+var withProfiles = estateFixture()
+withProfiles["fieldProfiles"] = [["fieldCode":"EXAMPLE", "reportYear":2027,
+    "plantedAreaHa":10.5, "unplantedAreaHa":1.25, "divisionStandsPerHa":120,
+    "divisionPalmHeightM":0, "maturity":"MATURED", "blocks":[[
+        "blockId":"EXAMPLE01", "blockName":"01", "plantedAreaHa":10.5,
+        "unplantedAreaHa":1.25, "soilCode":NSNull(), "harvestingYear":2015,
+        "sourceNote":NSNull()]]] as [String:Any]]
+let sourceProfile = try EstateReference.parse(encoded(withProfiles)).fieldProfiles!.first!
+precondition(sourceProfile.divisionPalmHeightM == 0)
+precondition(sourceProfile.blocks[0].soilCode == nil)
+precondition(sourceProfile.blocks[0].harvestingYear == 2015)
+precondition(sourceProfile.blocks[0].sourceNote == nil)
+print("Optional field profiles preserve source zero, missing soil and harvesting year")
+
 precondition(sample.estateName == nil)
 func namedEstate(_ rows: [[Any]], columns: [String] = ["Item","Details"]) throws -> EstateReference {
     var fixture = estateFixture()

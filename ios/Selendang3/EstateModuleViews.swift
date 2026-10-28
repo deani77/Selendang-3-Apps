@@ -49,6 +49,26 @@ struct FieldDetailsView: View {
                     ForEach(estateFieldCodes(estate.reference), id: \.self) { code in
                         NavigationLink {
                             List {
+                                if let profile = estate.reference?.fieldProfiles?.first(where: { $0.fieldCode == code }) {
+                                    Section("Source profile · \(String(profile.reportYear))") {
+                                        LabeledContent("Planted area (ha)", value: EstateDashboardData.number(profile.plantedAreaHa))
+                                        LabeledContent("Unplanted area (ha)", value: EstateDashboardData.number(profile.unplantedAreaHa))
+                                        LabeledContent("Division stands/ha", value: EstateDashboardData.number(profile.divisionStandsPerHa))
+                                        LabeledContent("Division palm height (m)", value: EstateDashboardData.number(profile.divisionPalmHeightM))
+                                        LabeledContent("Maturity", value: profile.maturity)
+                                        Text("Report year 2027 · source dated 28 Oct 2026. Density and height apply to the division.").font(.footnote).foregroundStyle(.secondary)
+                                    }
+                                    ForEach(profile.blocks, id: \.blockId) { block in
+                                        Section("Block " + block.blockName) {
+                                            LabeledContent("Block identifier", value: block.blockId)
+                                            LabeledContent("Planted area (ha)", value: EstateDashboardData.number(block.plantedAreaHa))
+                                            LabeledContent("Unplanted area (ha)", value: EstateDashboardData.number(block.unplantedAreaHa))
+                                            LabeledContent("Soil code", value: block.soilCode ?? "Pending")
+                                            LabeledContent("Harvesting year", value: String(block.harvestingYear))
+                                            if let note = block.sourceNote { Text(note).font(.footnote).foregroundStyle(.secondary) }
+                                        }
+                                    }
+                                }
                                 let tables = estateFieldTables(estate.reference, code: code)
                                 ForEach(tables) { table in
                                     Section(table.title) {
