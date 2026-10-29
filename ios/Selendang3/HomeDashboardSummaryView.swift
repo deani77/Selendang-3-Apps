@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct HomeDashboardScreen: View {
+    @ObservedObject private var estate = EstateReferenceStore.shared
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     var body: some View {
         Group {
             if isPad {
-                ScrollView { IPadHomeDashboardCard().padding(20) }
+                ScrollView { VStack { IPadHomeDashboardCard(); CropHistoryView(history: estate.reference?.cropHistory) }.padding(20) }
             } else {
                 OperationalDashboardGrid()
             }
@@ -67,6 +68,7 @@ private struct OperationalDashboardGrid: View {
                     Spacer(minLength: 4)
                     Text(card.rows[3][1] + " " + card.rows[3][2]).fontWeight(.semibold).monospacedDigit()
                 }.font(.caption)
+                NavigationLink("Crop History") { ProductionView() }
             } else if wide {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(card.rows.indices, id: \.self) { row in
