@@ -157,6 +157,23 @@ struct EstateCropField: Decodable {
     let field: String
     let sentToMillMtdMt: Double?
     let sentToMillYtdMt: Double?
+
+    private enum CodingKeys: String, CodingKey {
+        case areaHa, roundsMtd, mtPerHarvesterDayMtd, haPerHarvesterDayMtd
+        case field, sentToMillMtdMt, sentToMillYtdMt
+    }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        // An unusable optional historical area leaves yield pending, without
+        // preventing the rest of an existing estate snapshot from loading.
+        areaHa = try? values.decode(Double.self, forKey: .areaHa)
+        roundsMtd = try values.decodeIfPresent(Double.self, forKey: .roundsMtd)
+        mtPerHarvesterDayMtd = try values.decodeIfPresent(Double.self, forKey: .mtPerHarvesterDayMtd)
+        haPerHarvesterDayMtd = try values.decodeIfPresent(Double.self, forKey: .haPerHarvesterDayMtd)
+        field = try values.decode(String.self, forKey: .field)
+        sentToMillMtdMt = try values.decodeIfPresent(Double.self, forKey: .sentToMillMtdMt)
+        sentToMillYtdMt = try values.decodeIfPresent(Double.self, forKey: .sentToMillYtdMt)
+    }
 }
 struct EstateCropBudget: Decodable {
     let year: Int

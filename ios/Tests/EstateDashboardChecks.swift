@@ -357,3 +357,17 @@ let endYear = DateFormatter(); endYear.dateFormat = "yyyy-MM-dd"; endYear.timeZo
 let decemberHistory = try previousYearRows([pastFieldReport("2025-12-31")],date:"2026-12-31",now:endYear.date(from:"2026-12-31")!)
 precondition(decemberHistory.map(\.value) == ["20.00","20.00"])
 print("Previous-year field yield: full year, exact YTD cutoff, historical hectares, zero, missing/duplicate values and leap years passed")
+
+for invalidArea: Any in ["50", true, [50], ["value":50]] {
+    let rows = try previousYearRows([pastFieldReport("2025-12-31", area:invalidArea),
+        pastFieldReport("2025-10-21", tonnes:600, area:40)])
+    precondition(rows.map(\.value) == ["Pending", "15.00"])
+    var input = fieldFixture
+    var current = input["cropProductionReport"] as! [String:Any]
+    var fields = current["fields"] as! [[String:Any]]
+    fields[0]["areaHa"] = invalidArea
+    current["fields"] = fields; input["cropProductionReport"] = current
+    let summary = try cropTable(input).fieldSummary(code:"A")!
+    precondition(summary.groups[1].rows[4].value == "1200.00")
+}
+print("Invalid optional historical/current field area preserves snapshot loading and unrelated crop values")
