@@ -90,8 +90,8 @@ private fun fieldAbwSummary(update: EstatePackage?, today: LocalDate, code: Stri
 }
 private fun previousYearCropRows(update: EstatePackage?, reportDate: String?, code: String): List<FieldCropSummaryRow> {
     val current = reportDate?.let(LocalDate::parse)
-    val cutoff = current?.minusYears(1)
-    val annual = cutoff?.withMonth(12)?.withDayOfMonth(31)
+    val cutoff = current?.minusYears(1)?.withDayOfMonth(1)?.minusDays(1)
+    val annual = current?.minusYears(1)?.withMonth(12)?.withDayOfMonth(31)
     val history = update?.let { JSONObject(it.json).optJSONArray("cropProductionReportHistory") }
     fun yieldAt(date: LocalDate?): String {
         if (date == null) return "Pending"
@@ -133,7 +133,7 @@ fun fieldCropSummary(update: EstatePackage?, today: LocalDate, code: String): Fi
         FieldCropSummaryGroup("Crop Budget and Actual", listOf(
             FieldCropSummaryRow("Budget This Month (mt)", field.values[0]), FieldCropSummaryRow("Budget YTD (mt)", field.values[1]),
             FieldCropSummaryRow("Year Budget (mt)", field.values[2]), FieldCropSummaryRow("Actual MTD (mt)", field.values[6]), FieldCropSummaryRow("Actual YTD (mt)", field.values[7])) + previousYearCropRows(update, table.reportDate, code),
-            "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD uses the same reporting date one year earlier; full year uses 31 December. Missing or ambiguous records remain Pending."),
+            "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD runs through the last completed month, one year earlier; full year uses 31 December. Missing or ambiguous records remain Pending."),
         fieldAbwSummary(update, today, code),
         FieldCropSummaryGroup("Harvesting", listOf(FieldCropSummaryRow("Required Harvesters (people)", crew), FieldCropSummaryRow("Harvesting Rounds This Month (rounds)", label("roundsMtd")))),
         FieldCropSummaryGroup("Harvester Productivity", listOf(FieldCropSummaryRow("Tonnes per mandays (mt/manday)", label("mtPerHarvesterDayMtd")), FieldCropSummaryRow("Hectare per mandays (ha/manday)", label("haPerHarvesterDayMtd"))))

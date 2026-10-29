@@ -70,11 +70,11 @@ class FieldCropSummaryTest {
         return fieldCropSummary(original.copy(json = root.toString()), now, code)!!.groups[1].rows.takeLast(2)
     }
     @Test fun previousYearShowsFullYearAndMatchingCutoffUsingHistoricalArea() {
-        val history = JSONArray().put(pastReport("2025-12-31", 1000, 50)).put(pastReport("2025-10-21", 600, 40))
+        val history = JSONArray().put(pastReport("2025-12-31", 1000, 50)).put(pastReport("2025-09-30", 600, 40))
         val rows = previousRows(history)
         assertEquals(listOf("20.00", "15.00"), rows.map { it.value })
         assertEquals(listOf("Last Year Full Year · 2025 (mt/ha)",
-            "Last Year Same-Period YTD · through 2025-10-21 (mt/ha)"), rows.map { it.label })
+            "Last Year Same-Period YTD · through 2025-09-30 (mt/ha)"), rows.map { it.label })
         assertTrue(previousRows(history, "B").all { it.value == "Pending" })
         assertTrue(previousRows(history, now = LocalDate.of(2026, 8, 1)).all { it.value == "Pending" })
         assertEquals("0.00", previousRows(JSONArray().put(pastReport("2025-12-31", 0)))[0].value)
@@ -94,14 +94,30 @@ class FieldCropSummaryTest {
             assertTrue(previousRows(history).all { it.value == "Pending" })
         }
     }
-    @Test fun previousYearLeapDayUsesFebruary28AndReportYearInsteadOfDeviceYear() {
-        val rows = previousRows(JSONArray().put(pastReport("2023-02-28", 600, 40)),
+    @Test fun completedMonthHandlesBoundariesLeapMonthAndJanuaryRollover() {
+        for (date in listOf("2026-10-01", "2026-10-31")) {
+            val rows = previousRows(JSONArray().put(pastReport("2025-09-30", 600, 40)),
+                date = date, now = LocalDate.of(2026, 12, 31))
+            assertEquals("15.00", rows[1].value)
+            assertTrue(rows[1].label.contains("2025-09-30"))
+        }
+        val march = previousRows(JSONArray().put(pastReport("2024-02-29")), date = "2025-03-15")
+        assertEquals("20.00", march[1].value)
+        assertTrue(march[1].label.contains("2024-02-29"))
+        val january = previousRows(JSONArray().put(pastReport("2025-12-31", 1000))
+            .put(pastReport("2024-12-31", 600)), date = "2026-01-15")
+        assertEquals(listOf("20.00", "12.00"), january.map { it.value })
+        assertTrue(january[1].label.contains("2024-12-31"))
+        assertEquals("Pending", previousRows(JSONArray().put(pastReport("2025-10-21")))[1].value)
+    }
+    @Test fun previousYearUsesCompletedMonthAndReportYearInsteadOfDeviceYear() {
+        val rows = previousRows(JSONArray().put(pastReport("2023-01-31", 600, 40)),
             date = "2024-02-29", now = LocalDate.of(2026, 10, 24))
         assertEquals("15.00", rows[1].value)
-        assertTrue(rows[1].label.contains("2023-02-28"))
+        assertTrue(rows[1].label.contains("2023-01-31"))
         val december = previousRows(JSONArray().put(pastReport("2025-12-31")),
             date = "2026-12-31", now = LocalDate.of(2026, 12, 31))
-        assertEquals(listOf("20.00", "20.00"), december.map { it.value })
+        assertEquals(listOf("20.00", "Pending"), december.map { it.value })
     }
 
 }

@@ -331,10 +331,10 @@ func previousYearRows(_ history: [[String:Any]], code: String = "A", date: Strin
     input["cropProductionReportHistory"] = history
     return Array(try cropTable(input,date:now).fieldSummary(code:code)!.groups[1].rows.suffix(2))
 }
-let previousHistory = [pastFieldReport("2025-12-31",tonnes:1000,area:50), pastFieldReport("2025-10-21",tonnes:600,area:40)]
+let previousHistory = [pastFieldReport("2025-12-31",tonnes:1000,area:50), pastFieldReport("2025-09-30",tonnes:600,area:40)]
 let previousRows = try previousYearRows(previousHistory)
 precondition(previousRows.map(\.value) == ["20.00","15.00"])
-precondition(previousRows.map(\.label) == ["Last Year Full Year · 2025 (mt/ha)", "Last Year Same-Period YTD · through 2025-10-21 (mt/ha)"])
+precondition(previousRows.map(\.label) == ["Last Year Full Year · 2025 (mt/ha)", "Last Year Same-Period YTD · through 2025-09-30 (mt/ha)"])
 let wrongFieldHistory = try previousYearRows(previousHistory,code:"B")
 precondition(wrongFieldHistory.allSatisfy { $0.value == "Pending" })
 let futureHistory = try previousYearRows(previousHistory,now:august)
@@ -351,16 +351,16 @@ for history in [[], [pastFieldReport("2025-12-30")], [pastFieldReport("2025-10-2
     let rows = try previousYearRows(history)
     precondition(rows.allSatisfy { $0.value == "Pending" })
 }
-let leapHistory = try previousYearRows([pastFieldReport("2023-02-28",tonnes:600,area:40)],date:"2024-02-29")
-precondition(leapHistory[1].value == "15.00" && leapHistory[1].label.contains("2023-02-28"))
+let leapHistory = try previousYearRows([pastFieldReport("2023-01-31",tonnes:600,area:40)],date:"2024-02-29")
+precondition(leapHistory[1].value == "15.00" && leapHistory[1].label.contains("2023-01-31"))
 let endYear = DateFormatter(); endYear.dateFormat = "yyyy-MM-dd"; endYear.timeZone = TimeZone(identifier:"Asia/Kuala_Lumpur")
 let decemberHistory = try previousYearRows([pastFieldReport("2025-12-31")],date:"2026-12-31",now:endYear.date(from:"2026-12-31")!)
-precondition(decemberHistory.map(\.value) == ["20.00","20.00"])
-print("Previous-year field yield: full year, exact YTD cutoff, historical hectares, zero, missing/duplicate values and leap years passed")
+precondition(decemberHistory.map(\.value) == ["20.00","Pending"])
+print("Previous-year field yield: full year, completed-month YTD cutoff, historical hectares, zero, missing/duplicate values and leap years passed")
 
 for invalidArea: Any in ["50", true, [50], ["value":50]] {
     let rows = try previousYearRows([pastFieldReport("2025-12-31", area:invalidArea),
-        pastFieldReport("2025-10-21", tonnes:600, area:40)])
+        pastFieldReport("2025-09-30", tonnes:600, area:40)])
     precondition(rows.map(\.value) == ["Pending", "15.00"])
     var input = fieldFixture
     var current = input["cropProductionReport"] as! [String:Any]
@@ -371,3 +371,17 @@ for invalidArea: Any in ["50", true, [50], ["value":50]] {
     precondition(summary.groups[1].rows[4].value == "1200.00")
 }
 print("Invalid optional historical/current field area preserves snapshot loading and unrelated crop values")
+
+for reportDate in ["2026-10-01", "2026-10-31"] {
+    let rows = try previousYearRows(previousHistory, date:reportDate, now:endYear.date(from:"2026-12-31")!)
+    precondition(rows[1].value == "15.00" && rows[1].label.contains("2025-09-30"))
+}
+let marchRows = try previousYearRows([pastFieldReport("2024-02-29")], date:"2025-03-15")
+precondition(marchRows[1].value == "20.00" && marchRows[1].label.contains("2024-02-29"))
+let januaryRows = try previousYearRows([pastFieldReport("2025-12-31", tonnes:1000),
+    pastFieldReport("2024-12-31", tonnes:600)], date:"2026-01-15")
+precondition(januaryRows.map(\.value) == ["20.00", "12.00"])
+precondition(januaryRows[1].label.contains("2024-12-31"))
+let dailyOnly = try previousYearRows([pastFieldReport("2025-10-21")])
+precondition(dailyOnly[1].value == "Pending")
+print("Completed-month comparison: month boundaries, leap month, January rollover and daily-report exclusion passed")

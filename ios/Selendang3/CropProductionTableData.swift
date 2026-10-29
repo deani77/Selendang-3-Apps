@@ -140,8 +140,10 @@ extension CropProductionTableData {
             note: "Cumulative/YTD source averages. Reporting cutoff unconfirmed; these figures may cover a different period from the crop report.")
     }
     private func previousYearCropRows(code: String) -> [FieldCropSummaryRow] {
-        let cutoff = reportDate.flatMap { calendar.date(byAdding: .year, value: -1, to: $0) }
-        let annual = cutoff.flatMap { calendar.date(from: DateComponents(year: calendar.component(.year, from: $0), month: 12, day: 31)) }
+        let previousYear = reportDate.flatMap { calendar.date(byAdding: .year, value: -1, to: $0) }
+        let cutoff = previousYear.flatMap { calendar.dateInterval(of: .month, for: $0)?.start }
+            .flatMap { calendar.date(byAdding: .day, value: -1, to: $0) }
+        let annual = previousYear.flatMap { calendar.date(from: DateComponents(year: calendar.component(.year, from: $0), month: 12, day: 31)) }
         let format = DateFormatter(); format.locale = Locale(identifier: "en_US_POSIX")
         format.calendar = calendar; format.timeZone = calendar.timeZone; format.dateFormat = "yyyy-MM-dd"
         func yieldAt(_ date: Date?) -> String {
@@ -175,7 +177,7 @@ extension CropProductionTableData {
                 FieldCropSummaryRow(label: "Year Budget (mt)", value: values.values[2]),
                 FieldCropSummaryRow(label: "Actual MTD (mt)", value: values.values[6]),
                 FieldCropSummaryRow(label: "Actual YTD (mt)", value: values.values[7])] + previousYearCropRows(code: code),
-                note: "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD uses the same reporting date one year earlier; full year uses 31 December. Missing or ambiguous records remain Pending."),
+                note: "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD runs through the last completed month, one year earlier; full year uses 31 December. Missing or ambiguous records remain Pending."),
             abwSummary(code: code),
             FieldCropSummaryGroup(title: "Harvesting", rows: [
                 FieldCropSummaryRow(label: "Required Harvesters (people)", value: crew),
