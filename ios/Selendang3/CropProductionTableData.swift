@@ -143,7 +143,6 @@ extension CropProductionTableData {
         let previousYear = reportDate.flatMap { calendar.date(byAdding: .year, value: -1, to: $0) }
         let cutoff = previousYear.flatMap { calendar.dateInterval(of: .month, for: $0)?.start }
             .flatMap { calendar.date(byAdding: .day, value: -1, to: $0) }
-        let annual = previousYear.flatMap { calendar.date(from: DateComponents(year: calendar.component(.year, from: $0), month: 12, day: 31)) }
         let format = DateFormatter(); format.locale = Locale(identifier: "en_US_POSIX")
         format.calendar = calendar; format.timeZone = calendar.timeZone; format.dateFormat = "yyyy-MM-dd"
         func yieldAt(_ date: Date?) -> String {
@@ -155,7 +154,6 @@ extension CropProductionTableData {
             return EstateDashboardData.number(divide(fields[0].sentToMillYtdMt, fields[0].areaHa))
         }
         return [
-            FieldCropSummaryRow(label: "Last Year Full Year" + (annual.map { " · " + String(calendar.component(.year, from: $0)) } ?? "") + " (mt/ha)", value: yieldAt(annual)),
             FieldCropSummaryRow(label: "Last Year Same-Period YTD" + (cutoff.map { " · through " + format.string(from: $0) } ?? "") + " (mt/ha)", value: yieldAt(cutoff))]
     }
     func fieldSummary(code: String) -> FieldCropSummary? {
@@ -177,7 +175,7 @@ extension CropProductionTableData {
                 FieldCropSummaryRow(label: "Year Budget (mt)", value: values.values[2]),
                 FieldCropSummaryRow(label: "Actual MTD (mt)", value: values.values[6]),
                 FieldCropSummaryRow(label: "Actual YTD (mt)", value: values.values[7])] + previousYearCropRows(code: code),
-                note: "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD runs through the last completed month, one year earlier; full year uses 31 December. Missing or ambiguous records remain Pending."),
+                note: "Last-year yield uses each field’s historical sent-to-mill tonnes and hectares. Same-period YTD runs through the last completed month, one year earlier. Missing or ambiguous records remain Pending."),
             abwSummary(code: code),
             FieldCropSummaryGroup(title: "Harvesting", rows: [
                 FieldCropSummaryRow(label: "Required Harvesters (people)", value: crew),
