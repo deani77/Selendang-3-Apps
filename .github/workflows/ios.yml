@@ -33,6 +33,12 @@ jobs:
         run: |
           cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/CropProductionTableData.swift ios/Tests/EstateDashboardChecks.swift > "$RUNNER_TEMP/EstateDashboardChecks.swift"
           swift "$RUNNER_TEMP/EstateDashboardChecks.swift"
+      - name: Check crop history migration
+        run: python3 scripts/test-crop-history.py
+      - name: Check crop history
+        run: |
+          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Tests/CropHistoryChecks.swift > "$RUNNER_TEMP/CropHistoryChecks.swift"
+          swift "$RUNNER_TEMP/CropHistoryChecks.swift"
       - name: Check Planter Tools calculations
         run: |
           cat ios/Selendang3/PlanterCalculations.swift ios/Tests/PlanterToolsChecks.swift > "$RUNNER_TEMP/PlanterToolsChecks.swift"

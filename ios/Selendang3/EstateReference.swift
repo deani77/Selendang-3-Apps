@@ -30,6 +30,7 @@ struct EstateReference: Decodable {
     let reportingPeriod: String
     let exportedAt: String
     let sections: [EstateReferenceTable]
+    let cropHistory: EstateCropHistory?
     let fieldProfiles: [EstateSourceFieldProfile]?
     let yph: EstateYph?
     let cropProductionReport: EstateCropReport?
@@ -195,4 +196,24 @@ struct EstateFfbRejectTotals: Decodable {
     let rejectMtdPercent: Double?
     let rejectYtdMt: Double?
     let rejectYtdPercent: Double?
+}
+
+struct EstateCropHistory: Decodable {
+    let cutoff: String
+    let fields: [EstateCropHistoryField]
+}
+struct EstateCropHistoryField: Decodable {
+    let fieldCode: String
+    let annual: [String: Double?]
+    let productionYear: Int
+    let productionTonnes: Double
+    let plantedAreaHa: Double?
+    let areaSource: String
+    func yield(year: Int) -> Double? {
+        if year != productionYear { return annual[String(year)] ?? nil }
+        guard let area = plantedAreaHa, area.isFinite, area > 0,
+              productionTonnes.isFinite, productionTonnes >= 0 else { return nil }
+        return productionTonnes / area
+    }
+    func years(currentYear: Int) -> [Int] { Array((currentYear - 4)...currentYear) }
 }
