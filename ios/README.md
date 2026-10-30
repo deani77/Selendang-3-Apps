@@ -7,7 +7,7 @@ Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and
 - Estate Details contains estate reference panels and saved source tables. OER (%) retains Actual/Budget YTD only. Checkroll Average and Cost Breakdown panels are removed.
 - Field Details shows basic field identity, area, palms, planting/age and explicitly field-keyed soil/infrastructure records.
 - Crop Production shows the responsive Target/Actual table and field pills. Tapping a field opens its saved crop, harvesting, productivity and bunch-weight records. No manual forms, date-entry filters or upload controls are exposed.
-- Upkeep and Cultivation shows only Weeding, Manuring, and Pest and Disease in the dashboard and Major Upkeep Work. Each category opens its own field pills and selected field details. Missing activity records remain Pending; estate summary values are not substituted for field values.
+- Upkeep and Cultivation dashboard shows only Weeding, Manuring, and Pest and Disease. Major Upkeep Work retains all categories. Upkeep and Cultivation groups Major Upkeep Work into Weeding, Manuring, Pest and Disease, Water management, Road management, and Others. Each of the first five categories opens its own field pills and selected field details. Others holds additional necessary work without field pills. Missing activity records remain Pending; estate summary values are not substituted for field values.
 - Planter Tools provides six offline calculators: Plant Density, Chemical Dosage per Pump, Fertilizer Requirement, Nozzle Calibration, Work Costing and Unit Conversion. Calculator inputs never alter estate records.
 - Settings contains Inbox, User Profile, Appearance, About and Estate Data Sync.
 

@@ -79,7 +79,7 @@ fun UpkeepCultivationScreen(update: EstatePackage?) {
                 }
             }
             Text("Major Upkeep Work", style = MaterialTheme.typography.titleLarge)
-            listOf("Weeding", "Manuring", "Pest and Disease").forEach { category ->
+            listOf("Weeding", "Manuring", "Pest and Disease", "Water management", "Road management", "Others").forEach { category ->
                 FilledTonalButton(onClick = { selectedWork = category }, modifier = Modifier.fillMaxWidth()) {
                     Text(category)
                 }
@@ -87,7 +87,17 @@ fun UpkeepCultivationScreen(update: EstatePackage?) {
         } else {
             TextButton(onClick = { selectedWork = null }) { Text("‹ Major Upkeep Work") }
             Text(work, style = MaterialTheme.typography.titleLarge)
-            UpkeepFieldWorkContent(update, work)
+            if (work == "Others") {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Other Necessary Work", style = MaterialTheme.typography.titleMedium)
+                        Text("Additional upkeep work will appear here when verified records are available.")
+                        Text("Work records: Pending")
+                    }
+                }
+            } else {
+                UpkeepFieldWorkContent(update, work)
+            }
         }
     }
 }
