@@ -100,7 +100,7 @@ struct FieldDetailsView: View {
 
 struct UpkeepCultivationView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
-    private let fieldWork = ["Weeding", "Manuring", "Pest and Disease", "Water management", "Road management"]
+    private let fieldWork = ["Weeding", "Manuring", "Pest and Disease"]
     var body: some View {
         List {
             Section("Upkeep and Cultivation Dashboard") {
@@ -109,22 +109,10 @@ struct UpkeepCultivationView: View {
                 LabeledContent("Manuring progress", value: manuring.rows[0][1] + " %")
                 Text(manuring.note).font(.footnote).foregroundStyle(.secondary)
                 LabeledContent("Pest and Disease", value: "Pending")
-                LabeledContent("Water management", value: "Pending")
-                LabeledContent("Road management", value: "Pending")
             }
             Section("Major Upkeep Work") {
                 ForEach(fieldWork, id: \.self) { work in
                     NavigationLink(work) { UpkeepFieldWorkView(work: work) }
-                }
-                NavigationLink("Others") {
-                    List {
-                        Section("Other Necessary Work") {
-                            Text("Additional upkeep work will appear here when verified records are available.")
-                            LabeledContent("Work records", value: "Pending")
-                        }
-                    }
-                    .estateScreen().navigationTitle("Others")
-                    .navigationBarTitleDisplayMode(.inline)
                 }
             }
         }
