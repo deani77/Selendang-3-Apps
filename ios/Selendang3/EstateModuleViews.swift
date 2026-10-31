@@ -109,8 +109,6 @@ struct UpkeepCultivationView: View {
                 LabeledContent("Manuring progress", value: manuring.rows[0][1] + " %")
                 Text(manuring.note).font(.footnote).foregroundStyle(.secondary)
                 LabeledContent("Pest and Disease", value: "Pending")
-                LabeledContent("Water management", value: "Pending")
-                LabeledContent("Road management", value: "Pending")
             }
             Section("Major Upkeep Work") {
                 ForEach(fieldWork, id: \.self) { work in
