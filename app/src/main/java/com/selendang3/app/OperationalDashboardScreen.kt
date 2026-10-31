@@ -27,7 +27,7 @@ fun OperationalDashboardScreen(update: EstatePackage?) {
     val cards = operationalDashboardCards(update, today)
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        OperationalSummaryCard(cards[0], "information", wide = true, update = update)
+        OperationalSummaryCard(cards[0], "information", wide = true)
         Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OperationalSummaryCard(cards[1], "production", Modifier.weight(1f).fillMaxHeight())
             OperationalSummaryCard(cards[2], "worker", Modifier.weight(1f).fillMaxHeight())
@@ -42,7 +42,7 @@ fun OperationalDashboardScreen(update: EstatePackage?) {
 }
 
 @Composable
-private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifier: Modifier = Modifier, wide: Boolean = false, update: EstatePackage? = null) {
+private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifier: Modifier = Modifier, wide: Boolean = false) {
     Card(modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
@@ -66,7 +66,6 @@ private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifi
                     Text(card.metrics[3].value + " " + card.metrics[3].unit,
                         style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                 }
-                CropHistoryPanel(update)
             } else if (wide) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     card.metrics.forEach { metric ->
