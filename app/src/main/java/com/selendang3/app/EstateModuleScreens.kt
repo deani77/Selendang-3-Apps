@@ -76,8 +76,6 @@ fun UpkeepCultivationScreen(update: EstatePackage?) {
                     Text("Manuring progress: ${manuring.metrics[0].value} %")
                     Text(manuring.period, style = MaterialTheme.typography.bodySmall)
                     Text("Pest and Disease: Pending")
-                    Text("Water management: Pending")
-                    Text("Road management: Pending")
                 }
             }
             Text("Major Upkeep Work", style = MaterialTheme.typography.titleLarge)
