@@ -19,9 +19,7 @@ fun CropHistoryPanel(update: EstatePackage?) {
     val field = cropHistoryFields(update).firstOrNull { it.code == selected }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Crop History · t/ha", style = MaterialTheme.typography.titleMedium)
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            codes.forEach { code -> FilterChip(selected = code == selected, onClick = { selected = code }, label = { Text(code) }) }
-        }
+        EstatePillSelector(codes, selected, { selected = it }) { it }
         if (field == null) Text("Crop history unavailable. Refresh Estate Data Sync.") else {
             Text("Production cutoff: ${field.cutoff}. Completed years and partial YTD are not directly comparable.")
             val years = field.years(LocalDate.now().year)

@@ -28,14 +28,9 @@ fun FieldDetailsScreen(update: EstatePackage?) {
                     Text("Choose a field for its basic information. Crop and harvesting records are under Crop Production.")
                 }
             }
-            codes.chunked(2).forEach { group ->
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    group.forEach { code ->
-                        FilledTonalButton(onClick = { selected = code },
-                            modifier = Modifier.weight(1f).heightIn(min = 60.dp)) { Text(code) }
-                    }
-                    if (group.size == 1) Spacer(Modifier.weight(1f))
-                }
+            EstatePillGrid(codes.size, maxColumns = 2) { index ->
+                FilledTonalButton(onClick = { selected = codes[index] },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = EstateControlHeight)) { Text(codes[index]) }
             }
             if (codes.isEmpty()) Text("Import estate records through Settings → Estate Data Sync to see field buttons.")
         } else {
@@ -81,9 +76,11 @@ fun UpkeepCultivationScreen(update: EstatePackage?) {
                 }
             }
             Text("Major Upkeep Work", style = MaterialTheme.typography.titleLarge)
-            listOf("Weeding", "Manuring", "Pest and Disease", "Water management", "Road management", "Others").forEach { category ->
-                FilledTonalButton(onClick = { selectedWork = category }, modifier = Modifier.fillMaxWidth()) {
-                    Text(category)
+            val categories = listOf("Weeding", "Manuring", "Pest and Disease", "Water management", "Road management", "Others")
+            EstatePillGrid(categories.size, maxColumns = 1) { index ->
+                FilledTonalButton(onClick = { selectedWork = categories[index] },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = EstateControlHeight)) {
+                    Text(categories[index], textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
         } else {
@@ -111,13 +108,7 @@ private fun UpkeepFieldWorkContent(update: EstatePackage?, work: String) {
     val field = selectedField?.takeIf { it in codes } ?: codes.firstOrNull()
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Fields", style = MaterialTheme.typography.titleMedium)
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            codes.forEach { code ->
-                FilterChip(selected = field == code, onClick = { selectedField = code },
-                    label = { Text(code) }, shape = androidx.compose.foundation.shape.CircleShape)
-            }
-        }
+        EstatePillSelector(codes, field, { selectedField = it }) { it.orEmpty() }
         if (codes.isEmpty()) {
             Text("Import estate records through Settings → Estate Data Sync to see fields.")
         } else if (field == null) {
