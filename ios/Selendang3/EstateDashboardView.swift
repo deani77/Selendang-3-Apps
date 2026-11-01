@@ -3,6 +3,7 @@ import Charts
 
 struct EstateDashboardView: View {
     @ObservedObject private var estate = EstateReferenceStore.shared
+    @State private var showingEstateMap = false
     var body: some View {
         TimelineView(.periodic(from:Date(),by:60)) { context in
             let data = EstateDashboardData(reference:estate.reference,today:context.date)
@@ -10,6 +11,16 @@ struct EstateDashboardView: View {
                 VStack(alignment:.leading,spacing:16) {
                     Text(estate.reference?.estateName.map { "ESTATE DETAILS · " + $0.uppercased() } ?? "ESTATE DETAILS").font(.title2.bold())
                     panel(data.areaSummary)
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        Button { showingEstateMap = true } label: {
+                            Label("Estate Map", systemImage: "map.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityHint("Opens the offline estate map with zoom and pan")
+                    }
                     if let reference = estate.reference {
                         Text("Saved estate revision \(reference.revision)").font(.headline)
                         Text(reference.reportingPeriod).font(.footnote)
@@ -26,6 +37,7 @@ struct EstateDashboardView: View {
         .toolbar(.visible,for:.navigationBar)
         .estateScreen()
         .navigationTitle("Estate Details").navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $showingEstateMap) { EstateMapView() }
     }
     private func panel(_ section: EstateDashboardPanel) -> some View {
         VStack(alignment:.leading,spacing:0) {

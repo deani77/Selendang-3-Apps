@@ -3,6 +3,7 @@
 Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and supplied by the private VPS.
 
 ## Navigation
+- iPad only: Estate Details → Estate Map opens the bundled estate PDF full screen, including before server sync. Pinch to zoom, drag to pan, and use Fit Map to reset the view. Done returns to Estate Details. iPad supports portrait and landscape; iPhone remains portrait and has no map entry.
 - Home and Estate Dashboard display saved server summaries, retaining source dates and units.
 - Estate Details contains estate reference panels and saved source tables. OER (%) retains Actual/Budget YTD only. Checkroll Average and Cost Breakdown panels are removed.
 - Field Details shows basic field identity, area, palms, planting/age and explicitly field-keyed soil/infrastructure records.
@@ -49,3 +50,17 @@ Build 38 simplifies Harvesting Coverage to Hectare Completed (ha, using the save
 Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter Hectare and Mature Hectare read dated, owner-confirmed overview records (Estate area reporting period, Perimeter area (ha), Mature area (ha)). Areas display in hectares with comma grouping and two decimals. Invalid, duplicate, future or unreconciled records remain Pending. Source values are supplied privately through VPS sync and are not bundled with the app.
 
 Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
+
+## Offline estate map (build 41)
+The owner-supplied `Selendang3/Resources/Selendang3EstateMap.pdf` is bundled by XcodeGen as a resource. PDFKit preserves the original map and supports native zoom/pan without network access or a new dependency. Source: FGVPM Selendang 3.pdf; orthomosaic dated 6 February 2025. The map is independent of synced operational snapshots and remains available after sync or server retirement.
+
+This is a visual reference only. No GPS location, surveying accuracy, area calculations, inferred block-to-field links or progress overlays are provided. Block labels must be reconciled with app field codes before interactive field links are added.
+
+Device acceptance checks:
+- On iPad (including iPad mini), open Estate Details → Estate Map before syncing, then repeat in airplane mode.
+- Confirm the whole page initially fits, pinch to inspect block labels, pan to every edge, and press Fit Map to restore the complete page.
+- Rotate between portrait and both landscape orientations; check map layout and controls, then use Done and reopen.
+- Check light/dark appearance, larger text and VoiceOver access to Done and Fit Map.
+- On iPhone, verify no Estate Map entry and unchanged portrait navigation.
+
+The iOS simulator CI compiles the PDFKit wrapper and resource packaging. Physical iPad gesture and visual checks remain required before installation acceptance.
