@@ -3,6 +3,7 @@
 Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and supplied by the private VPS.
 
 ## Navigation
+- On iPad, Estate Map appears above the home dashboard. Tapping it opens the bundled Selendang 3 PDF in a full-screen portrait view with native pinch zoom and pan. Back returns to the dashboard; Reset View fits the whole map again. No network connection or location permission is required. The source map is dated 6 February 2025; this viewer does not provide live GPS positioning or selectable blocks.
 - Home and Estate Dashboard display saved server summaries, retaining source dates and units.
 - Estate Details contains estate reference panels and saved source tables. OER (%) retains Actual/Budget YTD only. Checkroll Average and Cost Breakdown panels are removed.
 - Field Details shows basic field identity, area, palms, planting/age and explicitly field-keyed soil/infrastructure records.
@@ -49,3 +50,4 @@ Build 38 simplifies Harvesting Coverage to Hectare Completed (ha, using the save
 Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter Hectare and Mature Hectare read dated, owner-confirmed overview records (Estate area reporting period, Perimeter area (ha), Mature area (ha)). Areas display in hectares with comma grouping and two decimals. Invalid, duplicate, future or unreconciled records remain Pending. Source values are supplied privately through VPS sync and are not bundled with the app.
 
 Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
+
