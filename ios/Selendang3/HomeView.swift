@@ -16,6 +16,8 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 if isPad {
                     homeHeading.padding(.horizontal, 20)
+                    EstateMapCard()
+                        .padding(.horizontal, 20).padding(.bottom, 12)
                     IPadHomeDashboardCard()
                         .padding(.horizontal, 20).padding(.bottom, 16)
                     ScrollView { navigationGrid.padding(.horizontal, 20).padding(.vertical, 12) }
@@ -164,5 +166,6 @@ struct ModuleView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
 
 
