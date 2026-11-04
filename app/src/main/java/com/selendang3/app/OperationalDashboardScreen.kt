@@ -25,14 +25,15 @@ fun OperationalDashboardScreen(update: EstatePackage?) {
         while (true) { value = estateRainfallToday(); delay(60_000) }
     }
     val cards = operationalDashboardCards(update, today)
+    // Compact content stays still when it fits; overflow remains reachable on small screens or with large text.
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        verticalArrangement = Arrangement.spacedBy(6.dp)) {
         OperationalSummaryCard(cards[0], "information", wide = true)
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OperationalSummaryCard(cards[1], "production", Modifier.weight(1f).fillMaxHeight())
             OperationalSummaryCard(cards[2], "worker", Modifier.weight(1f).fillMaxHeight())
         }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OperationalSummaryCard(cards[3], "information", Modifier.weight(1f).fillMaxHeight())
             OperationalSummaryCard(cards[4], "upkeep", Modifier.weight(1f).fillMaxHeight())
         }
@@ -46,7 +47,7 @@ private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifi
     Card(modifier.fillMaxWidth().heightIn(min = EstateControlHeight), shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = if (wide) Arrangement.Center else Arrangement.Start,
                 verticalAlignment = Alignment.Top) {
                 EstateModuleIcon(symbol, Modifier.size(18.dp), MaterialTheme.colorScheme.primary)
@@ -67,7 +68,7 @@ private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifi
                         style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                 }
             } else if (wide) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     card.metrics.forEach { metric ->
                         OperationalMetricValue(metric, Modifier.weight(1f), centered = true,
                             prominent = card.title == "Estate Cost")
@@ -75,9 +76,8 @@ private fun OperationalSummaryCard(card: OperationalCard, symbol: String, modifi
                 }
             } else {
                 card.metrics.forEach { OperationalMetricValue(it) }
-                Spacer(Modifier.weight(1f))
             }
-            Text(card.period, modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
+            Text(card.period, modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = if (wide) TextAlign.Center else TextAlign.Start,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
