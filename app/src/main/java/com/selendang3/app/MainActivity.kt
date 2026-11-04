@@ -1,5 +1,6 @@
 package com.selendang3.app
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -89,9 +93,10 @@ fun EstateApp() {
         else -> allSections.firstOrNull { it.route == route }?.title ?: "Estate Details"
     }
     MaterialTheme(colorScheme = estateColorScheme(dark)) {
+        if (route == "dashboard") DashboardSystemBars(dark)
         Box(Modifier.fillMaxSize()) {
             PlantationBackground(route)
-            Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 20.dp)) {
+            Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = if (route == "dashboard") 12.dp else 20.dp)) {
                 if (route != "home") {
                     TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
                 } else {
@@ -102,7 +107,7 @@ fun EstateApp() {
                 }
                 Text(title, style = if (route == "home") MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = if (route == "dashboard") 6.dp else 12.dp),
                     textAlign = if (route == "home") TextAlign.Center else TextAlign.Start)
                 NavHost(nav, startDestination = "home", modifier = Modifier.weight(1f)) {
                     composable("home") {
@@ -206,14 +211,40 @@ private fun PlantationBackground(route: String) {
                 val radius = size.width * 0.11f
                 for (leaf in 0..7) {
                     val angle = leaf * Math.PI / 4
-                    drawLine(accent.copy(alpha = if (route == "home") 0.055f else 0.02f), center,
+                    drawLine(accent.copy(alpha = if (route == "home" || route == "dashboard") 0.055f else 0.02f), center,
                         center + Offset((cos(angle) * radius).toFloat(), (sin(angle) * radius).toFloat()),
                         strokeWidth = 12f)
                 }
-                drawCircle(accent.copy(alpha = if (route == "home") 0.06f else 0.02f), radius * 0.18f, center)
+                drawCircle(accent.copy(alpha = if (route == "home" || route == "dashboard") 0.06f else 0.02f), radius * 0.18f, center)
             }
         }
 
     }
 }
 
+
+// Match system bars to the estate palette while this dashboard is visible.
+@Suppress("DEPRECATION")
+@Composable
+private fun DashboardSystemBars(dark: Boolean) {
+    val window = (LocalContext.current as? Activity)?.window ?: return
+    val view = LocalView.current
+    val background = MaterialTheme.colorScheme.background.toArgb()
+    DisposableEffect(window, view, background, dark) {
+        val controller = WindowCompat.getInsetsController(window, view)
+        val oldStatus = window.statusBarColor
+        val oldNavigation = window.navigationBarColor
+        val oldLightStatus = controller.isAppearanceLightStatusBars
+        val oldLightNavigation = controller.isAppearanceLightNavigationBars
+        window.statusBarColor = background
+        window.navigationBarColor = background
+        controller.isAppearanceLightStatusBars = !dark
+        controller.isAppearanceLightNavigationBars = !dark
+        onDispose {
+            window.statusBarColor = oldStatus
+            window.navigationBarColor = oldNavigation
+            controller.isAppearanceLightStatusBars = oldLightStatus
+            controller.isAppearanceLightNavigationBars = oldLightNavigation
+        }
+    }
+}
