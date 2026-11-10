@@ -25,7 +25,6 @@ struct EstateDashboardPanel: Identifiable {
     var unit: String = ""
     var id: String { title }
 }
-private struct DashboardField { let code: String; let area: Double; let palms: Double? }
 
 struct EstateDashboardData {
     let reference: EstateReference?
@@ -33,37 +32,6 @@ struct EstateDashboardData {
     static func number(_ value: Double?) -> String {
         guard let value = value, value.isFinite else { return "Pending" }
         return String(format:"%0.2f",locale:Locale(identifier:"en_US_POSIX"),value)
-    }
-    private func table(_ id: String) -> EstateReferenceTable? { reference?.sections.first { $0.id == id } }
-    private func cell(_ row: [EstateReferenceCell?], _ table: EstateReferenceTable, _ column: String) -> String? {
-        guard let index = table.columns.firstIndex(of:column), index < row.count else { return nil }
-        return row[index]?.text
-    }
-    private func numeric(_ text: String?) -> Double? {
-        guard let value = text?.replacingOccurrences(of:",",with:"").trimmingCharacters(in:.whitespacesAndNewlines),
-              let result = Double(value), result.isFinite, result >= 0 else { return nil }; return result
-    }
-    private func count(_ text: String?) -> Double? {
-        guard let value = numeric(text), value.rounded() == value, value <= 1e9 else { return nil }; return value
-    }
-    private func overview(_ label: String) -> String? {
-        guard let t = table("overview") else { return nil }
-        let rows = t.rows.filter { cell($0,t,"Item") == label }
-        return rows.count == 1 ? cell(rows[0],t,"Details") : nil
-    }
-    private func period(_ key: String) -> String? {
-        guard let value = overview(key), value.range(of:"^\\d{4}-(0[1-9]|1[0-2])$", options:.regularExpression) != nil else { return nil }
-        return value
-    }
-    private var fields: [DashboardField]? {
-        guard let t = table("fields"), !t.rows.isEmpty else { return nil }
-        var result: [DashboardField] = [], codes: Set<String> = []
-        for row in t.rows {
-            guard let code = cell(row,t,"Field code"), !code.isEmpty, codes.insert(code.uppercased()).inserted,
-                  let area = numeric(cell(row,t,"Area (ha)")), area > 0 else { return nil }
-            result.append(DashboardField(code:code,area:area,palms:count(cell(row,t,"Total palms"))))
-        }
-        return result
     }
     private var area: Double? { fields.map { $0.reduce(0) { $0 + $1.area } }.flatMap { $0.isFinite ? $0 : nil } }
     private func share(_ area: Double?, _ total: Double?) -> String {
