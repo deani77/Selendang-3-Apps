@@ -1,4 +1,4 @@
-package com.selendang3.app
+package com.selendang3.app.core.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
