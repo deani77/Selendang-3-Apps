@@ -1,6 +1,8 @@
 package com.selendang3.app
 
 import android.app.Activity
+import com.selendang3.app.core.theme.estateColorScheme
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
