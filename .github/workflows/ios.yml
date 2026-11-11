@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'ios/**'
+      - 'test-data/**'
       - '.github/workflows/ios.yml'
   workflow_dispatch:
 permissions:
