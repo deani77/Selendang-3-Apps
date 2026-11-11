@@ -2055,6 +2055,68 @@
           "note": "ignored by older clients"
         }
       }
+    },
+    {
+      "name": "blank-period-next-line",
+      "valid": false,
+      "overrides": {
+        "reportingPeriod": ""
+      }
+    },
+    {
+      "name": "blank-period-bom",
+      "valid": false,
+      "overrides": {
+        "reportingPeriod": "﻿"
+      }
+    },
+    {
+      "name": "profile-duplicate-unicode-trim",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          },
+          {
+            "fieldCode": "DEMO01﻿",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

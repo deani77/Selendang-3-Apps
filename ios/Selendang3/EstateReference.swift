@@ -1,5 +1,8 @@
 import Foundation
 
+// Unicode White_Space plus BOM, shared with the Kotlin and server parsers.
+private let snapshotWhitespace = CharacterSet(charactersIn: "\u{0009}\u{000a}\u{000b}\u{000c}\u{000d}\u{0020}\u{0085}\u{00a0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200a}\u{2028}\u{2029}\u{202f}\u{205f}\u{3000}\u{feff}")
+
 struct EstateReferenceCell: Decodable {
     let text: String
     init(from decoder: Decoder) throws {
@@ -52,7 +55,7 @@ struct EstateReference: Decodable {
         let result = try JSONDecoder().decode(EstateReference.self, from: data)
         let expected: Set<String> = ["overview","fields","ages","soil","rainfall","abw","roads"]
         guard result.schemaVersion == 1, result.estateId == "selendang-3", result.revision > 0, result.revision <= 9_007_199_254_740_991,
-              !result.reportingPeriod.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, result.reportingPeriod.utf16.count <= 100,
+              !result.reportingPeriod.trimmingCharacters(in: snapshotWhitespace).isEmpty, result.reportingPeriod.utf16.count <= 100,
               validExportTimestamp(result.exportedAt),
               result.sections.count == 7, Set(result.sections.map(\.id)) == expected,
               result.sections.reduce(0, { $0 + $1.rows.count }) <= 10000 else {
@@ -60,13 +63,13 @@ struct EstateReference: Decodable {
         }
         for table in result.sections {
             guard (1...20).contains(table.columns.count), Set(table.columns).count == table.columns.count,
-                  table.columns.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.utf16.count <= 80 }),
+                  table.columns.allSatisfy({ !$0.trimmingCharacters(in: snapshotWhitespace).isEmpty && $0.utf16.count <= 80 }),
                   table.rows.allSatisfy({ $0.count == table.columns.count }) else {
                 throw ProductionError.invalid("Invalid estate table.")
             }
         }
         if let profiles = result.fieldProfiles {
-            let codes = profiles.map { $0.fieldCode.trimmingCharacters(in: .whitespacesAndNewlines) }
+            let codes = profiles.map { $0.fieldCode.trimmingCharacters(in: snapshotWhitespace) }
             guard Set(codes).count == codes.count, profiles.allSatisfy({ $0.isValid }) else {
                 throw ProductionError.invalid("Invalid or duplicate field profile. Check source field and block details.")
             }
@@ -119,14 +122,14 @@ struct EstateSourceBlock: Decodable {
 }
 
 private func profileText(_ value: String) -> Bool {
-    !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    !value.trimmingCharacters(in: snapshotWhitespace).isEmpty
 }
 private func profileMeasures(_ values: [Double]) -> Bool {
     values.allSatisfy { $0.isFinite && $0 >= 0 }
 }
 extension EstateSourceFieldProfile {
     var isValid: Bool {
-        let ids = blocks.map { $0.blockId.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let ids = blocks.map { $0.blockId.trimmingCharacters(in: snapshotWhitespace) }
         return profileText(fieldCode) && profileText(maturity) && (1...9999).contains(reportYear) &&
             profileMeasures([plantedAreaHa, unplantedAreaHa, divisionStandsPerHa, divisionPalmHeightM]) &&
             Set(ids).count == ids.count && blocks.allSatisfy {

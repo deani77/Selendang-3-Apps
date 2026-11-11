@@ -12,6 +12,8 @@
 - Exactly one section each: `overview`, `fields`, `ages`, `soil`, `rainfall`, `abw`, `roads`. Sections have 1–20 unique, nonblank text columns, each at most 80 UTF-16 code units. Rows match column widths; the combined row count is at most 10,000.
 - Cells are text (at most 1,000 UTF-16 code units), finite numbers or null. Null means Pending; measured zero remains zero. Booleans and objects are rejected.
 
+Blank checks and identifier trimming use Unicode White_Space plus BOM consistently across all three parsers.
+
 ## Optional extensions covered here
 
 Omitted or null `yph` and `fieldProfiles` keep legacy snapshots valid.

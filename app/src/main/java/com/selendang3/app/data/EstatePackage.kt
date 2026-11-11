@@ -21,6 +21,9 @@ data class EstatePackage(val revision: Long, val reportingPeriod: String,
 }
 
 object EstatePackages {
+    private val edgeWhitespace = Regex("""^[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+|[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+$""")
+    internal fun trimText(value: String): String = value.replace(edgeWhitespace, "")
+
     const val MAX_BYTES = 2 * 1024 * 1024
     val sectionIds = setOf("overview", "fields", "ages", "soil", "rainfall", "abw", "roads")
 
@@ -55,7 +58,7 @@ object EstatePackages {
         require(revision > 0) { "Revision must be positive." }
         fun requiredString(key: String, max: Int): String {
             val value = root.get(key)
-            require(value is String && value.isNotBlank() && value.length <= max) { "Invalid $key." }
+            require(value is String && trimText(value).isNotEmpty() && value.length <= max) { "Invalid $key." }
             return value
         }
         val period = requiredString("reportingPeriod", 100)
@@ -75,7 +78,7 @@ object EstatePackages {
             require(rawColumns.length() in 1..20) { "Each section needs 1–20 columns." }
             val columns = (0 until rawColumns.length()).map {
                 val value = rawColumns.get(it)
-                require(value is String && value.isNotBlank() && value.length <= 80) { "Invalid column label." }
+                require(value is String && trimText(value).isNotEmpty() && value.length <= 80) { "Invalid column label." }
                 value
             }
             require(columns.distinct().size == columns.size) { "Duplicate column labels." }
