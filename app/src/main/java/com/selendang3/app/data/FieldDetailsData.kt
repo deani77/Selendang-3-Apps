@@ -68,7 +68,7 @@ internal fun validateSourceFieldProfiles(root: JSONObject) {
     require(profiles != null) { "fieldProfiles must be an array." }
     fun text(obj: JSONObject, key: String): String {
         val value = obj.opt(key)
-        require(value is String && value.isNotBlank()) { "Invalid profile $key." }
+        require(value is String && EstatePackages.trimText(value).isNotEmpty()) { "Invalid profile $key." }
         return value
     }
     fun year(obj: JSONObject, key: String) {
@@ -86,7 +86,7 @@ internal fun validateSourceFieldProfiles(root: JSONObject) {
     for (i in 0 until profiles.length()) {
         val profile = profiles.optJSONObject(i)
         require(profile != null) { "Invalid field profile." }
-        require(codes.add(text(profile, "fieldCode").trim())) { "Duplicate profile field code." }
+        require(codes.add(EstatePackages.trimText(text(profile, "fieldCode")))) { "Duplicate profile field code." }
         text(profile, "maturity")
         year(profile, "reportYear")
         measures(profile, listOf("plantedAreaHa", "unplantedAreaHa", "divisionStandsPerHa", "divisionPalmHeightM"))
@@ -96,7 +96,7 @@ internal fun validateSourceFieldProfiles(root: JSONObject) {
         for (j in 0 until blocks.length()) {
             val block = blocks.optJSONObject(j)
             require(block != null) { "Invalid profile block." }
-            require(ids.add(text(block, "blockId").trim())) { "Duplicate profile block identifier." }
+            require(ids.add(EstatePackages.trimText(text(block, "blockId")))) { "Duplicate profile block identifier." }
             text(block, "blockName")
             year(block, "harvestingYear")
             measures(block, listOf("plantedAreaHa", "unplantedAreaHa"))

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'ios/**'
+      - 'test-data/**'
       - '.github/workflows/ios.yml'
   workflow_dispatch:
 permissions:
@@ -27,17 +28,17 @@ jobs:
           swift "$RUNNER_TEMP/ProductionChecks.swift"
       - name: Check estate reference validation
         run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Tests/EstateReferenceChecks.swift > "$RUNNER_TEMP/EstateReferenceChecks.swift"
+          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Selendang3/EstateDashboardData+Summaries.swift ios/Tests/EstateReferenceChecks.swift > "$RUNNER_TEMP/EstateReferenceChecks.swift"
           swift "$RUNNER_TEMP/EstateReferenceChecks.swift"
       - name: Check dashboard calculations
         run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Selendang3/CropProductionTableData.swift ios/Tests/EstateDashboardChecks.swift > "$RUNNER_TEMP/EstateDashboardChecks.swift"
+          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Selendang3/EstateDashboardData+Summaries.swift ios/Selendang3/CropProductionTableData.swift ios/Tests/EstateDashboardChecks.swift ios/Tests/DashboardSummaryChecks.swift > "$RUNNER_TEMP/EstateDashboardChecks.swift"
           swift "$RUNNER_TEMP/EstateDashboardChecks.swift"
       - name: Check crop history migration
         run: python3 scripts/test-crop-history.py
       - name: Check crop history
         run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Tests/CropHistoryChecks.swift > "$RUNNER_TEMP/CropHistoryChecks.swift"
+          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Selendang3/EstateDashboardData+Summaries.swift ios/Tests/CropHistoryChecks.swift > "$RUNNER_TEMP/CropHistoryChecks.swift"
           swift "$RUNNER_TEMP/CropHistoryChecks.swift"
       - name: Check Planter Tools calculations
         run: |

@@ -2,6 +2,7 @@ package com.selendang3.app
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 
@@ -63,4 +64,52 @@ class NavigationTest {
         compose.onNodeWithText("Today Crop Production").assertDoesNotExist()
         compose.onNodeWithText("Upload PDF · coming next").assertDoesNotExist()
     }
+    @Test fun estateRecordRoutesReturnToTheirGrid() {
+        compose.onNodeWithText("Estate Details").performScrollTo().performClick()
+        compose.onNodeWithText("All Estate Records").performClick()
+        val records = listOf(
+            "Estate Overview" to "Estate profile, location, cultivation and maturity status.",
+            "Field Details" to "Field codes, hectarage, palm population and density.",
+            "Palm Age Profile" to "Palm ages by field and age-category distribution.",
+            "Soil & Topography" to "Soil composition, terrain and corresponding areas.",
+            "Rainfall" to "Monthly rainfall, rainy days and historical comparisons.",
+            "Average Bunch Weight" to "Current-period and cumulative ABW in kg/bunch, with year-on-year comparison. Field-level figures are pending the supporting Excel file.",
+            "Roads & Infrastructure" to "Main, secondary and subsidiary road specifications.",
+        )
+        for ((title, description) in records) {
+            compose.onNodeWithText(title).performScrollTo().performClick()
+            compose.onNodeWithText(description).assertIsDisplayed()
+            compose.onNodeWithText("‹  Back").performClick()
+            compose.onNodeWithText("All Estate Records").assertIsDisplayed()
+        }
+        compose.onNodeWithText("‹  Back").performClick()
+        compose.onNodeWithText("ESTATE DETAILS").assertIsDisplayed()
+        compose.onNodeWithText("‹  Back").performClick()
+        compose.onNodeWithText("Planter’s Log").assertIsDisplayed()
+    }
+
+    @Test fun appearanceChoiceSurvivesNavigationAndActivityRecreation() {
+        val preferences = InstrumentationRegistry.getInstrumentation().targetContext
+            .getSharedPreferences("user_settings", 0)
+        val original = preferences.getString("theme", null)
+        try {
+            compose.onNodeWithText("Settings").performScrollTo().performClick()
+            compose.onNodeWithText("Appearance").performScrollTo().performClick()
+            compose.onNodeWithText("Light", substring = true).performScrollTo().performClick()
+            compose.onNodeWithText("✓ Light").assertIsDisplayed()
+            compose.onNodeWithText("Dark", substring = true).performScrollTo().performClick()
+            compose.onNodeWithText("✓ Dark").assertIsDisplayed()
+            compose.onNodeWithText("‹  Back").performClick()
+            compose.onNodeWithText("Settings").performScrollTo().performClick()
+            compose.onNodeWithText("Appearance").performScrollTo().performClick()
+            compose.onNodeWithText("✓ Dark").assertIsDisplayed()
+            compose.activityRule.scenario.recreate()
+            compose.onNodeWithText("✓ Dark").assertIsDisplayed()
+        } finally {
+            val editor = preferences.edit()
+            if (original == null) editor.remove("theme") else editor.putString("theme", original)
+            editor.commit()
+        }
+    }
+
 }
