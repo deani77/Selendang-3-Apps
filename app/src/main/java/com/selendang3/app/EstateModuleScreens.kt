@@ -1,5 +1,7 @@
 package com.selendang3.app
 
+import com.selendang3.app.navigation.estateSections
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
