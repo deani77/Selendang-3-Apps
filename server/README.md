@@ -1,12 +1,14 @@
 # S3 Estate Info VPS service
 
-This read-only Node.js service serves the same complete JSON snapshot used by Android file import. Caddy provides public HTTPS. The API binds only to `127.0.0.1:8787`; it does not expose a database port. No third-party Node dependencies are required.
+This Node.js service supplies complete JSON snapshots to the Android and iOS apps and retains a separate scoped production synchronization API. Current mobile screens only download snapshots. Caddy provides public HTTPS. The API binds only to `127.0.0.1:8787`; it does not expose a database port. No third-party Node dependencies are required.
 
 ## API
 
 - `GET /health`: public service health, no estate records.
 - `GET /v1/estates/selendang-3/snapshot`: requires `Authorization: Bearer <read-only token>`, returns JSON only after validation.
-- No public uploads, writes, account registration or administration endpoints.
+- `GET /v1/estates/selendang-3/production`: authenticated production records.
+- `POST /v1/estates/selendang-3/production`: requires a token with `production:write`; current mobile screens do not call it.
+- No public account registration or web administration endpoints.
 - Unknown/revoked tokens receive 401; malformed/unavailable snapshots receive 503. HTTP is redirected to HTTPS by the proxy. Secrets are not logged. A bounded in-memory request limiter applies globally and per authorized token.
 
 Snapshot data, token registry, raw access tokens, TLS keys and backup archives belong outside the repository. `/etc/s3-estate/tokens.json` contains only SHA-256 hashes of randomly generated tokens. The publisher's private files and phone exports must never be committed.
@@ -48,7 +50,7 @@ Distribute staff tokens privately. Revocation takes effect on subsequent request
 systemctl status s3-estate
 systemctl status s3-estate-backup.timer
 systemctl start s3-estate-backup.service
-node --test /opt/s3-estate/server/server.test.mjs
+node --test /opt/s3-estate/server/*.test.mjs
 ```
 
 `backup.sh` creates daily archives of the current snapshot, previous revisions and hashed access registry. Archives are retained; monitor disk usage. Keep an additional copy outside this VPS. Local scheduled backups do not protect against termination of the VPS service. The initial deployment includes a one-time local-machine copy; automatic off-server backup needs a separate destination.
@@ -57,7 +59,7 @@ Before termination, export the current snapshot and copy the server backups to a
 
 ## Tests and limitations
 
-Run `node --test server/server.test.mjs` from this folder. Tests cover authorized downloads, anonymous/wrong/revoked-token rejection, write rejection and invalid data handling. Real certificates and external routing must be checked after deployment. The initial server snapshot has seven empty sections marked awaiting verified records. The web administration/upload page and automated source conversion are not yet implemented.
+Run `node --test *.test.mjs` from the `server/` folder, or `node --test server/*.test.mjs` from the repository root. Tests cover authorized downloads, anonymous/wrong/revoked-token rejection, write rejection and invalid data handling. Real certificates and external routing must be checked after deployment. The initial server snapshot has seven empty sections marked awaiting verified records. The web administration/upload page and automated source conversion are not yet implemented.
 
 ### Production writes
 

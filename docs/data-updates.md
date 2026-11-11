@@ -1,13 +1,14 @@
-# Estate data: VPS now, file import later
+# Estate snapshots and VPS synchronization
 
-Android v0.2 Alpha supports the same complete snapshot through Settings → Import Estate Data or an HTTPS VPS download. Both paths preview the revision, period and row counts, then write the same Room database in a transaction. Offline reads do not require the VPS. Real records are never included in the public repository or APK.
+Android and iOS download complete estate snapshots through Settings → Estate Data Sync. New revisions are previewed and confirmed before replacing the offline store. Current screens do not offer manual file import or production uploads. Legacy import and production synchronization code is retained for possible future use.
 
 ## Phone workflow
 
-1. Obtain a prepared JSON update from the estate administrator. Raw Excel and Markdown are source documents, not directly importable.
-2. Open Settings → Import Estate Data, select the file, check its source, period and row counts, then confirm. This replaces all seven Estate Information sections, including empty sections.
-3. Browse the sections offline. Null cells display Pending; measured zero is preserved as zero.
-4. Use Export Estate Data to save the current snapshot privately before changing devices or hosts. An export can initialize another phone. The app also retains one previous snapshot internally, but does not yet expose a rollback button.
+1. Obtain the trusted HTTPS snapshot address and a privately issued access token from the administrator.
+2. In Settings → Estate Data Sync, enter the address and token, then select Sync Now.
+3. Review a newer revision, including its reporting period and section row counts, and confirm the update. Cancelling keeps the saved data.
+4. Browse downloaded records offline. Null cells display Pending; measured zero is preserved as zero.
+5. On Android, use Export Estate Data to save a private copy of the current snapshot. Current mobile screens cannot re-import that file. Both stores retain a previous snapshot internally, without a user-facing rollback control.
 
 Updates require a strictly higher positive integer revision. Duplicate or older revisions are rejected, including at the database transaction boundary. Invalid files, failed downloads and cancelled previews leave the saved dataset intact. A revision orders snapshots, not individual rows; the administrator must carry forward all current data. Structural validation cannot establish the accuracy of estate figures. Resolve the known source discrepancies before publishing official updates.
 
@@ -26,7 +27,7 @@ See [fictional example](../sample-data/estate-update.example.json). Format versi
 - Each section has `columns` (1–20 unique text labels) and `rows` (arrays with the same number of cells). Include units and reporting year in the labels or rows. Cells are text, numbers or null. No computed formulas, HTML or executable content is interpreted.
 - Maximum 2 MB UTF-8, 10,000 rows in total, 1,000 characters per text cell. Pending sections use empty rows. The importer checks format and bounds; it does not recalculate or certify source totals.
 
-This first format is for displaying estate reference tables. It does not yet populate production dashboards, charts, accounts or staff data-entry services. iOS remains a starter; its importer/sync implementation is a separate follow-up.
+The snapshot supplies estate reference tables and optional report extensions used by dashboards and charts. See the feature guides in the [documentation index](README.md) for report-specific fields. Snapshot downloads do not create accounts or enable staff data entry.
 
 ## VPS connection contract
 
@@ -36,7 +37,7 @@ The private VPS service is configured separately; reusable code and operating in
 
 ## When VPS service ends
 
-Export the last verified complete snapshot, save it outside the VPS, and distribute it only to authorized staff. Continue publishing newer complete snapshots with increasing revisions for manual imports. File imports update the Last update label and do not falsely update Last VPS sync. Server failures do not clear cached data. If migrating instead, retain the domain, API format, estate ID and revision sequence. Restore backups and test the replacement server before switching DNS. The phone's local cache is not a backup strategy.
+Before ending VPS service, preserve the last verified complete snapshot and private backups outside the VPS. Phones retain previously downloaded information offline. Manual file import would need to be restored and verified before distributing future file-based updates. Server failures do not clear cached data. If migrating instead, retain the domain, API format, estate ID and revision sequence. Restore backups and test the replacement server before switching DNS. The phone's local cache is not a backup strategy.
 
 ## Validation
 
