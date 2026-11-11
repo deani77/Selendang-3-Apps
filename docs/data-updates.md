@@ -13,6 +13,8 @@ Updates require a strictly higher positive integer revision. Duplicate or older 
 
 ## Shared file/API format
 
+See the [shared validation contract and regression fixtures](../test-data/snapshots/README.md) for exact timestamp, revision, text-length, YPH and field-profile rules.
+
 See [fictional example](../sample-data/estate-update.example.json). Format version is independent of app version.
 
 - `schemaVersion`: integer 1.

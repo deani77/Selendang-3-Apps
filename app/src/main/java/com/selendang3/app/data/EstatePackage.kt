@@ -44,10 +44,13 @@ object EstatePackages {
     fun parse(text: String): EstatePackage {
         require(text.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) { "Update file exceeds 2 MB." }
         val root = JSONObject(text)
-        require(root.opt("schemaVersion") == 1) { "Unsupported estate update format." }
+        require((root.opt("schemaVersion") as? Number)?.toDouble() == 1.0) { "Unsupported estate update format." }
         require(root.opt("estateId") == "selendang-3") { "This update belongs to a different estate." }
         val revisionValue = root.get("revision")
-        require(revisionValue is Int || revisionValue is Long) { "Revision must be a whole number." }
+        require(revisionValue is Number && revisionValue.toDouble().isFinite() &&
+            revisionValue.toDouble() % 1.0 == 0.0 && revisionValue.toDouble() in 1.0..9007199254740991.0) {
+            "Revision must be a positive safe integer."
+        }
         val revision = (revisionValue as Number).toLong()
         require(revision > 0) { "Revision must be positive." }
         fun requiredString(key: String, max: Int): String {
@@ -57,7 +60,10 @@ object EstatePackages {
         }
         val period = requiredString("reportingPeriod", 100)
         val exported = requiredString("exportedAt", 50)
-        OffsetDateTime.parse(exported)
+        require(Regex("""[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})""").matches(exported)) {
+            "Use a complete export timestamp with timezone."
+        }
+        require(OffsetDateTime.parse(exported).year in 1..9999) { "Invalid export year." }
         val sections = root.getJSONArray("sections")
         require(sections.length() == sectionIds.size) { "Include all seven estate sections; use empty rows when pending." }
         var rowCount = 0

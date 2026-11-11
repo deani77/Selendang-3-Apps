@@ -1,0 +1,2060 @@
+{
+  "base": {
+    "schemaVersion": 1,
+    "estateId": "selendang-3",
+    "revision": 1,
+    "reportingPeriod": "FICTIONAL EXAMPLE ONLY",
+    "exportedAt": "2026-10-20T00:00:00Z",
+    "sections": [
+      {
+        "id": "overview",
+        "columns": [
+          "Item",
+          "Value"
+        ],
+        "rows": [
+          [
+            "Dataset",
+            "FICTIONAL EXAMPLE — not estate records"
+          ]
+        ]
+      },
+      {
+        "id": "fields",
+        "columns": [
+          "Field",
+          "Hectares (ha)",
+          "Palms"
+        ],
+        "rows": [
+          [
+            "DEMO01",
+            1,
+            100
+          ]
+        ]
+      },
+      {
+        "id": "ages",
+        "columns": [
+          "Item",
+          "Value"
+        ],
+        "rows": []
+      },
+      {
+        "id": "soil",
+        "columns": [
+          "Item",
+          "Value"
+        ],
+        "rows": []
+      },
+      {
+        "id": "rainfall",
+        "columns": [
+          "Year",
+          "Month",
+          "Rainfall (mm)",
+          "Rainy days"
+        ],
+        "rows": [
+          [
+            2026,
+            "Jan",
+            0,
+            0
+          ],
+          [
+            2026,
+            "Feb",
+            null,
+            null
+          ]
+        ]
+      },
+      {
+        "id": "abw",
+        "columns": [
+          "Item",
+          "Value"
+        ],
+        "rows": []
+      },
+      {
+        "id": "roads",
+        "columns": [
+          "Item",
+          "Value"
+        ],
+        "rows": []
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "legacy-seven-sections",
+      "valid": true,
+      "overrides": {}
+    },
+    {
+      "name": "optional-extensions-null",
+      "valid": true,
+      "overrides": {}
+    },
+    {
+      "name": "valid-yph-zero-and-pending",
+      "valid": true,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "valid-field-profile-zero-and-null",
+      "valid": true,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profiles-null",
+      "valid": true,
+      "overrides": {}
+    },
+    {
+      "name": "profiles-empty",
+      "valid": true,
+      "overrides": {
+        "fieldProfiles": []
+      }
+    },
+    {
+      "name": "safe-integer-limit",
+      "valid": true,
+      "overrides": {
+        "revision": 9007199254740991
+      }
+    },
+    {
+      "name": "whole-number-notation",
+      "valid": true,
+      "overrides": {
+        "revision": 1.0
+      }
+    },
+    {
+      "name": "whole-schema-notation",
+      "valid": true,
+      "overrides": {
+        "schemaVersion": 1.0
+      }
+    },
+    {
+      "name": "timestamp-leap-day",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "2024-02-29T23:59:59Z"
+      }
+    },
+    {
+      "name": "timestamp-offset",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15+08:00"
+      }
+    },
+    {
+      "name": "timestamp-negative-offset",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15-05:30"
+      }
+    },
+    {
+      "name": "timestamp-fraction",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15.123456789Z"
+      }
+    },
+    {
+      "name": "timestamp-max-offset",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15+18:00"
+      }
+    },
+    {
+      "name": "timestamp-year-one",
+      "valid": true,
+      "overrides": {
+        "exportedAt": "0001-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "wrong-estate",
+      "valid": false,
+      "overrides": {
+        "estateId": "other"
+      }
+    },
+    {
+      "name": "future-schema",
+      "valid": false,
+      "overrides": {
+        "schemaVersion": 2
+      }
+    },
+    {
+      "name": "boolean-schema",
+      "valid": false,
+      "overrides": {
+        "schemaVersion": true
+      }
+    },
+    {
+      "name": "boolean-revision",
+      "valid": false,
+      "overrides": {
+        "revision": true
+      }
+    },
+    {
+      "name": "zero-revision",
+      "valid": false,
+      "overrides": {
+        "revision": 0
+      }
+    },
+    {
+      "name": "fractional-revision",
+      "valid": false,
+      "overrides": {
+        "revision": 1.5
+      }
+    },
+    {
+      "name": "string-revision",
+      "valid": false,
+      "overrides": {
+        "revision": "1"
+      }
+    },
+    {
+      "name": "unsafe-revision",
+      "valid": false,
+      "overrides": {
+        "revision": 9007199254740992
+      }
+    },
+    {
+      "name": "blank-period",
+      "valid": false,
+      "overrides": {
+        "reportingPeriod": " \n\t"
+      }
+    },
+    {
+      "name": "long-period",
+      "valid": false,
+      "overrides": {
+        "reportingPeriod": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    },
+    {
+      "name": "timestamp-missing-zone",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15"
+      }
+    },
+    {
+      "name": "timestamp-date-only",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20"
+      }
+    },
+    {
+      "name": "timestamp-garbage",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "not-a-date"
+      }
+    },
+    {
+      "name": "timestamp-normalized-day",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-02-30T00:00:00Z"
+      }
+    },
+    {
+      "name": "timestamp-non-leap-day",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2025-02-29T00:00:00Z"
+      }
+    },
+    {
+      "name": "timestamp-month-zero",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-00-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "timestamp-hour-24",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T24:00:00Z"
+      }
+    },
+    {
+      "name": "timestamp-leap-second",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:60Z"
+      }
+    },
+    {
+      "name": "timestamp-offset-19",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15+19:00"
+      }
+    },
+    {
+      "name": "timestamp-offset-18-minutes",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15+18:01"
+      }
+    },
+    {
+      "name": "timestamp-offset-minutes",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15+08:60"
+      }
+    },
+    {
+      "name": "timestamp-trailing-newline",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T00:00:00Z\n"
+      }
+    },
+    {
+      "name": "timestamp-year-zero",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "0000-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "timestamp-too-precise",
+      "valid": false,
+      "overrides": {
+        "exportedAt": "2026-10-20T12:30:15.1234567890Z"
+      }
+    },
+    {
+      "name": "missing-section",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "Dataset",
+                "FICTIONAL EXAMPLE — not estate records"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-section",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "Dataset",
+                "FICTIONAL EXAMPLE — not estate records"
+              ]
+            ]
+          },
+          {
+            "id": "overview",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-column",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Item"
+            ],
+            "rows": [
+              [
+                "Dataset",
+                "FICTIONAL EXAMPLE — not estate records"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "blank-column",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              " \t"
+            ],
+            "rows": [
+              [
+                "Dataset",
+                "FICTIONAL EXAMPLE — not estate records"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-row-width",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "one"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "boolean-cell",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "value",
+                true
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "object-cell",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "value",
+                {}
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "long-cell-utf16",
+      "valid": false,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "value",
+                "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "max-cell-utf16",
+      "valid": true,
+      "overrides": {
+        "sections": [
+          {
+            "id": "overview",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": [
+              [
+                "value",
+                "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+              ]
+            ]
+          },
+          {
+            "id": "fields",
+            "columns": [
+              "Field",
+              "Hectares (ha)",
+              "Palms"
+            ],
+            "rows": [
+              [
+                "DEMO01",
+                1,
+                100
+              ]
+            ]
+          },
+          {
+            "id": "ages",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "soil",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "rainfall",
+            "columns": [
+              "Year",
+              "Month",
+              "Rainfall (mm)",
+              "Rainy days"
+            ],
+            "rows": [
+              [
+                2026,
+                "Jan",
+                0,
+                0
+              ],
+              [
+                2026,
+                "Feb",
+                null,
+                null
+              ]
+            ]
+          },
+          {
+            "id": "abw",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          },
+          {
+            "id": "roads",
+            "columns": [
+              "Item",
+              "Value"
+            ],
+            "rows": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "yph-year-low",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 1899,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-year-high",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2201,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-fractional-year",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026.5,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-month",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 13,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-zero-area",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 0,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-negative-actual",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": -1,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-string-actual",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": "1",
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-boolean-actual",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": true,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-budget-over-annual",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 201,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-duplicate-history",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            },
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-current-history",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2026,
+              "actualYph": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-negative-history",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": -1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-missing-history-value",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-history-limit",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 1900,
+              "actualYph": null
+            },
+            {
+              "year": 1901,
+              "actualYph": null
+            },
+            {
+              "year": 1902,
+              "actualYph": null
+            },
+            {
+              "year": 1903,
+              "actualYph": null
+            },
+            {
+              "year": 1904,
+              "actualYph": null
+            },
+            {
+              "year": 1905,
+              "actualYph": null
+            },
+            {
+              "year": 1906,
+              "actualYph": null
+            },
+            {
+              "year": 1907,
+              "actualYph": null
+            },
+            {
+              "year": 1908,
+              "actualYph": null
+            },
+            {
+              "year": 1909,
+              "actualYph": null
+            },
+            {
+              "year": 1910,
+              "actualYph": null
+            },
+            {
+              "year": 1911,
+              "actualYph": null
+            },
+            {
+              "year": 1912,
+              "actualYph": null
+            },
+            {
+              "year": 1913,
+              "actualYph": null
+            },
+            {
+              "year": 1914,
+              "actualYph": null
+            },
+            {
+              "year": 1915,
+              "actualYph": null
+            },
+            {
+              "year": 1916,
+              "actualYph": null
+            },
+            {
+              "year": 1917,
+              "actualYph": null
+            },
+            {
+              "year": 1918,
+              "actualYph": null
+            },
+            {
+              "year": 1919,
+              "actualYph": null
+            },
+            {
+              "year": 1920,
+              "actualYph": null
+            },
+            {
+              "year": 1921,
+              "actualYph": null
+            },
+            {
+              "year": 1922,
+              "actualYph": null
+            },
+            {
+              "year": 1923,
+              "actualYph": null
+            },
+            {
+              "year": 1924,
+              "actualYph": null
+            },
+            {
+              "year": 1925,
+              "actualYph": null
+            },
+            {
+              "year": 1926,
+              "actualYph": null
+            },
+            {
+              "year": 1927,
+              "actualYph": null
+            },
+            {
+              "year": 1928,
+              "actualYph": null
+            },
+            {
+              "year": 1929,
+              "actualYph": null
+            },
+            {
+              "year": 1930,
+              "actualYph": null
+            },
+            {
+              "year": 1931,
+              "actualYph": null
+            },
+            {
+              "year": 1932,
+              "actualYph": null
+            },
+            {
+              "year": 1933,
+              "actualYph": null
+            },
+            {
+              "year": 1934,
+              "actualYph": null
+            },
+            {
+              "year": 1935,
+              "actualYph": null
+            },
+            {
+              "year": 1936,
+              "actualYph": null
+            },
+            {
+              "year": 1937,
+              "actualYph": null
+            },
+            {
+              "year": 1938,
+              "actualYph": null
+            },
+            {
+              "year": 1939,
+              "actualYph": null
+            },
+            {
+              "year": 1940,
+              "actualYph": null
+            },
+            {
+              "year": 1941,
+              "actualYph": null
+            },
+            {
+              "year": 1942,
+              "actualYph": null
+            },
+            {
+              "year": 1943,
+              "actualYph": null
+            },
+            {
+              "year": 1944,
+              "actualYph": null
+            },
+            {
+              "year": 1945,
+              "actualYph": null
+            },
+            {
+              "year": 1946,
+              "actualYph": null
+            },
+            {
+              "year": 1947,
+              "actualYph": null
+            },
+            {
+              "year": 1948,
+              "actualYph": null
+            },
+            {
+              "year": 1949,
+              "actualYph": null
+            },
+            {
+              "year": 1950,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-missing-actualYtdTonnes",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "budgetYtdTonnes": 100,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-missing-budgetYtdTonnes",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "fullYearBudgetTonnes": 200,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "yph-missing-fullYearBudgetTonnes",
+      "valid": false,
+      "overrides": {
+        "yph": {
+          "reportingYear": 2026,
+          "throughMonth": 9,
+          "matureAreaHa": 100,
+          "actualYtdTonnes": 0,
+          "budgetYtdTonnes": 100,
+          "history": [
+            {
+              "year": 2025,
+              "actualYph": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "profile-negative-area",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": -1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-string-year",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": "2026",
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-fractional-year",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026.5,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-boolean-year",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": true,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-missing-blocks",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-blank-code",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": " ",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-duplicate-trimmed-code",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          },
+          {
+            "fieldCode": " DEMO01 ",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-duplicate-block",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              },
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": null,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-numeric-soil",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020,
+                "soilCode": 1,
+                "sourceNote": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-missing-nullable-block-text",
+      "valid": true,
+      "overrides": {
+        "fieldProfiles": [
+          {
+            "fieldCode": "DEMO01",
+            "reportYear": 2026,
+            "plantedAreaHa": 1,
+            "unplantedAreaHa": 0,
+            "divisionStandsPerHa": 100,
+            "divisionPalmHeightM": 0,
+            "maturity": "MATURED",
+            "blocks": [
+              {
+                "blockId": "DEMO01-A",
+                "blockName": "A",
+                "plantedAreaHa": 1,
+                "unplantedAreaHa": 0,
+                "harvestingYear": 2020
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "profile-non-array",
+      "valid": false,
+      "overrides": {
+        "fieldProfiles": {}
+      }
+    },
+    {
+      "name": "unknown-extension",
+      "valid": true,
+      "overrides": {
+        "futureExtension": {
+          "note": "ignored by older clients"
+        }
+      }
+    }
+  ]
+}

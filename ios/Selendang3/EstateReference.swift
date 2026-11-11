@@ -5,7 +5,7 @@ struct EstateReferenceCell: Decodable {
     init(from decoder: Decoder) throws {
         let value = try decoder.singleValueContainer()
         if let string = try? value.decode(String.self) {
-            guard string.count <= 1000 else { throw ProductionError.invalid("Estate cell is too long.") }
+            guard string.utf16.count <= 1000 else { throw ProductionError.invalid("Estate cell is too long.") }
             text = string
         } else {
             let number = try value.decode(Double.self)
@@ -51,16 +51,16 @@ struct EstateReference: Decodable {
         guard data.count <= 2*1024*1024 else { throw ProductionError.invalid("Estate update exceeds 2 MB.") }
         let result = try JSONDecoder().decode(EstateReference.self, from: data)
         let expected: Set<String> = ["overview","fields","ages","soil","rainfall","abw","roads"]
-        guard result.schemaVersion == 1, result.estateId == "selendang-3", result.revision > 0,
-              !result.reportingPeriod.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, result.reportingPeriod.count <= 100,
-              !result.exportedAt.isEmpty, result.exportedAt.count <= 50,
+        guard result.schemaVersion == 1, result.estateId == "selendang-3", result.revision > 0, result.revision <= 9_007_199_254_740_991,
+              !result.reportingPeriod.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, result.reportingPeriod.utf16.count <= 100,
+              validExportTimestamp(result.exportedAt),
               result.sections.count == 7, Set(result.sections.map(\.id)) == expected,
               result.sections.reduce(0, { $0 + $1.rows.count }) <= 10000 else {
             throw ProductionError.invalid("Invalid estate update or wrong estate.")
         }
         for table in result.sections {
             guard (1...20).contains(table.columns.count), Set(table.columns).count == table.columns.count,
-                  table.columns.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.count <= 80 }),
+                  table.columns.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.utf16.count <= 80 }),
                   table.rows.allSatisfy({ $0.count == table.columns.count }) else {
                 throw ProductionError.invalid("Invalid estate table.")
             }
@@ -71,7 +71,30 @@ struct EstateReference: Decodable {
                 throw ProductionError.invalid("Invalid or duplicate field profile. Check source field and block details.")
             }
         }
+        if let yph = result.yph { try yph.validate() }
         return result
+    }
+
+    // Match Android's strict offset date parser; Foundation's lenient date parsing
+    // and JavaScript Date.parse can normalize invalid dates instead of rejecting them.
+    private static func validExportTimestamp(_ value: String) -> Bool {
+        let pattern = #"^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.[0-9]{1,9})?(Z|[+-]([0-9]{2}):([0-9]{2}))$"#
+        let regex = try! NSRegularExpression(pattern: pattern)
+        let range = NSRange(value.startIndex..., in: value)
+        guard let match = regex.firstMatch(in: value, range: range), match.range == range else { return false }
+        let text = value as NSString
+        func part(_ index: Int) -> Int { Int(text.substring(with: match.range(at: index)))! }
+        let year = part(1), month = part(2), day = part(3)
+        guard (1...9999).contains(year), (1...12).contains(month), (0...23).contains(part(4)),
+              (0...59).contains(part(5)), (0...59).contains(part(6)) else { return false }
+        let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
+        let days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        guard (1...days[month - 1]).contains(day) else { return false }
+        if text.substring(with: match.range(at: 7)) != "Z" {
+            let hours = part(8), minutes = part(9)
+            guard hours <= 18, minutes <= 59, hours < 18 || minutes == 0 else { return false }
+        }
+        return true
     }
 }
 
@@ -110,6 +133,20 @@ extension EstateSourceFieldProfile {
                 profileText($0.blockId) && profileText($0.blockName) && (1...9999).contains($0.harvestingYear) &&
                     profileMeasures([$0.plantedAreaHa, $0.unplantedAreaHa])
             }
+    }
+}
+
+extension EstateYph {
+    func validate() throws {
+        func valid(_ value: Double?) -> Bool { value == nil || (value!.isFinite && value! >= 0) }
+        guard (1900...2200).contains(reportingYear), (1...12).contains(throughMonth),
+              matureAreaHa.isFinite, matureAreaHa > 0,
+              valid(actualYtdTonnes), valid(budgetYtdTonnes), valid(fullYearBudgetTonnes),
+              budgetYtdTonnes == nil || fullYearBudgetTonnes == nil || budgetYtdTonnes! <= fullYearBudgetTonnes!,
+              history.count <= 50, Set(history.map(\.year)).count == history.count,
+              history.allSatisfy({ $0.year >= 1900 && $0.year < reportingYear && valid($0.actualYph) }) else {
+            throw ProductionError.invalid("Invalid YPH period, area, budget or history.")
+        }
     }
 }
 
