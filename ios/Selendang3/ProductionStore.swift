@@ -34,11 +34,6 @@ private struct ProductionRequest: Encodable {
     let estateId = "selendang-3"
     let changes: [ProductionChange]
 }
-private final class ProductionNoRedirect: NSObject, URLSessionTaskDelegate {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) { completionHandler(nil) }
-}
-
 @MainActor
 final class ProductionStore: ObservableObject {
     static let shared = ProductionStore()
@@ -117,23 +112,21 @@ final class ProductionStore: ObservableObject {
     func sync(address: String, token: String) async throws {
         guard !Self.syncActive else { throw ProductionError.invalid("Production sync is already running.") }
         guard storageError == nil else { throw ProductionError.invalid(storageError!) }
-        guard var components = URLComponents(string: address.trimmingCharacters(in: .whitespacesAndNewlines)),
-              components.scheme == "https", components.host != nil, components.user == nil, components.password == nil,
-              components.query == nil, components.fragment == nil, components.path == "/v1/estates/selendang-3/snapshot",
-              !token.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !token.contains("\n"), !token.contains("\r") else {
+        // Preserve the legacy upload path's rejection of raw token line breaks.
+        guard !token.contains("\n"), !token.contains("\r") else {
             throw ProductionError.invalid("Enter the trusted HTTPS snapshot address and access token.")
         }
-        components.path = "/v1/estates/selendang-3/production"
-        guard let endpoint = components.url else { throw ProductionError.invalid("Invalid server address") }
+        let connection = try EstateSyncEndpoint(address: address, token: token)
+        let endpoint = connection.production
         Self.syncActive = true; syncing = true
         defer { Self.syncActive = false; syncing = false }
-        let session = URLSession(configuration: .ephemeral, delegate: ProductionNoRedirect(), delegateQueue: nil)
+        let session = EstateSyncTransport.makeSession()
         defer { session.invalidateAndCancel() }
         let pending = entries.filter { $0.pending && $0.conflict == nil }
         let batches = pending.isEmpty ? [[]] : stride(from: 0, to: pending.count, by: 100).map { Array(pending[$0..<min($0+100,pending.count)]) }
         for sent in batches {
             var request = URLRequest(url: endpoint, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30)
-            request.setValue("Bearer " + token.trimmingCharacters(in: .whitespacesAndNewlines), forHTTPHeaderField: "Authorization")
+            request.setValue("Bearer " + connection.token, forHTTPHeaderField: "Authorization")
             if !sent.isEmpty {
                 request.httpMethod = "POST"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -2,6 +2,8 @@
 
 Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and supplied by the private VPS.
 
+New to the code or adapting it for your own app? Start with the [architecture and customization guide](ARCHITECTURE.md).
+
 ## Navigation
 - On iPad, Estate Map appears above the home dashboard. Tapping it opens the bundled Selendang 3 PDF in a full-screen portrait view with native pinch zoom and pan. Back returns to the dashboard; Reset View fits the whole map again. No network connection or location permission is required. The source map is dated 6 February 2025; this viewer does not provide live GPS positioning or selectable blocks.
 - Home and Estate Dashboard display saved server summaries, retaining source dates and units.
@@ -51,3 +53,7 @@ Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter
 
 Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
 
+
+## Developer checks and sync helpers
+
+Run `python3 scripts/check-ios.py` from the repository root for the same source checks used by CI. See the [developer guide](DEVELOPMENT.md) for individual suites, adding checks and the responsibilities of the shared sync helpers.

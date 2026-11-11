@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.Flow
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-// Empty by default. Operational data must come from a future authenticated import.
+// Legacy structured field storage is retained for database compatibility.
+// Current operational screens read the downloaded estate_snapshot instead.
 @Entity(tableName = "estate_fields")
 data class EstateField(
     @PrimaryKey val code: String,

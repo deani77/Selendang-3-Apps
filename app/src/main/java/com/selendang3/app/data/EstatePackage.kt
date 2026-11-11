@@ -21,6 +21,9 @@ data class EstatePackage(val revision: Long, val reportingPeriod: String,
 }
 
 object EstatePackages {
+    private val edgeWhitespace = Regex("""^[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+|[\u0009-\u000d\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]+$""")
+    internal fun trimText(value: String): String = value.replace(edgeWhitespace, "")
+
     const val MAX_BYTES = 2 * 1024 * 1024
     val sectionIds = setOf("overview", "fields", "ages", "soil", "rainfall", "abw", "roads")
 
@@ -44,20 +47,26 @@ object EstatePackages {
     fun parse(text: String): EstatePackage {
         require(text.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) { "Update file exceeds 2 MB." }
         val root = JSONObject(text)
-        require(root.opt("schemaVersion") == 1) { "Unsupported estate update format." }
+        require((root.opt("schemaVersion") as? Number)?.toDouble() == 1.0) { "Unsupported estate update format." }
         require(root.opt("estateId") == "selendang-3") { "This update belongs to a different estate." }
         val revisionValue = root.get("revision")
-        require(revisionValue is Int || revisionValue is Long) { "Revision must be a whole number." }
+        require(revisionValue is Number && revisionValue.toDouble().isFinite() &&
+            revisionValue.toDouble() % 1.0 == 0.0 && revisionValue.toDouble() in 1.0..9007199254740991.0) {
+            "Revision must be a positive safe integer."
+        }
         val revision = (revisionValue as Number).toLong()
         require(revision > 0) { "Revision must be positive." }
         fun requiredString(key: String, max: Int): String {
             val value = root.get(key)
-            require(value is String && value.isNotBlank() && value.length <= max) { "Invalid $key." }
+            require(value is String && trimText(value).isNotEmpty() && value.length <= max) { "Invalid $key." }
             return value
         }
         val period = requiredString("reportingPeriod", 100)
         val exported = requiredString("exportedAt", 50)
-        OffsetDateTime.parse(exported)
+        require(Regex("""[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,9})?(Z|[+-][0-9]{2}:[0-9]{2})""").matches(exported)) {
+            "Use a complete export timestamp with timezone."
+        }
+        require(OffsetDateTime.parse(exported).year in 1..9999) { "Invalid export year." }
         val sections = root.getJSONArray("sections")
         require(sections.length() == sectionIds.size) { "Include all seven estate sections; use empty rows when pending." }
         var rowCount = 0
@@ -69,7 +78,7 @@ object EstatePackages {
             require(rawColumns.length() in 1..20) { "Each section needs 1–20 columns." }
             val columns = (0 until rawColumns.length()).map {
                 val value = rawColumns.get(it)
-                require(value is String && value.isNotBlank() && value.length <= 80) { "Invalid column label." }
+                require(value is String && trimText(value).isNotEmpty() && value.length <= 80) { "Invalid column label." }
                 value
             }
             require(columns.distinct().size == columns.size) { "Duplicate column labels." }
