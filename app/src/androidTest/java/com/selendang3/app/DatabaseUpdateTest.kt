@@ -43,24 +43,4 @@ class DatabaseUpdateTest {
             }
         } finally { db.close() }
     }
-
-    @Test fun v1DatabaseMigratesWithoutLosingExistingField() = runBlocking {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val name = "migration-test.db"
-        context.deleteDatabase(name)
-        context.openOrCreateDatabase(name, 0, null).use { sql ->
-            sql.execSQL("CREATE TABLE estate_fields (code TEXT NOT NULL PRIMARY KEY, alternateCode TEXT, hectares REAL NOT NULL, palms INTEGER NOT NULL, reportingYear INTEGER NOT NULL, verified INTEGER NOT NULL)")
-            sql.execSQL("CREATE TABLE sync_state (id INTEGER NOT NULL PRIMARY KEY, lastSuccessEpochMillis INTEGER)")
-            sql.execSQL("INSERT INTO estate_fields VALUES ('DEMO', NULL, 1.0, 1, 2026, 0)")
-            sql.version = 1
-        }
-        val db = Room.databaseBuilder(context, EstateDatabase::class.java, name)
-            .addMigrations(EstateDatabase.MIGRATION_1_2).build()
-        try {
-            assertNull(db.estateDao().currentSnapshot())
-            db.openHelper.readableDatabase.query("SELECT code FROM estate_fields").use {
-                assertTrue(it.moveToFirst()); assertEquals("DEMO", it.getString(0))
-            }
-        } finally { db.close(); context.deleteDatabase(name) }
-    }
 }

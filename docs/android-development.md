@@ -1,5 +1,7 @@
 # Android development
 
+For Room table ownership, schema exports and safe upgrades, see the [database and migration guide](android-database.md).
+
 ## Initial scope
 
 Kotlin and Jetpack Compose Android application, minimum Android 8.0 (API 26), compile/target API 35. Application ID `com.selendang3.app` is provisional. Version: **v0.1 Alpha**.
