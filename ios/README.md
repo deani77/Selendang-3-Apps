@@ -2,6 +2,8 @@
 
 Native SwiftUI app for iOS 16 or later. Estate operational data is read-only and supplied by the private VPS.
 
+New to the code or adapting it for your own app? Start with the [architecture and customization guide](ARCHITECTURE.md).
+
 ## Navigation
 - On iPad, Estate Map appears above the home dashboard. Tapping it opens the bundled Selendang 3 PDF in a full-screen portrait view with native pinch zoom and pan. Back returns to the dashboard; Reset View fits the whole map again. No network connection or location permission is required. The source map is dated 6 February 2025; this viewer does not provide live GPS positioning or selectable blocks.
 - Home and Estate Dashboard display saved server summaries, retaining source dates and units.
