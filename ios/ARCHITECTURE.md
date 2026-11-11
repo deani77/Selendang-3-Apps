@@ -67,4 +67,14 @@ Legacy production draft/store code remains in the repository, but current operat
 
 [DashboardSummaryChecks.swift](Tests/DashboardSummaryChecks.swift) checks summary values and labels against fixed expectations, including zero, missing values, future/stale periods, month ends and Kuala Lumpur New Year. [EstateDashboardChecks.swift](Tests/EstateDashboardChecks.swift) covers detailed panels, field calculations and report behavior. Parser checks live in [EstateReferenceChecks.swift](Tests/EstateReferenceChecks.swift).
 
-The [iOS CI workflow](../.github/workflows/ios.yml) shows the complete standalone Swift commands and builds the app for the simulator. When adding another calculation source file, include it in the relevant standalone commands; [XcodeGen](project.yml) already includes source files beneath `Selendang3/` for the app build. See [setup](README.md#build-and-validation) for local project generation and signing.
+Run the same source checks locally and in CI, from the repository root on macOS with Python 3 and Xcode's Swift tools installed:
+
+```sh
+python3 scripts/check-ios.py
+```
+
+Use `python3 scripts/check-ios.py dashboard` to run only dashboard checks, or `python3 scripts/check-ios.py --list` to inspect the source/test groups without invoking Swift. See the [developer checks guide](DEVELOPMENT.md) for all suites and sync-helper ownership.
+
+When adding a standalone suite or a calculation outside the dashboard model, update `SUITES` in [check-ios.py](../scripts/check-ios.py). The runner automatically groups `EstateDashboardData*.swift` extensions and includes `DashboardSummaryChecks.swift` when present. Keep calculation sources independent of SwiftUI so the standalone checks remain lightweight. Run from the repository root for the commands above; the script also locates that root when invoked from another directory.
+
+The [iOS CI workflow](../.github/workflows/ios.yml) invokes this runner, then separately builds the app for the simulator. [XcodeGen](project.yml) includes source files beneath `Selendang3/` for that app build. Source checks do not replace simulator compilation, device signing or hands-on UI checks. See [setup](README.md#build-and-validation) for project generation and signing.
