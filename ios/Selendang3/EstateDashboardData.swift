@@ -1,6 +1,15 @@
 import Foundation
 
-struct EstateYphHistory: Decodable { let year: Int; let actualYph: Double? }
+struct EstateYphHistory: Decodable {
+    let year: Int
+    let actualYph: Double?
+    private enum CodingKeys: String, CodingKey { case year, actualYph }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        year = try values.decode(Int.self, forKey: .year)
+        actualYph = try values.decode(Double?.self, forKey: .actualYph)
+    }
+}
 struct EstateYph: Decodable {
     let reportingYear: Int
     let throughMonth: Int
@@ -9,6 +18,19 @@ struct EstateYph: Decodable {
     let budgetYtdTonnes: Double?
     let fullYearBudgetTonnes: Double?
     let history: [EstateYphHistory]
+    private enum CodingKeys: String, CodingKey {
+        case reportingYear, throughMonth, matureAreaHa, actualYtdTonnes, budgetYtdTonnes, fullYearBudgetTonnes, history
+    }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        reportingYear = try values.decode(Int.self, forKey: .reportingYear)
+        throughMonth = try values.decode(Int.self, forKey: .throughMonth)
+        matureAreaHa = try values.decode(Double.self, forKey: .matureAreaHa)
+        actualYtdTonnes = try values.decode(Double?.self, forKey: .actualYtdTonnes)
+        budgetYtdTonnes = try values.decode(Double?.self, forKey: .budgetYtdTonnes)
+        fullYearBudgetTonnes = try values.decode(Double?.self, forKey: .fullYearBudgetTonnes)
+        history = try values.decode([EstateYphHistory].self, forKey: .history)
+    }
 }
 struct DashboardBar: Identifiable {
     let category: String

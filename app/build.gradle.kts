@@ -16,6 +16,7 @@ android {
         versionName = "0.11 Alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    sourceSets.getByName("test").resources.srcDir(rootProject.file("test-data"))
     buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
