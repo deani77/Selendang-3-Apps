@@ -1,5 +1,8 @@
 package com.selendang3.app
 
+import com.selendang3.app.navigation.estateSections
+import com.selendang3.app.navigation.Section
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
