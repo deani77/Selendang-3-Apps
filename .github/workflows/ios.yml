@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'ios/**'
+      - 'scripts/check-ios.py'
+      - 'scripts/*crop-history.py'
       - '.github/workflows/ios.yml'
   workflow_dispatch:
 permissions:
@@ -21,27 +23,7 @@ jobs:
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
-      - name: Check production calculations
-        run: |
-          cat ios/Selendang3/ProductionData.swift ios/Tests/ProductionChecks.swift > "$RUNNER_TEMP/ProductionChecks.swift"
-          swift "$RUNNER_TEMP/ProductionChecks.swift"
-      - name: Check estate reference validation
-        run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Tests/EstateReferenceChecks.swift > "$RUNNER_TEMP/EstateReferenceChecks.swift"
-          swift "$RUNNER_TEMP/EstateReferenceChecks.swift"
-      - name: Check dashboard calculations
-        run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Selendang3/CropProductionTableData.swift ios/Tests/EstateDashboardChecks.swift > "$RUNNER_TEMP/EstateDashboardChecks.swift"
-          swift "$RUNNER_TEMP/EstateDashboardChecks.swift"
-      - name: Check crop history migration
-        run: python3 scripts/test-crop-history.py
-      - name: Check crop history
-        run: |
-          cat ios/Selendang3/ProductionData.swift ios/Selendang3/EstateReference.swift ios/Selendang3/EstateDashboardData.swift ios/Selendang3/EstateDashboardData+Snapshot.swift ios/Tests/CropHistoryChecks.swift > "$RUNNER_TEMP/CropHistoryChecks.swift"
-          swift "$RUNNER_TEMP/CropHistoryChecks.swift"
-      - name: Check Planter Tools calculations
-        run: |
-          cat ios/Selendang3/PlanterCalculations.swift ios/Tests/PlanterToolsChecks.swift > "$RUNNER_TEMP/PlanterToolsChecks.swift"
-          swift "$RUNNER_TEMP/PlanterToolsChecks.swift"
+      - name: Run iOS source checks
+        run: python3 scripts/check-ios.py
       - name: Build for iOS Simulator
         run: xcodebuild -project ios/Selendang3.xcodeproj -scheme Selendang3 -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

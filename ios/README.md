@@ -51,3 +51,7 @@ Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter
 
 Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
 
+
+## Developer checks and sync helpers
+
+Run `python3 scripts/check-ios.py` from the repository root for the same source checks used by CI. See the [developer guide](DEVELOPMENT.md) for individual suites, adding checks and the responsibilities of the shared sync helpers.
