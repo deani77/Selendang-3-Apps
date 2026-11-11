@@ -1,11 +1,6 @@
 import Foundation
 import Combine
 
-private final class EstateNoRedirect: NSObject, URLSessionTaskDelegate {
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) { completionHandler(nil) }
-}
-
 @MainActor
 final class EstateReferenceStore: ObservableObject {
     static let shared = EstateReferenceStore()
@@ -22,7 +17,7 @@ final class EstateReferenceStore: ObservableObject {
     }
     func download(address: String, token: String) async throws -> (EstateReference, Data) {
         let endpoint = try EstateSyncEndpoint(address: address, token: token)
-        let session = URLSession(configuration: .ephemeral, delegate: EstateNoRedirect(), delegateQueue: nil)
+        let session = EstateSyncTransport.makeSession()
         defer { session.invalidateAndCancel() }
         var request = URLRequest(url: endpoint.snapshot, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30)
         request.setValue("Bearer " + endpoint.token, forHTTPHeaderField: "Authorization")
