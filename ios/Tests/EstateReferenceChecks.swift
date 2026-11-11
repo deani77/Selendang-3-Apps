@@ -105,3 +105,38 @@ let reloadedProfiles = try EstateReference.parse(encoded(withProfiles))
 precondition(reloadedProfiles.fieldProfiles![0].reportYear == 2027)
 precondition(reloadedProfiles.fieldProfiles![0].divisionPalmHeightM == 0)
 print("Profile validation rejects malformed/duplicate facts and retains 2027, measured zero and legacy snapshots")
+
+// The same source fixtures run through Android and server parsers in CI.
+let contractURL = URL(fileURLWithPath: "test-data/snapshots/cases.json")
+let contractData = try Data(contentsOf: contractURL)
+let contractCorpus = try JSONSerialization.jsonObject(with: contractData) as! [String: Any]
+let contractBase = contractCorpus["base"] as! [String: Any]
+let contractCases = contractCorpus["cases"] as! [[String: Any]]
+precondition(!contractCases.isEmpty)
+for item in contractCases {
+    let snapshot = contractBase.merging(item["overrides"] as! [String: Any]) { _, replacement in replacement }
+    let bytes = try JSONSerialization.data(withJSONObject: snapshot)
+    var accepted = false
+    do { _ = try EstateReference.parse(bytes); accepted = true } catch {}
+    precondition(accepted == item["valid"] as! Bool, "Shared snapshot: " + (item["name"] as! String))
+}
+let baseBytes = try JSONSerialization.data(withJSONObject: contractBase)
+let maximumBytes = baseBytes + Data(repeating: 32, count: 2*1024*1024 - baseBytes.count)
+_ = try EstateReference.parse(maximumBytes)
+for invalidBytes in [maximumBytes + Data([32]), baseBytes + Data([0xff])] {
+    do { _ = try EstateReference.parse(invalidBytes); fatalError("Invalid bytes accepted") } catch {}
+}
+print("Shared snapshot contract: \(contractCases.count) fixtures and byte/UTF-8 limits passed")
+
+var rowLimitSnapshot = contractBase
+var rowLimitSections = rowLimitSnapshot["sections"] as! [[String: Any]]
+for index in rowLimitSections.indices { rowLimitSections[index]["rows"] = [[Any]]() }
+rowLimitSections[0]["rows"] = Array(repeating: ["value", NSNull()] as [Any], count: 10000)
+rowLimitSnapshot["sections"] = rowLimitSections
+_ = try EstateReference.parse(JSONSerialization.data(withJSONObject: rowLimitSnapshot))
+rowLimitSections[1]["rows"] = [["value", NSNull(), 0]]
+rowLimitSnapshot["sections"] = rowLimitSections
+do {
+    _ = try EstateReference.parse(JSONSerialization.data(withJSONObject: rowLimitSnapshot))
+    fatalError("Snapshot total row limit was not enforced")
+} catch {}
