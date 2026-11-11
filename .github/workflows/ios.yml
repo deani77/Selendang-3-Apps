@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'ios/**'
+      - 'test-data/**'
       - 'scripts/check-ios.py'
       - 'scripts/*crop-history.py'
       - '.github/workflows/ios.yml'
