@@ -21,6 +21,7 @@ import com.selendang3.app.ProductionScreen
 import com.selendang3.app.UpkeepCultivationScreen
 import com.selendang3.app.UserSettingsScreen
 import com.selendang3.app.data.EstatePackage
+import com.selendang3.app.ui.components.HomeSectionGrid
 import com.selendang3.app.ui.components.SectionGrid
 
 @Composable
@@ -36,7 +37,7 @@ internal fun EstateNavigation(
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Spacer(Modifier.height(8.dp))
-                SectionGrid(listOf(Section("dashboard", "Estate Dashboard", "")) + mainSections) { nav.navigate(it) }
+                HomeSectionGrid { nav.navigate(it) }
             }
         }
         composable("information") {

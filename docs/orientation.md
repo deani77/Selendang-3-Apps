@@ -1,6 +1,6 @@
-# Portrait-only interface
+# App orientation
 
-The app supports upright portrait on iPhone, iPad and Android. Existing portrait layouts are retained; no landscape-specific layouts are introduced.
+The app supports upright portrait on iPhone and iPad, and portrait and landscape on Android.
 
 ## iPhone and iPad
 
@@ -10,7 +10,7 @@ The generated plist remains outside version control. App identity, version and l
 
 ## Android
 
-The main activity requests `portrait` and disables ordinary activity resizing. The orientation-override compatibility property is false. The app currently targets API 35.
+The main activity follows the device orientation and disables ordinary activity resizing. On the landscape home screen, Estate Dashboard spans the top row and Planter Tools spans the bottom row. The shortcuts between them wrap to fit the available width. The app currently targets API 35.
 
 Android system/OEM overrides, desktop windowing and some tablet modes can supersede app orientation restrictions. When targeting API 36, Android changes large-screen behavior; the API 37 large-screen rules remove the orientation opt-out. Recheck this policy before raising target SDK. Do not promise that an app can defeat device-level overrides.
 
