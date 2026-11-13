@@ -10,7 +10,7 @@ The generated plist remains outside version control. App identity, version and l
 
 ## Android
 
-The main activity follows the device orientation and disables ordinary activity resizing. On the landscape home screen, Estate Dashboard spans the top row and Planter Tools spans the bottom row. The shortcuts between them wrap to fit the available width. The app currently targets API 35.
+The main activity follows the device orientation and disables ordinary activity resizing. On the landscape home screen, Estate Dashboard spans the top row. The other shortcuts share a grid that wraps to fit the available width, with Planter Tools at the end. The app currently targets API 35.
 
 Android system/OEM overrides, desktop windowing and some tablet modes can supersede app orientation restrictions. When targeting API 36, Android changes large-screen behavior; the API 37 large-screen rules remove the orientation opt-out. Recheck this policy before raising target SDK. Do not promise that an app can defeat device-level overrides.
 

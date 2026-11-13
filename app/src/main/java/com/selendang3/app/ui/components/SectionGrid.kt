@@ -28,11 +28,9 @@ import com.selendang3.app.navigation.mainSections
 internal fun HomeSectionGrid(onOpen: (String) -> Unit) {
     val dashboard = Section("dashboard", "Estate Dashboard", "")
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        val tools = mainSections.first { it.route == "tools" }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionButton(dashboard, onOpen, minHeight = 96.dp)
-            SectionGrid(mainSections - tools, maxColumns = 5, fillLastRow = false, onOpen = onOpen)
-            SectionButton(tools, onOpen, minHeight = 96.dp)
+            SectionGrid(mainSections, maxColumns = 3, fillLastRow = false, onOpen = onOpen)
         }
     } else {
         SectionGrid(listOf(dashboard) + mainSections, onOpen = onOpen)

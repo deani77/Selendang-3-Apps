@@ -43,7 +43,7 @@ class EstatePillsTest {
         pills.forEach { assertEquals(pills[0].height, it.height, 1f) }
     }
 
-    @Test fun landscapeHomePlacesFullWidthDashboardAboveModulesAndToolsBelow() {
+    @Test fun landscapeHomePlacesFullWidthDashboardAboveEqualSizedShortcuts() {
         val opened = mutableListOf<String>()
         compose.setContent {
             val configuration = Configuration(LocalConfiguration.current).apply {
@@ -64,15 +64,16 @@ class EstatePillsTest {
         val tools = compose.onNodeWithText("Planter Tools")
         val dashboardBounds = dashboard.fetchSemanticsNode().boundsInRoot
         val toolsBounds = tools.fetchSemanticsNode().boundsInRoot
-        for (bounds in listOf(dashboardBounds, toolsBounds)) {
-            assertEquals(boundary.left, bounds.left, 1f)
-            assertEquals(boundary.right, bounds.right, 1f)
-        }
+        assertEquals(boundary.left, dashboardBounds.left, 1f)
+        assertEquals(boundary.right, dashboardBounds.right, 1f)
+        assertTrue(toolsBounds.width < dashboardBounds.width)
+        assertTrue(toolsBounds.top >= dashboardBounds.bottom)
         for (title in listOf("Estate Details", "Field Details", "Upkeep and Cultivation", "Crop Production", "Settings")) {
             val bounds = compose.onNodeWithText(title).fetchSemanticsNode().boundsInRoot
             assertTrue(bounds.top >= dashboardBounds.bottom)
-            assertTrue(bounds.bottom <= toolsBounds.top)
-            assertTrue(bounds.width < dashboardBounds.width)
+            assertTrue(bounds.top <= toolsBounds.top)
+            assertEquals(toolsBounds.width, bounds.width, 1f)
+            assertEquals(toolsBounds.height, bounds.height, 1f)
         }
         dashboard.performClick()
         tools.performClick()
