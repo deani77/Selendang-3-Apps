@@ -1,19 +1,23 @@
 package com.selendang3.app
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.selendang3.app.ui.components.HomeSectionGrid
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,6 +41,43 @@ class EstatePillsTest {
         assertEquals(boundary.left, pills[2].left, 1f)
         assertEquals(boundary.right, pills[2].right, 1f)
         pills.forEach { assertEquals(pills[0].height, it.height, 1f) }
+    }
+
+    @Test fun landscapeHomePlacesFullWidthDashboardAboveEqualSizedShortcuts() {
+        val opened = mutableListOf<String>()
+        compose.setContent {
+            val configuration = Configuration(LocalConfiguration.current).apply {
+                orientation = Configuration.ORIENTATION_LANDSCAPE
+                fontScale = 1f
+            }
+            val density = Density(LocalDensity.current.density, 1f)
+            CompositionLocalProvider(LocalConfiguration provides configuration, LocalDensity provides density) {
+                MaterialTheme {
+                    Box(Modifier.width(320.dp).testTag("boundary")) {
+                        HomeSectionGrid { opened.add(it) }
+                    }
+                }
+            }
+        }
+        val boundary = compose.onNodeWithTag("boundary").fetchSemanticsNode().boundsInRoot
+        val dashboard = compose.onNodeWithContentDescription("Open Estate Dashboard")
+        val tools = compose.onNodeWithText("Planter Tools")
+        val dashboardBounds = dashboard.fetchSemanticsNode().boundsInRoot
+        val toolsBounds = tools.fetchSemanticsNode().boundsInRoot
+        assertEquals(boundary.left, dashboardBounds.left, 1f)
+        assertEquals(boundary.right, dashboardBounds.right, 1f)
+        assertTrue(toolsBounds.width < dashboardBounds.width)
+        assertTrue(toolsBounds.top >= dashboardBounds.bottom)
+        for (title in listOf("Estate Details", "Field Details", "Upkeep and Cultivation", "Crop Production", "Settings")) {
+            val bounds = compose.onNodeWithText(title).fetchSemanticsNode().boundsInRoot
+            assertTrue(bounds.top >= dashboardBounds.bottom)
+            assertTrue(bounds.top <= toolsBounds.top)
+            assertEquals(toolsBounds.width, bounds.width, 1f)
+            assertEquals(toolsBounds.height, bounds.height, 1f)
+        }
+        dashboard.performClick()
+        tools.performClick()
+        compose.runOnIdle { assertEquals(listOf("dashboard", "tools"), opened) }
     }
 
     @Test fun largeTextStacksWithoutTruncationAndSelectionStillWorks() {

@@ -20,13 +20,14 @@ import androidx.compose.ui.unit.constrainHeight
 
 internal val EstateControlHeight = 88.dp
 
-/** Fill every row, including the final row. Measure all labels before choosing a common height. */
+/** Measure all labels before choosing a common height. By default, fill every row. */
 @Composable
 internal fun EstatePillGrid(
     count: Int,
     modifier: Modifier = Modifier,
     minimumWidth: Dp = 140.dp,
     maxColumns: Int = Int.MAX_VALUE,
+    fillLastRow: Boolean = true,
     content: @Composable (Int) -> Unit,
 ) {
     val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
@@ -38,8 +39,11 @@ internal fun EstatePillGrid(
             val columns = ((constraints.maxWidth + gap) / ((minimumWidth * fontScale).roundToPx() + gap))
                 .coerceIn(1, minOf(maxColumns, count))
             val rows = (count + columns - 1) / columns
+            val rowWidths = List(rows) { row ->
+                if (fillLastRow) minOf(columns, count - row * columns) else columns
+            }
             val widths = measurables.indices.map { index ->
-                val rowCount = minOf(columns, count - (index / columns) * columns)
+                val rowCount = rowWidths[index / columns]
                 val available = (constraints.maxWidth - gap * (rowCount - 1)).coerceAtLeast(rowCount)
                 val column = index % columns
                 val width = available / rowCount + if (column < available % rowCount) 1 else 0
@@ -51,7 +55,7 @@ internal fun EstatePillGrid(
             }
             layout(constraints.maxWidth, constraints.constrainHeight(rows * height + (rows - 1) * gap)) {
                 placeables.forEachIndexed { index, placeable ->
-                    val rowCount = minOf(columns, count - (index / columns) * columns)
+                    val rowCount = rowWidths[index / columns]
                     val available = (constraints.maxWidth - gap * (rowCount - 1)).coerceAtLeast(rowCount)
                     val column = index % columns
                     val x = column * (available / rowCount + gap) + minOf(column, available % rowCount)
