@@ -1,7 +1,8 @@
 import {DatabaseSync} from 'node:sqlite';
-import {readFile, stat, rename, unlink} from 'node:fs/promises';
+import {readFile, stat, rename, unlink, chmod} from 'node:fs/promises';
 import {randomUUID} from 'node:crypto';
 import {dirname, basename, join} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {validateSnapshot} from './validate.mjs';
 import {validateRecord, recordKey} from './production.mjs';
 
@@ -31,6 +32,7 @@ export async function prepareSqlite({snapshotPath, productionPath, databasePath}
   let db;
   try {
     db = new DatabaseSync(temporary);
+    await chmod(temporary, 0o600);
     db.exec(`PRAGMA journal_mode=DELETE;
       CREATE TABLE metadata (name TEXT PRIMARY KEY, value TEXT NOT NULL);
       CREATE TABLE snapshots (revision INTEGER PRIMARY KEY, payload TEXT NOT NULL);
@@ -68,7 +70,7 @@ export async function prepareSqlite({snapshotPath, productionPath, databasePath}
   }
 }
 
-if (process.argv[1] && import.meta.url === new URL('file://' + process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [snapshotPath, productionPath, databasePath] = process.argv.slice(2);
   prepareSqlite({snapshotPath, productionPath, databasePath})
     .then(result => console.log(JSON.stringify(result)))
