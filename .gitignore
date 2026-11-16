@@ -9,6 +9,12 @@ local.properties
 *.aab
 *.jks
 *.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.mobileprovision
+*-access.txt
 .env*
 google-services.json
 *service-account*.json
