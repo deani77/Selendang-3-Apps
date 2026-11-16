@@ -11,6 +11,10 @@ This Node.js service supplies complete JSON snapshots to the Android and iOS app
 - No public account registration or web administration endpoints.
 - Unknown/revoked tokens receive 401; malformed/unavailable snapshots receive 503. HTTP is redirected to HTTPS by the proxy. Secrets are not logged. A bounded in-memory request limiter applies globally and per authorized token.
 
+Protected endpoints reject missing bearer credentials before reading the token registry. For requests presenting a bearer token, the limits are 300 per minute across clients and 30 per minute per valid token. An optional per-source limit allows 120 per minute per direct client IP. A 429 response includes `Retry-After: 60`. Health checks are exempt.
+
+The bundled Caddy configuration overwrites `X-Estate-Client-IP` with the address of its direct peer. Keep the Node listener private. Set `TRUST_CADDY_CLIENT_IP=1` in the API service environment only after validating this override on the live proxy and confirming Caddy directly receives client connections. If Caddy sits behind another proxy, leave this setting disabled until the client-IP trust chain is verified. Check sync from shared networks before enabling the per-source limit.
+
 Snapshot data, token registry, raw access tokens, TLS keys and backup archives belong outside the repository. `/etc/s3-estate/tokens.json` contains only SHA-256 hashes of randomly generated tokens. The publisher's private files and phone exports must never be committed.
 
 ## Server layout

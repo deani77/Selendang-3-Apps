@@ -1,9 +1,12 @@
 {$ESTATE_DOMAIN} {
     header {
+        Strict-Transport-Security "max-age=86400"
         X-Content-Type-Options nosniff
         Referrer-Policy no-referrer
         Cache-Control no-store
         Content-Security-Policy "default-src 'none'"
     }
-    reverse_proxy 127.0.0.1:8787
+    reverse_proxy 127.0.0.1:8787 {
+        header_up X-Estate-Client-IP {remote_host}
+    }
 }

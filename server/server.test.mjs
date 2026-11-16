@@ -46,6 +46,38 @@ test('API denies anonymous and revoked access; serves only a valid snapshot', as
   }
 });
 
+test('proxy source limits isolate excess requests and preserve sync from other sources', async t => {
+  const dir = await mkdtemp(`${tmpdir()}/s3-source-limit-`);
+  t.after(() => rm(dir, {recursive: true, force: true}));
+  const tokenPath = `${dir}/tokens.json`;
+  const dataPath = `${dir}/snapshot.json`;
+  const token = randomBytes(32).toString('base64url');
+  await writeFile(tokenPath, JSON.stringify([{id: 'test', sha256: createHash('sha256').update(token).digest('hex')}]));
+  await writeFile(dataPath, JSON.stringify(fixture()));
+  const server = createEstateServer({tokenPath, dataPath, trustCaddyClientIp: true});
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  const url = `${origin}/v1/estates/selendang-3/snapshot`;
+  const source = '192.0.2.10';
+  const request = (ip, credential) => fetch(url, {headers: {
+    'X-Estate-Client-IP': ip,
+    Authorization: `Bearer ${credential}`,
+  }});
+  for (let count = 0; count < 120; count++) {
+    const response = await request(source, 'incorrect');
+    assert.equal(response.status, 401);
+    await response.text();
+  }
+  const limited = await request(source, 'incorrect');
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers.get('retry-after'), '60');
+  const allowed = await request('192.0.2.11', token);
+  assert.equal(allowed.status, 200);
+  assert.equal((await allowed.json()).revision, 1);
+  assert.equal((await fetch(`${origin}/health`, {headers: {'X-Estate-Client-IP': source}})).status, 200);
+});
+
 test('optional YPH metadata validates periods, pending values and area', () => {
   const data = fixture();
   data.yph = {reportingYear:2026,throughMonth:9,matureAreaHa:100,actualYtdTonnes:0,
