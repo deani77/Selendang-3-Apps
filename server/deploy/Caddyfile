@@ -1,5 +1,6 @@
 {$ESTATE_DOMAIN} {
     header {
+        Strict-Transport-Security "max-age=86400"
         X-Content-Type-Options nosniff
         Referrer-Policy no-referrer
         Cache-Control no-store
