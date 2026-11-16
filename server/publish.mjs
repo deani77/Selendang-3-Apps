@@ -1,12 +1,13 @@
 import {readFile, writeFile, rename, mkdir, copyFile, open, unlink} from 'node:fs/promises';
 import {validateSnapshot} from './validate.mjs';
+import {readValidatedSnapshotFile} from './read-snapshot-file.mjs';
 
 const directory = '/var/lib/s3-estate';
 const destination = `${directory}/snapshot.json`;
 const lock = await open(`${directory}/publish.lock`, 'wx', 0o600);
 let temp;
 try {
-  const bytes = await readFile(process.argv[2]);
+  const bytes = await readValidatedSnapshotFile(process.argv[2]);
   const update = validateSnapshot(bytes);
   let previous;
   try {previous = validateSnapshot(await readFile(destination));}
