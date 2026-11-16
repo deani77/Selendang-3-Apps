@@ -13,6 +13,7 @@ test('Caddy TLS configuration sets conservative security headers', async () => {
   assert.match(config, /Cache-Control\s+no-store/);
   assert.match(config, /Content-Security-Policy\s+"default-src 'none'"/);
   assert.match(config, /reverse_proxy\s+127\.0\.0\.1:8787/);
+  assert.match(config, /header_up X-Estate-Client-IP \{remote_host\}/);
 });
 
 test('Node API sends no-store and nosniff on responses', async () => {
