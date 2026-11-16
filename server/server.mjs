@@ -61,7 +61,8 @@ export function createEstateServer({
       try {
         if (req.method === 'GET') return reply(200, await production.get());
         if (!entry.scopes?.includes('production:write')) return reply(403, {error:'Production write permission required'});
-        if (!req.headers['content-type']?.startsWith('application/json')) return reply(415, {error:'Use JSON'});
+        const mediaType = req.headers['content-type']?.split(';', 1)[0].trim().toLowerCase();
+        if (mediaType !== 'application/json') return reply(415, {error:'Use JSON'});
         let bytes = 0, chunks = [];
         for await (const chunk of req) {
           bytes += chunk.length;
@@ -69,9 +70,9 @@ export function createEstateServer({
           chunks.push(chunk);
         }
         let body;
-        try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
+        try { body = JSON.parse(new TextDecoder('utf-8', {fatal: true, ignoreBOM: true}).decode(Buffer.concat(chunks))); }
         catch { return reply(400,{error:'Invalid JSON'}); }
-        if (body.schemaVersion !== 1 || body.estateId !== 'selendang-3') return reply(400,{error:'Wrong estate or schema'});
+        if (body?.schemaVersion !== 1 || body.estateId !== 'selendang-3') return reply(400,{error:'Wrong estate or schema'});
         return reply(200,await production.sync(body.changes, entry.id));
       } catch (e) { return reply(e.status ?? 503,{error:e.status ? e.message : 'Production unavailable; saved data retained'}); }
     }
