@@ -1,9 +1,11 @@
+import {constants} from 'node:fs';
 import {open} from 'node:fs/promises';
 import {MAX_BYTES, validateSnapshot} from './validate.mjs';
 
 // Bound memory even if a file changes size between inspection and reading.
 export async function readValidatedSnapshotFile(path) {
-  const handle = await open(path, 'r');
+  // Open without waiting on a named pipe, then verify the descriptor is a regular file.
+  const handle = await open(path, constants.O_RDONLY | constants.O_NONBLOCK);
   try {
     const info = await handle.stat();
     if (!info.isFile()) throw new Error('Snapshot source must be a regular file');
