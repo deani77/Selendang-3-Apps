@@ -47,6 +47,7 @@ test('production API rejects unauthorized, non-JSON and oversized uploads', asyn
     assert.equal((await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body})).status,401);
     assert.equal((await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'text/plain'},body})).status,415);
     assert.equal((await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:'{'})).status,400);
+    assert.equal((await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json; charset=UTF-8'},body:'null'})).status,400);
     assert.equal((await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:' '.repeat(MAX_BYTES + 1)})).status,413);
     const state = await (await fetch(url,{headers:{Authorization:`Bearer ${token}`}})).json();
     assert.equal(state.revision,0);
