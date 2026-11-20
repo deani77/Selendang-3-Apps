@@ -1,4 +1,8 @@
 buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
     dependencies {
         // AGP supplies built-in Kotlin; keep its runtime aligned with Compose.
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21")
