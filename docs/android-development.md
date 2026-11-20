@@ -16,7 +16,9 @@ Missing or unusable report values remain Pending, while measured zero stays zero
 
 Install JDK 17, Android SDK platform 37.0 (`platforms;android-37.0`) and build tools 36.0.0. Android Studio can provide them. Set `ANDROID_HOME`, or create an ignored `local.properties` containing your `sdk.dir` path. Open the repository root in Android Studio.
 
-The build uses AGP 9.1.1 and Gradle 9.3.1 with AGP's built-in Kotlin support. The explicit Kotlin runtime and Compose compiler are aligned at 2.4.21; KSP is 2.3.14. Do not reapply `org.jetbrains.kotlin.android` to the app. Configure Kotlin through `kotlin.compilerOptions`, rather than the removed `android.kotlinOptions` DSL. Dependabot groups the Android plugins and AndroidX libraries because their compatibility requirements must be reviewed together. Wrapper and CI SDK changes still need manual coordination. The higher compile SDK does not change the app's minimum or target SDK.
+The build uses AGP 9.1.1 and Gradle 9.7.0 with AGP's built-in Kotlin support. The explicit Kotlin runtime and Compose compiler are aligned at 2.4.21; KSP is 2.3.14. Do not reapply `org.jetbrains.kotlin.android` to the app. Configure Kotlin through `kotlin.compilerOptions`, rather than the removed `android.kotlinOptions` DSL. Dependabot groups the Android plugins and AndroidX libraries because their compatibility requirements must be reviewed together. Wrapper and CI SDK changes still need manual coordination. The higher compile SDK does not change the app's minimum or target SDK.
+
+Keep tooling updates within Kotlin's [published fully supported compatibility range](https://kotlinlang.org/docs/gradle-configure-project.html). Kotlin 2.4.21 lists Gradle through 9.7.0 and AGP through 9.3.1. The pending AGP 9.5.2 and Gradle 9.9.1 proposals exceed that range; retain the validated AGP 9.1.1 and use Gradle 9.7.0. Review those newer proposals again when the selected Kotlin release fully supports them. The serialization BOM is aligned at 1.13.0 for the app and Room's migration tests.
 
 From the repository root:
 

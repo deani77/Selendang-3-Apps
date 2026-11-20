@@ -36,7 +36,7 @@ ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 dependencies {
     // Room's migration tests and Navigation must resolve the same runtime versions.
-    implementation(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.8.1"))
+    implementation(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.13.0"))
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.compose.material3:material3")
