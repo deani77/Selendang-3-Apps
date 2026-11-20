@@ -34,10 +34,10 @@ class DatabaseMigrationTest {
         // Build the old database from Room's committed v1 schema, not handwritten DDL.
         helper.createDatabase(databaseName, 1).apply {
             execSQL("INSERT INTO estate_fields (code, alternateCode, hectares, palms, reportingYear, verified) VALUES (?, ?, ?, ?, ?, ?)",
-                arrayOf("DEMO-A", null, 1.25, 100, 2026, 0))
+                arrayOf<Any?>("DEMO-A", null, 1.25, 100, 2026, 0))
             execSQL("INSERT INTO estate_fields (code, alternateCode, hectares, palms, reportingYear, verified) VALUES (?, ?, ?, ?, ?, ?)",
-                arrayOf("DEMO-B", "OLD-B", 2.5, 250, 2025, 1))
-            execSQL("INSERT INTO sync_state (id, lastSuccessEpochMillis) VALUES (?, ?)", arrayOf(1, 123456789L))
+                arrayOf<Any?>("DEMO-B", "OLD-B", 2.5, 250, 2025, 1))
+            execSQL("INSERT INTO sync_state (id, lastSuccessEpochMillis) VALUES (?, ?)", arrayOf<Any?>(1, 123456789L))
             close()
         }
 
