@@ -1,11 +1,10 @@
 package com.selendang3.app.ui.components
 
-import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -13,7 +12,7 @@ import androidx.core.view.WindowCompat
 @Suppress("DEPRECATION")
 @Composable
 internal fun DashboardSystemBars(dark: Boolean) {
-    val window = (LocalContext.current as? Activity)?.window ?: return
+    val window = LocalActivity.current?.window ?: return
     val view = LocalView.current
     val background = MaterialTheme.colorScheme.background.toArgb()
     DisposableEffect(window, view, background, dark) {
