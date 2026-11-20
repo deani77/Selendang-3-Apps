@@ -6,7 +6,9 @@ plugins {
 
 android {
     namespace = "com.selendang3.app"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 0 }
+    }
     defaultConfig {
         applicationId = "com.selendang3.app"
         minSdk = 26
