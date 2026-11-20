@@ -1,6 +1,6 @@
 # Android development
 
-S3 Estate Info is a Kotlin and Jetpack Compose app for viewing saved estate reports. It supports Android 8.0 (API 26) and later, with compile/target API 35. App version, application ID and dependency versions are defined in [app/build.gradle.kts](../app/build.gradle.kts) and the [root build configuration](../build.gradle.kts).
+S3 Estate Info is a Kotlin and Jetpack Compose app for viewing saved estate reports. It supports Android 8.0 (API 26) and later, compiles against API 37 and targets API 35. App version, application ID and dependency versions are defined in [app/build.gradle.kts](../app/build.gradle.kts) and the [root build configuration](../build.gradle.kts).
 
 For Room table ownership, schema exports and safe upgrades, see the [database and migration guide](android-database.md).
 
@@ -14,7 +14,9 @@ Missing or unusable report values remain Pending, while measured zero stays zero
 
 ## Build locally
 
-Install JDK 17, Android SDK platform 35 and build tools 35.0.0. Android Studio can provide them. Set `ANDROID_HOME`, or create an ignored `local.properties` containing your `sdk.dir` path. Open the repository root in Android Studio.
+Install JDK 17, Android SDK platform 37 and build tools 36.0.0. Android Studio can provide them. Set `ANDROID_HOME`, or create an ignored `local.properties` containing your `sdk.dir` path. Open the repository root in Android Studio.
+
+The build uses AGP 9.1.1 and Gradle 9.3.1 with AGP's built-in Kotlin support. The explicit Kotlin runtime and Compose compiler are aligned at 2.4.21; KSP is 2.3.14. Do not reapply `org.jetbrains.kotlin.android` to the app. Configure Kotlin through `kotlin.compilerOptions`, rather than the removed `android.kotlinOptions` DSL. Dependabot groups the Android plugins and AndroidX libraries because their compatibility requirements must be reviewed together. Wrapper and CI SDK changes still need manual coordination. The higher compile SDK does not change the app's minimum or target SDK.
 
 From the repository root:
 
@@ -59,6 +61,7 @@ Keep actual estate records, financial/personnel information, credentials and dat
 
 ## Build references
 
-- [AGP 8.9 compatibility](https://developer.android.com/build/releases/agp-8-9-0-release-notes)
+- [AGP 9.1 compatibility](https://developer.android.com/build/releases/agp-9-1-0-release-notes)
+- [Built-in Kotlin migration](https://developer.android.com/build/migrate-to-built-in-kotlin)
 - [Compose compiler Gradle plugin](https://developer.android.com/develop/ui/compose/compiler)
 - [Room releases](https://developer.android.com/jetpack/androidx/releases/room)

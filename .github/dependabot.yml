@@ -9,9 +9,12 @@ updates:
       timezone: "Asia/Kuala_Lumpur"
     open-pull-requests-limit: 5
     groups:
-      android-dependencies:
+      android-stack:
         patterns:
           - "androidx.*"
+          - "com.android.application"
+          - "org.jetbrains.kotlin.*"
+          - "com.google.devtools.ksp"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
