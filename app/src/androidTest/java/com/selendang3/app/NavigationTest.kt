@@ -1,8 +1,14 @@
 package com.selendang3.app
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
+import com.selendang3.app.core.theme.estateColorScheme
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -110,6 +116,53 @@ class NavigationTest {
             if (original == null) editor.remove("theme") else editor.putString("theme", original)
             editor.commit()
         }
+    }
+
+    @Test fun textColoursFollowAppearanceAcrossEstateDetailsAndTools() {
+        val preferences = InstrumentationRegistry.getInstrumentation().targetContext
+            .getSharedPreferences("user_settings", 0)
+        val original = preferences.getString("theme", null)
+        try {
+            // Exercise the real settings, app root and transparent details surface.
+            // Dark first reproduces #58; switching to light also checks recomposition.
+            for (dark in listOf(true, false)) {
+                val appearance = if (dark) "Dark" else "Light"
+                val colours = estateColorScheme(dark)
+                compose.onNodeWithText("Settings").performScrollTo().performClick()
+                compose.onNodeWithText("Appearance").performScrollTo().performClick()
+                compose.onNodeWithText(appearance, substring = true).performScrollTo().performClick()
+                compose.onNodeWithText("✓ $appearance").assertIsDisplayed()
+                compose.onNodeWithText("‹  Back").performClick()
+                compose.onNodeWithText("Estate Details").performScrollTo().performClick()
+                assertTextColour("ESTATE DETAILS", colours.onSurface)
+                assertTextColour("Perimeter Hectare", colours.onSurface)
+                assertTextColour("Reporting period: pending", colours.onSurface)
+                assertTextColour("Estate Area", colours.primary)
+                compose.onNodeWithText("OER (%)").performScrollTo()
+                assertTextColour("OER (%)", colours.primary)
+                assertTextColour("Awaiting estate data", colours.onSurfaceVariant)
+                compose.onNodeWithText("‹  Back").performClick()
+                compose.onNodeWithText("Planter Tools").performScrollTo().performClick()
+                // This plain Text has no Surface ancestor: it covers the app-wide fix.
+                assertTextColour(
+                    "Offline calculators. Inputs and results are temporary and do not change estate records. Use a decimal point; commas group thousands.",
+                    colours.onSurface,
+                )
+                compose.onNodeWithText("‹  Back").performClick()
+            }
+        } finally {
+            val editor = preferences.edit()
+            if (original == null) editor.remove("theme") else editor.putString("theme", original)
+            editor.commit()
+        }
+    }
+
+    private fun assertTextColour(text: String, expected: Color) {
+        val layouts = mutableListOf<TextLayoutResult>()
+        compose.onAllNodesWithText(text).onFirst().performScrollTo().assertIsDisplayed()
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        assertTrue("Text layout should be available for $text", layouts.isNotEmpty())
+        assertEquals("Rendered text colour for $text", expected, layouts.single().layoutInput.style.color)
     }
 
 }
