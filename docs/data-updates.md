@@ -41,4 +41,4 @@ Before ending VPS service, preserve the last verified complete snapshot and priv
 
 ## Validation
 
-CI runs package-parser unit tests, Android lint and APK compilation, then runs navigation, database migration and rejected-update preservation tests on an Android API 29 emulator. You can also run `./gradlew connectedDebugAndroidTest` on a connected device/emulator. Exercise a real file selection, server download and export on a phone before wider use. Do not claim the VPS is live or synchronized until a confirmed import succeeds.
+CI runs package-parser unit tests, Android lint and APK compilation, then runs navigation, database migration and rejected-update preservation tests on an Android API 29 emulator. You can also run `./gradlew connectedDebugAndroidTest` on a connected device/emulator. Exercise a real HTTPS download, update preview, cancellation and confirmation on both platforms, plus Android file export, before wider use. Do not claim the VPS is live or synchronized until a confirmed import succeeds.

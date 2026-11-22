@@ -14,7 +14,7 @@ New to the code or adapting it for your own app? Start with the [architecture an
 - Planter Tools provides six offline calculators: Plant Density, Chemical Dosage per Pump, Fertilizer Requirement, Nozzle Calibration, Work Costing and Unit Conversion. Calculator inputs never alter estate records.
 - Settings contains Inbox, User Profile, Appearance, About and Estate Data Sync.
 
-## Server-only operation (build 33)
+## Server-only operation
 Sync Now downloads the estate snapshot via HTTPS GET. It does not invoke legacy production sync, upload pending local drafts or expose conflict-upload actions. New snapshot revisions require review and confirmation, validate before atomic replacement, and preserve the prior revision. Downloaded records remain available offline. Tokens stay in the active Settings session. Old production draft files remain untouched and are not read into operational screens. Personal profile and appearance settings remain local preferences.
 
 Android uses the same server-only operation. Local estate-file import is removed for now; exporting an offline backup remains available. A future import mode can be restored when needed after VPS service ends.
@@ -27,14 +27,14 @@ Run `xcodegen generate` in ios/, then build Selendang3.xcodeproj. Select the own
 
 CI checks snapshot parsing, dashboard calculations, field record isolation and target periods before simulator compilation. Physical-device signing, installation and visible-screen checks are separate validation steps.
 
-## Planter Tools (build 35)
+## Planter Tools
 Plant density uses spacing in metres or feet (1 ft = 0.3048 m), with triangular/equilateral or square geometry. Triangular density = 10,000 / (spacing² × sqrt(3)/2); square density = 10,000 / spacing². These are theoretical densities before roads, drains or other unplanted areas are deducted.
 
 Chemical per pump = formulated-product rate per treated hectare × final pump solution volume / calibrated spray volume per hectare. Rate units: L/ha, mL/ha, kg/ha or g/ha. Output units: mL/pump or g/pump. Coverage = tank L / spray L/ha; pumps per hectare = spray L/ha / tank L. Nozzle flow in L/min is not accepted as application volume. No product rates or treatment recommendations are supplied. Blank, non-finite, non-positive and impossible liquid-volume inputs yield no dose. Small non-zero quantities retain significant digits rather than displaying zero.
 
 Formula references: https://opb.mpob.gov.my/case-study-of-a-high-income-smallholder/ and https://extension.missouri.edu/publications/g1272 . Inputs/results stay local and temporary; both tools work offline in light/dark themes. Swift and Kotlin tests cover geometry, feet conversion, all rate units and invalid-input boundaries.
 
-## Additional calculators (build 36)
+## Additional calculators
 - Fertilizer Requirement: whole palm population × user-supplied kg/palm, with user-supplied kg/bag. Reports kg, mt, fractional bags, whole bags rounded up and unused balance. No fertilizer rate or bag size is assumed.
 - Nozzle Calibration: measured plain-water volume / measured test area × 10,000 gives L/ha. Test using the same walking speed and operating pressure as the intended application. Reference: https://blogs.ifas.ufl.edu/alachuaco/2022/02/04/calibrating-a-backpack-sprayer-the-1-128th-rule/ .
 - Work Costing: total labour/material/other RM divided by hectares, whole palms or crop mt; zero costs are allowed and denominators must be positive.
@@ -44,14 +44,18 @@ All inputs remain temporary and isolated from estate records; no server request 
 
 Calculator number inputs use a decimal point and permit correctly grouped thousands (for example, 1,000.50). Ambiguous or malformed comma inputs are rejected rather than interpreted as a smaller dose or population.
 
-## Field Crop Records (build 37)
+## Field Crop Records
 Each field pill opens a concise read-only report: field code; hectare; monthly, YTD and annual crop budgets (mt); actual MTD/YTD (mt); required harvesters; monthly harvesting rounds; and productivity in mt/manday and ha/manday. All budget values use the same report month as the crop actuals. Required harvesters = field hectares / 21 ha per harvester; display the unrounded ratio in the note and round the whole-worker requirement up. Missing or future report figures remain Pending. Basic field area is used for crew planning, while report metrics remain dated to their source. No server schema or data update is required.
 
-Build 38 simplifies Harvesting Coverage to Hectare Completed (ha, using the saved monthly cumulative hectares) and Completed rounds. The daily Report day metric is removed on every variant.
+Harvesting Coverage shows Hectare Completed (ha, using the saved monthly cumulative hectares) and Completed rounds. The daily Report day metric is removed on every variant.
 
-Build 39 adds Estate Area directly beneath the Estate Details heading. Perimeter Hectare and Mature Hectare read dated, owner-confirmed overview records (Estate area reporting period, Perimeter area (ha), Mature area (ha)). Areas display in hectares with comma grouping and two decimals. Invalid, duplicate, future or unreconciled records remain Pending. Source values are supplied privately through VPS sync and are not bundled with the app.
+## Estate area
 
-Build 40 presents the latest five calendar years of rainfall as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
+Estate Area appears directly beneath the Estate Details heading. Perimeter Hectare and Mature Hectare read dated, owner-confirmed overview records (Estate area reporting period, Perimeter area (ha), Mature area (ha)). Areas display in hectares with comma grouping and two decimals. Invalid, duplicate, future or unreconciled records remain Pending. Source values are supplied privately through VPS sync and are not bundled with the app.
+
+## Rainfall
+
+Rainfall presents the latest five calendar years as vertical bars, with the exact totals and periods retained below. Green highlights the highest completed full-year total and orange the lowest; other full years are blue and current-year YTD is grey. High/low comparisons exclude partial YTD. All tied extremes share a role; equal or single full-year totals have no distinct extreme. Missing/incomplete years have no fabricated zero bar. Current-month readings remain excluded. Colours adapt to light/dark appearance, and High/Low/YTD text and accessibility labels accompany the colours.
 
 
 ## Developer checks and sync helpers

@@ -9,13 +9,9 @@ data class EstateWorkforce(val period: YearMonth, val staff: Int, val localWorke
 }
 
 fun estateWorkforce(update: EstatePackage?): EstateWorkforce? {
-    val overview = update?.tables?.singleOrNull { it.id == "overview" } ?: return null
-    val item = overview.columns.indexOf("Item")
-    val details = overview.columns.indexOf("Details")
-    if (minOf(item, details) < 0) return null
-    fun value(label: String): String? = overview.rows.singleOrNull { it.getOrNull(item) == label }?.getOrNull(details)
-    fun count(label: String): Int? = value(label)?.trim()?.toIntOrNull()?.takeIf { it in 0..1000000 }
-    val period = runCatching { YearMonth.parse(value("Workforce reporting period")) }.getOrNull() ?: return null
+    val overview = update?.overviewValues() ?: return null
+    fun count(label: String): Int? = overview[label]?.trim()?.toIntOrNull()?.takeIf { it in 0..1000000 }
+    val period = runCatching { YearMonth.parse(overview["Workforce reporting period"]) }.getOrNull() ?: return null
     val staff = count("Workforce staff") ?: return null
     val local = count("Workforce local workers") ?: return null
     val foreign = count("Workforce foreign workers") ?: return null

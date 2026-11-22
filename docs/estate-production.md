@@ -1,4 +1,6 @@
-# Estate Production: initial tab and local drafts
+# Historical production draft and sync design
+
+This document records the earlier local-draft and two-way-sync design. The draft stores, validation and scoped server API are retained, but current mobile screens only display snapshot-backed reports and download updates. Settings does not upload drafts. Use the [project overview](../README.md#current-behavior) and [snapshot guide](data-updates.md) for current behavior. The sections below describe retained code and earlier requirements.
 
 Android and iOS expose Crop History by Field, Today Crop Production, Month Crop Production and Year Todate Crop Production. Android version 0.8 Alpha includes the production screens. Server submission remains pending.
 

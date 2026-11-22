@@ -50,7 +50,7 @@ For a new non-null column, decide how existing rows receive a value. A Kotlin co
 
 ## Run the checks
 
-With Java 17 and Android SDK 35 installed, run from the repository root:
+Install the toolchain described in [Android development](android-development.md#build-locally), then run from the repository root:
 
 ```sh
 ./gradlew --no-daemon :app:kspDebugKotlin

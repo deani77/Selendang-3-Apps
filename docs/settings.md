@@ -1,18 +1,27 @@
 # Settings on Android and iOS
 
-Both interfaces expose User Profile, Appearance, Inbox and Suggestions.
+Settings contains Inbox, User Profile, Appearance, About and Estate Data Sync. Android also offers Export Estate Data. These screens are implemented in [UserSettingsScreen.kt](../app/src/main/java/com/selendang3/app/UserSettingsScreen.kt), [EstateDataScreen.kt](../app/src/main/java/com/selendang3/app/EstateDataScreen.kt) and [UserSettingsView.swift](../ios/Selendang3/UserSettingsView.swift).
 
-Profile fields: display name (required for saving), position and phone (optional). Save Profile stores one local device profile, not an authenticated user identity or an authorization role. Profile edits are private device preferences; they are not uploaded to GitHub or a server. Account-specific profiles and sign-in await the central service. Profile data may be lost when the app is removed or its storage is cleared.
+## Local preferences
 
-Appearance: Light, Dark and Follow System (default). Preferences survive app restarts. Theme changes apply to screens and the dashboard, retaining fixed brand accents and readable panel headings.
+User Profile stores a display name, position and phone number on the device. The display name is required to save. This is a local profile, not a signed-in account or an authorization role. Profile edits are not uploaded; removing the app or clearing storage can remove them.
 
-Inbox and Suggestions are explicit placeholders. No messages or suggestions are sent or received. Online data synchronization remains unconfigured.
+Appearance offers Light, Dark and Follow System, in that order. Follow System is the default. The choice applies immediately and survives restarts. Text, controls and panels should remain readable in all three modes.
 
-Manual checks on each platform: save profile and restart, edit profile without saving, switch each theme and restart, verify dashboard text contrast, open both placeholders, and return to Settings/home. Server functionality is outside this change.
+Inbox is a placeholder: no messages are sent or received. About displays app information. Suggestions is not exposed in either current interface.
 
-Settings also includes a Synchronization section with Sync Now, configuration status and last successful sync. Until a server is configured, tapping Sync Now shows an explanatory alert and does not modify local records, send data or advance the sync timestamp. No fake progress or success is displayed. Verify the alert and dismissal on both platforms. The theme labels and order are Light, Dark, Follow System.
+## Estate Data Sync
 
+Enter the administrator's trusted full HTTPS snapshot address and a privately issued access token, then select Sync Now. The address is saved on the device; the token stays in memory for the active Settings session.
 
-## Android v0.2 Alpha
+A newer snapshot is validated and presented for review. Confirming replaces the offline reference; cancelling keeps the saved data. Failed downloads and rejected updates leave saved records intact. The screen shows saved-revision and check/sync information. See the [snapshot guide](data-updates.md#phone-workflow) for the complete workflow and [server guide](../server/README.md) for administrator operations.
 
-Settings now includes Import Estate Data, Export Estate Data and a manually configured VPS Sync Now flow with a review step. See [data updates](data-updates.md). The prior not-configured sync notice still describes the iOS starter. Server accounts and provisioning remain pending.
+Android's Export Estate Data saves a private copy of the downloaded snapshot through the system file picker. Current screens do not expose manual file import, production entry or production uploads. Retained draft/sync code does not enable those features.
+
+## Manual verification
+
+- Save a profile, restart the app, and confirm the saved fields. Edit without saving and check that the stored profile is unchanged.
+- Switch Light, Dark and Follow System; check headings, body text, tables, inputs and secondary notes, then restart to confirm the preference.
+- Open Inbox and About and return to Settings/home.
+- With a test server and fictional data, check a newer revision's preview, cancellation and confirmed offline availability. Invalid credentials or a failed download must preserve the saved revision.
+- On Android, export the saved snapshot and verify its revision and contents in private storage.
