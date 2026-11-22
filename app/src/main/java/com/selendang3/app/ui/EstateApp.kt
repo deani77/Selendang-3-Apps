@@ -2,10 +2,12 @@ package com.selendang3.app.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -34,28 +36,31 @@ fun EstateApp() {
     val title = estateRouteTitle(route)
     MaterialTheme(colorScheme = estateColorScheme(dark)) {
         if (route == "dashboard") DashboardSystemBars(dark)
-        Box(Modifier.fillMaxSize()) {
-            PlantationBackground(route)
-            Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = if (route == "dashboard") 12.dp else 20.dp)) {
-                if (route != "home") {
-                    TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
-                } else {
-                    Spacer(Modifier.height(20.dp))
-                    Text(state.estateUpdate?.estateName?.uppercase(java.util.Locale.ROOT) ?: "ESTATE INFORMATION", modifier = Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center)
+        // MaterialTheme supplies the palette; plain Text also needs a content colour.
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+            Box(Modifier.fillMaxSize()) {
+                PlantationBackground(route)
+                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = if (route == "dashboard") 12.dp else 20.dp)) {
+                    if (route != "home") {
+                        TextButton(onClick = { nav.popBackStack() }) { Text("‹  Back") }
+                    } else {
+                        Spacer(Modifier.height(20.dp))
+                        Text(state.estateUpdate?.estateName?.uppercase(java.util.Locale.ROOT) ?: "ESTATE INFORMATION", modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center)
+                    }
+                    Text(title, style = if (route == "home") MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = if (route == "dashboard") 6.dp else 12.dp),
+                        textAlign = if (route == "home") TextAlign.Center else TextAlign.Start)
+                    EstateNavigation(nav, state.estateUpdate, state.themeChoice, state.onThemeChange, Modifier.weight(1f))
+                    if (route == "home") {
+                        Text("S3 Estate Info", style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp), textAlign = TextAlign.Center)
+                    }
+                    EstateAppFooter(state.snapshot, state.lastSyncEpochMillis, state.online)
                 }
-                Text(title, style = if (route == "home") MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = if (route == "dashboard") 6.dp else 12.dp),
-                    textAlign = if (route == "home") TextAlign.Center else TextAlign.Start)
-                EstateNavigation(nav, state.estateUpdate, state.themeChoice, state.onThemeChange, Modifier.weight(1f))
-                if (route == "home") {
-                    Text("S3 Estate Info", style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp), textAlign = TextAlign.Center)
-                }
-                EstateAppFooter(state.snapshot, state.lastSyncEpochMillis, state.online)
             }
         }
     }

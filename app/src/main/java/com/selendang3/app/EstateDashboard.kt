@@ -49,47 +49,49 @@ fun EstateDashboard(estateUpdate: EstatePackage? = null) {
     val workforce = remember(estateUpdate) { estateWorkforce(estateUpdate) }
     val workerRatios = remember(estateUpdate) { estateWorkerRatios(estateUpdate) }
     val ffbCost = remember(estateUpdate) { estateFfbCosts(estateUpdate) }
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
-            BoxWithConstraints {
-                val wide = maxWidth >= 840.dp
-                Column(
-                    Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text(estateUpdate?.estateName?.let { "ESTATE DETAILS · ${it.uppercase(Locale.ROOT)}" } ?: "ESTATE DETAILS", fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge)
-                    DashboardPanel("Estate Area") {
-                        DashboardTable(listOf("Measure", "Area (ha)"), listOf(
-                            listOf("Perimeter Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.perimeterHa).trim() } ?: Pending),
-                            listOf("Mature Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.matureHa).trim() } ?: Pending)
-                        ), minimumWidth = 320)
-                        Text(estateArea?.let { "Reporting period: ${it.period}" } ?: "Awaiting verified estate area records.",
-                            Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
-                    }
-                    Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
-                    Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
-                        style = MaterialTheme.typography.bodySmall)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    if (wide) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                            }
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
-                            }
-                            Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                                ProductionPanels(ffbCost, quality)
-                            }
-                        }
-                    } else {
-                        ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
-                        PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
-                        ProductionPanels(ffbCost, quality)
-                    }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
+        BoxWithConstraints {
+            val wide = maxWidth >= 840.dp
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(estateUpdate?.estateName?.let { "ESTATE DETAILS · ${it.uppercase(Locale.ROOT)}" } ?: "ESTATE DETAILS", fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge)
+                DashboardPanel("Estate Area") {
+                    DashboardTable(listOf("Measure", "Area (ha)"), listOf(
+                        listOf("Perimeter Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.perimeterHa).trim() } ?: Pending),
+                        listOf("Mature Hectare", estateArea?.let { String.format(Locale.US, "%,.2f", it.matureHa).trim() } ?: Pending)
+                    ), minimumWidth = 320)
+                    Text(estateArea?.let { "Reporting period: ${it.period}" } ?: "Awaiting verified estate area records.",
+                        Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall)
                 }
+                Text(estateUpdate?.reportingPeriod ?: "Reporting period: pending", style = MaterialTheme.typography.bodyMedium)
+                Text("Age Profile, Topography, YPH, Average SPH, Soil Type, Rainfall, Workforce, Ratios and FFB cost use synced estate records. Other panels may still be pending. — means unavailable.",
+                    style = MaterialTheme.typography.bodySmall)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                if (wide) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
+                        }
+                        Column(Modifier.weight(1.2f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            ProductionPanels(ffbCost, quality)
+                        }
+                    }
+                } else {
+                    ProfilePanels(ageProfile, topography, estateUpdate?.yph, averageSph, soilSeries)
+                    PeopleAndRainfallPanels(rainfall, workforce, workerRatios)
+                    ProductionPanels(ffbCost, quality)
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }
         }
     }
