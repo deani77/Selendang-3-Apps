@@ -57,13 +57,13 @@ systemctl start s3-estate-backup.service
 node --test /opt/s3-estate/server/*.test.mjs
 ```
 
-`backup.sh` creates daily archives of the current snapshot, previous revisions and hashed access registry. Archives are retained; monitor disk usage. Keep an additional copy outside this VPS. Local scheduled backups do not protect against termination of the VPS service. The initial deployment includes a one-time local-machine copy; automatic off-server backup needs a separate destination.
+`backup.sh` creates daily archives of the current snapshot, previous revisions and hashed access registry. Archives are retained; monitor disk usage. Keep an additional copy outside this VPS. Local scheduled backups do not protect against termination of the VPS service. Automatic off-server backup needs a separate destination; verify actual backup coverage on the deployed host.
 
-Before termination, export the current snapshot and copy the server backups to a private external location. Phones can continue using and importing JSON files without this server. For migration, retain the estate ID, schema and revision sequence, and update the server address in Settings if the hostname changes. Provider-assigned hostnames should be treated as tied to the VPS; use your own domain for longer-term portability.
+Before termination, export the current snapshot and copy the server backups to a private external location. Phones can continue viewing their downloaded records offline. Current mobile screens cannot import JSON files; file-based updates require restoring and verifying an import flow first. For migration, retain the estate ID, schema and revision sequence, and update the server address in Settings if the hostname changes. Provider-assigned hostnames should be treated as tied to the VPS; use your own domain for longer-term portability.
 
 ## Tests and limitations
 
-Run `node --test *.test.mjs` from the `server/` folder, or `node --test server/*.test.mjs` from the repository root. Tests cover authorized downloads, anonymous/wrong/revoked-token rejection, write rejection and invalid data handling. Real certificates and external routing must be checked after deployment. The initial server snapshot has seven empty sections marked awaiting verified records. The web administration/upload page and automated source conversion are not yet implemented.
+Run `node --test *.test.mjs` from the `server/` folder, or `node --test server/*.test.mjs` from the repository root. Tests cover authorized downloads, anonymous/wrong/revoked-token rejection, write rejection and invalid data handling. Real certificates and external routing must be checked after deployment. A new installation may start with seven empty sections; live snapshot contents and deployment status must be verified on the host. The web administration/upload page and automated source conversion are not yet implemented.
 
 ### Production writes
 

@@ -26,7 +26,7 @@ Legacy production draft and synchronization code remains in the repository, and 
 
 ## Build and check
 
-Android requires Java 17 and Android SDK 35. See [Android development](docs/android-development.md) for setup and APK instructions.
+See [Android development](docs/android-development.md) for the current JDK/SDK requirements, setup and APK instructions.
 
 ```sh
 ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug

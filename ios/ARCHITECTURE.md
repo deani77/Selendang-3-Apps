@@ -61,20 +61,12 @@ The `+Snapshot` and `+Summaries` names are Swift extensions: they add methods to
 
 **Adapt the app to another estate or domain:** review the hardcoded estate ID and API paths in `EstateReference.swift`, labels and source columns, formulas and units, and the reporting timezone in `reportCalendar`. Update the server and Android contract together if those clients remain part of your fork. Update the bundle identifier in [project.yml](project.yml), app name, artwork and bundled map for your own app. Start with fictional records, such as the [sample snapshot](../sample-data/estate-update.example.json), while learning the data flow; the basic sample does not populate every dashboard extension.
 
-Legacy production draft/store code remains in the repository, but current operational screens read VPS snapshots. Read [current operation](README.md#server-only-operation-build-33) before deciding which path your fork needs.
+Legacy production draft/store code remains in the repository, but current operational screens read VPS snapshots. Read [current operation](README.md#server-only-operation) before deciding which path your fork needs.
 
 ## Verify a change
 
 [DashboardSummaryChecks.swift](Tests/DashboardSummaryChecks.swift) checks summary values and labels against fixed expectations, including zero, missing values, future/stale periods, month ends and Kuala Lumpur New Year. [EstateDashboardChecks.swift](Tests/EstateDashboardChecks.swift) covers detailed panels, field calculations and report behavior. Parser checks live in [EstateReferenceChecks.swift](Tests/EstateReferenceChecks.swift).
 
-Run the same source checks locally and in CI, from the repository root on macOS with Python 3 and Xcode's Swift tools installed:
+Run `python3 scripts/check-ios.py dashboard` from the repository root for dashboard checks, or `python3 scripts/check-ios.py` for all suites. See the [developer checks guide](DEVELOPMENT.md) for prerequisites, suite registration and source discovery.
 
-```sh
-python3 scripts/check-ios.py
-```
-
-Use `python3 scripts/check-ios.py dashboard` to run only dashboard checks, or `python3 scripts/check-ios.py --list` to inspect the source/test groups without invoking Swift. See the [developer checks guide](DEVELOPMENT.md) for all suites and sync-helper ownership.
-
-When adding a standalone suite or a calculation outside the dashboard model, update `SUITES` in [check-ios.py](../scripts/check-ios.py). The runner automatically groups `EstateDashboardData*.swift` extensions and includes `DashboardSummaryChecks.swift` when present. Keep calculation sources independent of SwiftUI so the standalone checks remain lightweight. Run from the repository root for the commands above; the script also locates that root when invoked from another directory.
-
-The [iOS CI workflow](../.github/workflows/ios.yml) invokes this runner, then separately builds the app for the simulator. [XcodeGen](project.yml) includes source files beneath `Selendang3/` for that app build. Source checks do not replace simulator compilation, device signing or hands-on UI checks. See [setup](README.md#build-and-validation) for project generation and signing.
+The [iOS CI workflow](../.github/workflows/ios.yml) also generates the Xcode project and builds the app for the simulator. Device signing and hands-on UI checks remain separate; see [setup](README.md#build-and-validation).

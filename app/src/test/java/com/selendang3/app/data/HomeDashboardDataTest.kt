@@ -41,6 +41,24 @@ class HomeDashboardDataTest {
         assertTrue(rows[0].detail.contains("YTD 2027: Pending"))
     }
 
+    @Test fun bothPresentationsRejectInvalidAreaAndKeepJanuaryReportingBoundaries() {
+        for (area in listOf(0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY)) {
+            val input = fixture(area = area)
+            assertTrue(homeDashboardRows(input, today)[0].detail.contains("YTD 2026: Pending"))
+            val crop = operationalDashboardCards(input, today).first()
+            assertEquals("Pending", crop.metrics[2].value)
+            assertEquals("Pending", crop.metrics[3].value)
+            assertEquals("YTD 2026", crop.period)
+        }
+        val january = LocalDate.of(2027, 1, 1)
+        val cards = operationalDashboardCards(fixture(), january)
+        assertEquals("Dec 2026", cards.first().metrics[0].label)
+        assertEquals("Jan 2027 MTD", cards.first().metrics[1].label)
+        assertEquals("YTD 2027", cards.first().period)
+        assertEquals(listOf("Pending", "Pending"), cards.last().metrics.map { it.value })
+        assertEquals("YTD 2027", cards.last().period)
+    }
+
     @Test fun annualBudgetAchievementUsesAnnualDenominatorAndHandlesMissingOrZeroBudget() {
         val base = fixture()
         assertTrue(homeDashboardRows(base, today)[0].detail.endsWith("YTD vs Year Budget: 83.33%"))

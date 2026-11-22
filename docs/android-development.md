@@ -18,7 +18,7 @@ Install JDK 17, Android SDK platform 37.0 (`platforms;android-37.0`) and build t
 
 The build uses AGP 9.1.1 and Gradle 9.7.0 with AGP's built-in Kotlin support. The explicit Kotlin runtime and Compose compiler are aligned at 2.4.21; KSP is 2.3.14. Do not reapply `org.jetbrains.kotlin.android` to the app. Configure Kotlin through `kotlin.compilerOptions`, rather than the removed `android.kotlinOptions` DSL. Dependabot groups the Android plugins and AndroidX libraries because their compatibility requirements must be reviewed together. Wrapper and CI SDK changes still need manual coordination. The higher compile SDK does not change the app's minimum or target SDK.
 
-Keep tooling updates within Kotlin's [published fully supported compatibility range](https://kotlinlang.org/docs/gradle-configure-project.html). Kotlin 2.4.21 lists Gradle through 9.7.0 and AGP through 9.3.1. The pending AGP 9.5.2 and Gradle 9.9.1 proposals exceed that range; retain the validated AGP 9.1.1 and use Gradle 9.7.0. Review those newer proposals again when the selected Kotlin release fully supports them. The serialization BOM is aligned at 1.13.0 for the app and Room's migration tests.
+Keep tooling updates within Kotlin's [published fully supported compatibility range](https://kotlinlang.org/docs/gradle-configure-project.html). Kotlin 2.4.21 lists Gradle through 9.7.0 and AGP through 9.3.1. AGP 9.5.2 and Gradle 9.9.1 exceed that range; retain the validated AGP 9.1.1 and use Gradle 9.7.0. Review those newer proposals again when the selected Kotlin release fully supports them. The serialization BOM is aligned at 1.13.0 for the app and Room's migration tests.
 
 From the repository root:
 
@@ -50,6 +50,19 @@ Instrumentation covers offline storage, migrations, navigation and layout. See t
 Open a successful full workflow run in GitHub Actions and download its debug APK artifact. The artifact's current name is defined in the workflow; extract the ZIP to obtain `app-debug.apk`. Artifacts are retained for 14 days, and downloading them may require GitHub sign-in. Draft PR source-check runs do not publish APKs.
 
 The APK is debug-signed for testing. A release for real users needs a separately configured, securely retained signing identity. No release signing keys are included in this repo.
+
+## Code ownership
+
+| Area | Owning code |
+| --- | --- |
+| App entry, preferences and routes | [MainActivity.kt](../app/src/main/java/com/selendang3/app/MainActivity.kt), [EstateApp.kt](../app/src/main/java/com/selendang3/app/ui/EstateApp.kt), [EstateAppState.kt](../app/src/main/java/com/selendang3/app/ui/EstateAppState.kt) and [navigation/](../app/src/main/java/com/selendang3/app/navigation/) |
+| Download, review and offline replacement | [EstateDataScreen.kt](../app/src/main/java/com/selendang3/app/EstateDataScreen.kt), [EstatePackage.kt](../app/src/main/java/com/selendang3/app/data/EstatePackage.kt) and [EstateUpdates.kt](../app/src/main/java/com/selendang3/app/data/EstateUpdates.kt) |
+| Overview source lookup | [OverviewValues.kt](../app/src/main/java/com/selendang3/app/data/OverviewValues.kt); shared by estate area, workforce, worker ratios and FFB costs |
+| Dashboard summaries | [HomeDashboardData.kt](../app/src/main/java/com/selendang3/app/data/HomeDashboardData.kt); operational cards and retained compact rows use `DashboardSummary` for period eligibility and calculations |
+| Detailed estate panels | [EstateDashboard.kt](../app/src/main/java/com/selendang3/app/EstateDashboard.kt), [EstateDashboardPanels.kt](../app/src/main/java/com/selendang3/app/EstateDashboardPanels.kt) and feature models in [data/](../app/src/main/java/com/selendang3/app/data/) |
+| Local database | [EstateDatabase.kt](../app/src/main/java/com/selendang3/app/data/EstateDatabase.kt); see the [migration guide](android-database.md) |
+
+Keep overview lookup separate from numeric parsing: each report owns its accepted number format, range and reporting-period rules. Estate-name lookup intentionally trims source labels; report lookup uses exact labels. Detailed panels may show historical periods while current summaries reject stale/future years. Preserve those differences when sharing helpers.
 
 ## Adapting the app
 
